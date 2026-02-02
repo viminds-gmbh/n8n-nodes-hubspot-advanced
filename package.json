@@ -1,0 +1,44 @@
+{
+  "name": "n8n-viminds-nodes",
+  "version": "1.0.0",
+  "description": "Viminds custom n8n nodes - Monorepo for HubSpot integration and custom triggers",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter n8n-nodes-viminds-hubspot dev",
+    "build": "pnpm --filter './packages/**' build",
+    "lint": "pnpm --filter './packages/**' lint",
+    "lint:fix": "pnpm --filter './packages/**' lint:fix",
+    "test": "pnpm --filter './packages/**' test",
+    "test:coverage": "pnpm --filter './packages/**' test:coverage",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "n8n",
+    "nodes",
+    "hubspot",
+    "viminds"
+  ],
+  "author": "Viminds",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^8.0.0",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

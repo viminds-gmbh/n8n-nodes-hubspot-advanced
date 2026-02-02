@@ -1,0 +1,44 @@
+image: node:18
+
+pipelines:
+  default:
+    - parallel:
+        - step:
+            name: Lint
+            script:
+              - pnpm install
+              - pnpm lint
+        - step:
+            name: Test
+            script:
+              - pnpm install
+              - pnpm test:coverage
+            artifacts:
+              - coverage/**
+        - step:
+            name: Build
+            script:
+              - pnpm install
+              - pnpm build
+            artifacts:
+              - packages/*/dist/**
+
+  branches:
+    main:
+      - step:
+          name: Release
+          script:
+            - pnpm install
+            - pnpm build
+            - echo "Release process would go here"
+          trigger: manual
+
+  tags:
+    '*':
+      - step:
+          name: Build and Push Docker Image
+          script:
+            - echo "Building Docker image for tag $BITBUCKET_TAG"
+            - echo "Docker build and push would go here"
+          services:
+            - docker
