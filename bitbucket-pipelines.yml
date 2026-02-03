@@ -26,19 +26,68 @@ pipelines:
   branches:
     main:
       - step:
-          name: Release
+          name: Deploy to Hetzner (Manual)
           script:
             - pnpm install
             - pnpm build
-            - echo "Release process would go here"
+
+            # Setup SSH
+            - mkdir -p ~/.ssh
+            - echo "$HETZNER_SSH_KEY" > ~/.ssh/id_rsa
+            - chmod 600 ~/.ssh/id_rsa
+            - ssh-keyscan $HETZNER_HOST >> ~/.ssh/known_hosts
+
+            # Create custom nodes directory on Hetzner
+            - ssh $HETZNER_USER@$HETZNER_HOST "mkdir -p /tmp/n8n-custom-nodes"
+
+            # Copy built files to Hetzner
+            - scp -r packages/n8n-nodes-viminds-hubspot/dist $HETZNER_USER@$HETZNER_HOST:/tmp/n8n-custom-nodes/hubspot
+            - scp -r packages/n8n-nodes-viminds-triggers/dist $HETZNER_USER@$HETZNER_HOST:/tmp/n8n-custom-nodes/triggers
+            - scp -r packages/n8n-nodes-viminds-common/dist $HETZNER_USER@$HETZNER_HOST:/tmp/n8n-custom-nodes/common
+
+            # Copy files into Docker container using docker cp
+            - ssh $HETZNER_USER@$HETZNER_HOST "docker cp /tmp/n8n-custom-nodes/hubspot n8n-viminds:/custom-nodes/"
+            - ssh $HETZNER_USER@$HETZNER_HOST "docker cp /tmp/n8n-custom-nodes/triggers n8n-viminds:/custom-nodes/"
+            - ssh $HETZNER_USER@$HETZNER_HOST "docker cp /tmp/n8n-custom-nodes/common n8n-viminds:/custom-nodes/"
+
+            # Restart container
+            - ssh $HETZNER_USER@$HETZNER_HOST "docker restart n8n-viminds"
+
+            # Cleanup
+            - ssh $HETZNER_USER@$HETZNER_HOST "rm -rf /tmp/n8n-custom-nodes"
           trigger: manual
 
   tags:
     '*':
       - step:
-          name: Build and Push Docker Image
+          name: Deploy to Hetzner
           script:
-            - echo "Building Docker image for tag $BITBUCKET_TAG"
-            - echo "Docker build and push would go here"
+            - pnpm install
+            - pnpm build
+
+            # Setup SSH
+            - mkdir -p ~/.ssh
+            - echo "$HETZNER_SSH_KEY" > ~/.ssh/id_rsa
+            - chmod 600 ~/.ssh/id_rsa
+            - ssh-keyscan $HETZNER_HOST >> ~/.ssh/known_hosts
+
+            # Create custom nodes directory on Hetzner
+            - ssh $HETZNER_USER@$HETZNER_HOST "mkdir -p /tmp/n8n-custom-nodes"
+
+            # Copy built files to Hetzner
+            - scp -r packages/n8n-nodes-viminds-hubspot/dist $HETZNER_USER@$HETZNER_HOST:/tmp/n8n-custom-nodes/hubspot
+            - scp -r packages/n8n-nodes-viminds-triggers/dist $HETZNER_USER@$HETZNER_HOST:/tmp/n8n-custom-nodes/triggers
+            - scp -r packages/n8n-nodes-viminds-common/dist $HETZNER_USER@$HETZNER_HOST:/tmp/n8n-custom-nodes/common
+
+            # Copy files into Docker container using docker cp
+            - ssh $HETZNER_USER@$HETZNER_HOST "docker cp /tmp/n8n-custom-nodes/hubspot n8n-viminds:/custom-nodes/"
+            - ssh $HETZNER_USER@$HETZNER_HOST "docker cp /tmp/n8n-custom-nodes/triggers n8n-viminds:/custom-nodes/"
+            - ssh $HETZNER_USER@$HETZNER_HOST "docker cp /tmp/n8n-custom-nodes/common n8n-viminds:/custom-nodes/"
+
+            # Restart container
+            - ssh $HETZNER_USER@$HETZNER_HOST "docker restart n8n-viminds"
+
+            # Cleanup
+            - ssh $HETZNER_USER@$HETZNER_HOST "rm -rf /tmp/n8n-custom-nodes"
           services:
             - docker
