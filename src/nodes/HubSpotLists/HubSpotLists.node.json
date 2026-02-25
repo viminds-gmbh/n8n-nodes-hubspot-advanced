@@ -1,0 +1,19 @@
+{
+	"node": "n8n-nodes-base.hubSpotLists",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing & Content"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.n8n.io/integrations/builtin/credentials/hubspot/"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://developers.hubspot.com/docs/api/crm/lists"
+			}
+		]
+	},
+	"alias": ["Lists", "List Members"]
+}

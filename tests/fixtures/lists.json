@@ -1,0 +1,85 @@
+{
+  "listResponse": {
+    "list": {
+      "listId": 12345,
+      "listVersion": 1,
+      "name": "Test Contact List",
+      "objectTypeId": "0-1",
+      "processingStatus": "COMPLETED",
+      "processingType": "DYNAMIC",
+      "createdAt": "2023-01-01T00:00:00Z",
+      "updatedAt": "2023-01-01T00:00:00Z",
+      "filtersUpdatedAt": "2023-01-01T00:00:00Z",
+      "deletedAt": null,
+      "createdById": 123,
+      "updatedById": 123
+    }
+  },
+  "membershipsResponse": {
+    "results": [
+      {
+        "membershipTimestamp": "2023-01-01T00:00:00Z",
+        "recordId": "1"
+      },
+      {
+        "membershipTimestamp": "2023-01-02T00:00:00Z",
+        "recordId": "2"
+      }
+    ],
+    "paging": {
+      "next": {
+        "after": "cursor123",
+        "link": "https://api.hubapi.com/crm/v3/lists/12345/memberships?after=cursor123"
+      }
+    }
+  },
+  "membershipsResponseNextPage": {
+    "results": [
+      {
+        "membershipTimestamp": "2023-01-03T00:00:00Z",
+        "recordId": "3"
+      }
+    ],
+    "paging": null
+  },
+  "batchReadResponse": {
+    "status": "COMPLETE",
+    "results": [
+      {
+        "id": "1",
+        "properties": {
+          "firstname": "John",
+          "lastname": "Doe",
+          "email": "john.doe@example.com"
+        },
+        "createdAt": "2023-01-01T00:00:00Z",
+        "updatedAt": "2023-01-01T00:00:00Z",
+        "archived": false
+      },
+      {
+        "id": "2",
+        "properties": {
+          "firstname": "Jane",
+          "lastname": "Smith",
+          "email": "jane.smith@example.com"
+        },
+        "createdAt": "2023-01-02T00:00:00Z",
+        "updatedAt": "2023-01-02T00:00:00Z",
+        "archived": false
+      },
+      {
+        "id": "3",
+        "properties": {
+          "firstname": "Bob",
+          "lastname": "Johnson",
+          "email": "bob.johnson@example.com"
+        },
+        "createdAt": "2023-01-03T00:00:00Z",
+        "updatedAt": "2023-01-03T00:00:00Z",
+        "archived": false
+      }
+    ],
+    "startedAt": "2023-01-01T00:00:00Z",
+    "completedAt": "2023-01-01T00:00:01Z"
+  }
+}

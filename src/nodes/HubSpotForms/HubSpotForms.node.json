@@ -1,0 +1,19 @@
+{
+	"node": "n8n-nodes-base.hubSpotForms",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing & Content"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.n8n.io/integrations/builtin/credentials/hubspot/"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://developers.hubspot.com/docs/api/marketing/forms"
+			}
+		]
+	},
+	"alias": ["Forms", "Submissions"]
+}

@@ -1,99 +1,283 @@
-# Viminds n8n Custom Nodes
+# n8n-nodes-hubspot-advanced
 
-Custom n8n nodes for HubSpot integration and custom triggers, built with TDD approach.
+[![npm version](https://badge.fury.io/js/n8n-nodes-hubspot-advanced.svg)](https://www.npmjs.com/package/n8n-nodes-hubspot-advanced)
+[![Test](https://github.com/yourusername/n8n-nodes-hubspot-advanced/actions/workflows/test.yml/badge.svg)](https://github.com/yourusername/n8n-nodes-hubspot-advanced/actions/workflows/test.yml)
 
-## Packages
+Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations, and association hydration.
 
-### n8n-nodes-viminds-common
-Common utilities and types shared across all Viminds nodes.
+## Features
 
-### n8n-nodes-viminds-hubspot
-HubSpot-specific nodes:
-- Get Deal Associations
-- Upload File
+- ✅ **Intelligent Rate Limiting** – Respects HubSpot API limits with adaptive throttling
+- ✅ **Batch Operations** – Efficient bulk reads using HubSpot's batch APIs
+- ✅ **Association Hydration** – Fetch full associated objects in a single workflow step
+- ✅ **Multi-API Version Support** – v1, v3, v3-legacy, and v4 endpoints
+- ✅ **Type-Safe** – Full TypeScript implementation
+- ✅ **Test-Driven** – Comprehensive test coverage
 
-### n8n-nodes-viminds-triggers
-Trigger nodes for event-based workflows:
-- HubSpot Trigger
+## Installation
+
+### Community Nodes (Recommended)
+
+1. Open n8n
+2. Go to **Settings** → **Community Nodes**
+3. Search for `n8n-nodes-hubspot-advanced`
+4. Click **Install**
+
+### Manual Installation
+
+```bash
+npm install n8n-nodes-hubspot-advanced
+```
+
+For self-hosted n8n, add to your `package.json` and rebuild.
+
+## Nodes
+
+### 1. HubSpot CRM
+
+Advanced CRM operations with search, filtering, and batch support.
+
+**Operations:**
+- Get single object
+- Get many objects (batch)
+- Search with filters and sorting
+- Create object
+- Update object
+- Delete object
+
+**Key Features:**
+- Custom property selection
+- Advanced filtering (EQ, NEQ, LT, GT, CONTAINS, etc.)
+- Sorting by any property
+- Auto-pagination for large result sets
+
+**Example Workflow:**
+```
+[HubSpot CRM]
+  Operation: Search
+  Object Type: Contacts
+  Filters: email CONTAINS "@acme.com"
+  Properties: firstname,lastname,email,company
+  Sort: createdate DESC
+  Limit: 100
+```
+
+### 2. HubSpot Associations
+
+Read and enrich object associations with optional hydration.
+
+**Operations:**
+- Get Associations (IDs only)
+- **Hydrate Associations** (full objects) ⭐
+- Create Association
+- Delete Association
+
+**Hydrate Example:**
+```
+[HubSpot CRM: Search Contacts] → 500 contacts
+        ↓
+[HubSpot Associations: Hydrate]
+  From: contacts
+  To: companies
+  Properties: name,domain,industry
+        ↓
+Output: 500 contacts with full company objects embedded
+API Calls: ~4 (instead of 500!)
+```
+
+### 3. HubSpot Forms
+
+Work with HubSpot forms and submissions.
+
+**Operations:**
+- Get Forms (v3)
+- Get Submissions (v1 API)
+- Submit Form (v3-legacy)
+
+### 4. HubSpot Object Schema
+
+Retrieve metadata about object types and properties.
+
+**Operations:**
+- Get Object Types
+- Get Properties for an object type
+
+## Rate Limiting
+
+**Adaptive, response-based rate limiting** – works reliably even in n8n Queue Mode with multiple workers.
+
+### How it works:
+
+1. **No pre-counting** – doesn't track requests locally (unreliable in multi-worker setups)
+2. **Response-header-based** – reads `X-HubSpot-RateLimit-*` headers from every response
+3. **Adaptive throttling** – automatically slows down when `Remaining` gets low
+4. **429 handling** – exponential backoff + jitter + Retry-After header support
+5. **Global coordination** – all nodes in the same worker process share pause state via `globalThis` singleton
+6. **Concurrent-safe** – when 11 requests hit simultaneously, they queue up cleanly
+
+### What happens when you hit limits:
+
+```
+Request 1-10: ✅ Success (remaining: 90)
+Request 11:   ❌ 429 Rate Limited
+  → All nodes pause for 10s (exponential backoff)
+  → Retry automatically (up to 5 attempts)
+  → Success on retry
+```
+
+**No configuration needed** – the limiter adapts automatically to your HubSpot tier.
+
+## Authentication
+
+Uses existing n8n HubSpot credentials:
+
+1. **App Token** (recommended for private apps)
+   - Create a private app in HubSpot
+   - Copy the access token
+   - Add as credential in n8n
+
+2. **OAuth2** (for public apps)
+   - Configure OAuth app in HubSpot
+   - Use n8n's OAuth2 flow
 
 ## Development
 
-### Prerequisites
-- Node.js >= 18
-- pnpm >= 8
-
 ### Setup
+
 ```bash
-pnpm install
+git clone https://github.com/yourusername/n8n-nodes-hubspot-advanced.git
+cd n8n-nodes-hubspot-advanced
+npm install
 ```
 
-### Development
+### Scripts
+
 ```bash
-# Watch mode for development
-pnpm dev
-
-# Run tests
-pnpm test
-
-# Run tests with coverage
-pnpm test:coverage
-
-# Lint code
-pnpm lint
-
-# Fix linting issues
-pnpm lint:fix
-
-# Build for production
-pnpm build
+npm run dev              # Watch mode (TypeScript)
+npm run build            # Build for production
+npm test                 # Run tests
+npm run test:watch       # Test watch mode
+npm run test:coverage    # Coverage report
+npm run lint             # Lint code
+npm run lint:fix         # Fix linting issues
 ```
 
-## Testing
+### Lokales Testen in n8n
 
-Tests are written using Jest with 80% minimum coverage.
+**Quick Start:**
 
 ```bash
-# Run all tests
-pnpm test
-
-# Run tests for specific package
-pnpm --filter n8n-nodes-viminds-hubspot test
-```
-
-## Deployment
-
-### Local Development
-Use `npm link` for local development:
-```bash
-pnpm build
-cd packages/n8n-nodes-viminds-hubspot
+# 1. Package bauen und verlinken
+npm run build
 npm link
+
+# 2. In n8n verlinken
+mkdir -p ~/.n8n/nodes
+cd ~/.n8n/nodes
+npm init -y
+npm link n8n-nodes-hubspot-advanced
+
+# 3. n8n starten
+n8n start
 ```
 
-### Docker Deployment
-Docker image can be built and deployed to Hetzner:
+**Bei Änderungen:**
+
 ```bash
-docker build -t viminds/n8n-custom-nodes .
-docker push viminds/n8n-custom-nodes
+# Rebuild
+npm run build
+
+# n8n neu starten (Strg+C, dann:)
+n8n start
 ```
 
-## CI/CD
+**Detaillierte Anleitung:** Siehe `.windsurf/workflows/local-testing.md`
 
-Bitbucket Pipelines are configured for:
-- Linting
-- Testing with coverage
-- Building
-- Releasing
+### Testing Rate Limiter
 
-## HubSpot API
+Um das Rate Limiting zu testen:
 
-All nodes use API Key authentication with built-in rate limiting.
+1. Erstelle einen Workflow mit 11+ parallelen HubSpot-Requests
+2. Verwende einen Free-Tier HubSpot Account (100 req/10s)
+3. Beobachte die Logs für Backoff-Meldungen
+4. Erwartetes Verhalten:
+   - Requests 1-10: Sofort durchgelassen
+   - Request 11+: Pause → Retry → Erfolg
 
-### Rate Limits
-- Burst limit: 100 requests per 10 seconds
-- Automatic retry with exponential backoff
-- Error handling for 429 responses
+### Project Structure
+
+```
+src/
+├── nodes/
+│   ├── HubSpotCrm/              # Main CRM node
+│   ├── HubSpotAssociations/     # Associations with hydration
+│   ├── HubSpotForms/            # Forms API
+│   └── HubSpotObjectSchema/     # Schema metadata
+├── transport/
+│   ├── RateLimiter.ts           # Adaptive rate limiting
+│   └── HubSpotApiRequest.ts     # API wrapper
+└── types.ts                     # Shared TypeScript types
+
+tests/
+├── unit/                        # Unit tests
+├── integration/                 # Integration tests
+└── fixtures/                    # Test data
+```
+
+## API Version Support
+
+| Feature | API Version | Node |
+|---|---|---|
+| CRM Objects (CRUD) | v3 | HubSpot CRM |
+| Search | v3 | HubSpot CRM |
+| Associations | v4 | HubSpot Associations |
+| Batch Read | v3 | All nodes |
+| Forms List | v3 | HubSpot Forms |
+| Form Submissions | v1 (legacy) | HubSpot Forms |
+| Submit Form | v3-legacy | HubSpot Forms |
+| Object Schema | v3 | HubSpot Object Schema |
+
+## Roadmap
+
+- [x] Response-based Rate Limiting mit globalThis-Singleton
+- [x] 429-Handling mit Exponential Backoff + Jitter
+- [x] Retry-After Header Support
+- [x] Comprehensive Test Suite (23 Tests)
+- [ ] OAuth2 support
+- [ ] Webhook triggers
+- [ ] Custom object support
+- [ ] Association labels
+- [ ] Batch operations UI
+- [ ] Advanced filtering
+- [ ] Workflow enrollment
+- [ ] Property history retrieval
+
+## Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Write tests for your changes
+4. Ensure tests pass (`pnpm test`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ## License
 
 MIT
+
+## Support
+
+- [GitHub Issues](https://github.com/yourusername/n8n-nodes-hubspot-advanced/issues)
+- [n8n Community](https://community.n8n.io/)
+- [HubSpot API Docs](https://developers.hubspot.com/docs/api/overview)
+
+## Credits
+
+Built with ❤️ for the n8n community.
+
+---
+
+**Note:** This is a community node. It is not officially maintained by n8n or HubSpot.

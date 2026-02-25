@@ -1,0 +1,378 @@
+import type {
+	IExecuteFunctions,
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
+	ILoadOptionsFunctions,
+	INodePropertyOptions,
+} from 'n8n-workflow';
+
+import { hubspotApiRequest, hubspotBatchRequest, hubspotApiRequestForLoadOptions } from '../../transport/HubSpotApiRequest';
+import { HUBSPOT_OBJECT_TYPE_OPTIONS } from '../../types';
+
+export class HubSpotAssociations implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'HubSpot Associations',
+		name: 'hubSpotAssociations',
+		icon: 'file:../../icon.svg',
+		group: ['transform'],
+		version: 1,
+		subtitle: '={{$parameter["operation"]}}',
+		description: 'Manage HubSpot object associations',
+		defaults: {
+			name: 'HubSpot Associations',
+		},
+		inputs: ['main'],
+		outputs: ['main'],
+		credentials: [
+			{
+				name: 'hubspotAppToken',
+				required: true,
+			},
+		],
+		properties: [
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'Get Associations',
+						value: 'getAssociations',
+						description: 'Get associated object IDs',
+					},
+					{
+						name: 'Hydrate Associations',
+						value: 'hydrateAssociations',
+						description: 'Get full associated objects with properties',
+					},
+					{
+						name: 'Create Association',
+						value: 'createAssociation',
+						description: 'Associate two objects',
+					},
+					{
+						name: 'Delete Association',
+						value: 'deleteAssociation',
+						description: 'Remove association between objects',
+					},
+				],
+				default: 'hydrateAssociations',
+				required: true,
+			},
+			{
+				displayName: 'From Object Type',
+				name: 'fromObjectType',
+				type: 'options',
+				options: [...HUBSPOT_OBJECT_TYPE_OPTIONS],
+				default: 'contacts',
+				required: true,
+			},
+			{
+				displayName: 'Custom From Object Type',
+				name: 'customFromObjectType',
+				type: 'string',
+				default: '',
+				required: true,
+				placeholder: 'e.g. cars or 2-12345',
+				description: 'The name or ID of the custom object type',
+				displayOptions: {
+					show: {
+						fromObjectType: ['custom'],
+					},
+				},
+			},
+			{
+				displayName: 'To Object Type',
+				name: 'toObjectType',
+				type: 'options',
+				options: [...HUBSPOT_OBJECT_TYPE_OPTIONS],
+				default: 'companies',
+				required: true,
+			},
+			{
+				displayName: 'Custom To Object Type',
+				name: 'customToObjectType',
+				type: 'string',
+				default: '',
+				required: true,
+				placeholder: 'e.g. cars or 2-12345',
+				description: 'The name or ID of the custom object type',
+				displayOptions: {
+					show: {
+						toObjectType: ['custom'],
+					},
+				},
+			},
+			{
+				displayName: 'ID Field',
+				name: 'idField',
+				type: 'string',
+				default: 'id',
+				description: 'Field name in input items containing the object ID',
+				displayOptions: {
+					show: {
+						operation: ['getAssociations', 'hydrateAssociations'],
+					},
+				},
+			},
+			{
+				displayName: 'Properties',
+				name: 'properties',
+				type: 'multiOptions',
+				typeOptions: {
+					loadOptionsMethod: 'getProperties',
+				},
+				default: '',
+				placeholder: 'name,domain,industry',
+				description: 'Comma-separated list of properties to return for associated objects',
+				displayOptions: {
+					show: {
+						operation: ['hydrateAssociations'],
+					},
+				},
+			},
+			{
+				displayName: 'Output Field',
+				name: 'outputField',
+				type: 'string',
+				default: 'associations',
+				description: 'Field name to store the associations in the output',
+				displayOptions: {
+					show: {
+						operation: ['getAssociations', 'hydrateAssociations'],
+					},
+				},
+			},
+			{
+				displayName: 'From Object ID',
+				name: 'fromObjectId',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['createAssociation', 'deleteAssociation'],
+					},
+				},
+			},
+			{
+				displayName: 'To Object ID',
+				name: 'toObjectId',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['createAssociation', 'deleteAssociation'],
+					},
+				},
+			},
+		],
+	};
+
+	methods = {
+		loadOptions: {
+			async getProperties(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const { PropertyCache } = await import('../../transport/PropertyCache');
+
+				const toObjectTypeRaw = this.getCurrentNodeParameter('toObjectType') as string;
+				const toObjectType = toObjectTypeRaw === 'custom'
+					? this.getCurrentNodeParameter('customToObjectType') as string
+					: toObjectTypeRaw;
+
+				// Get credential ID for cache isolation
+				const credentials = await this.getCredentials('hubspotAppToken');
+				const credentialId = (credentials.appToken as string).slice(-8); // Use last 8 chars as ID
+
+				const cache = PropertyCache.getInstance();
+				const cached = cache.get(toObjectType, credentialId);
+				if (cached) {
+					return cached;
+				}
+
+				const response = await hubspotApiRequestForLoadOptions.call(
+					this,
+					'GET',
+					`/crm/v3/properties/${toObjectType}`,
+				);
+
+				const options: INodePropertyOptions[] = [];
+				if (response.results) {
+					for (const property of response.results) {
+						options.push({
+							name: property.label || property.name,
+							value: property.name,
+						});
+					}
+				}
+
+				cache.set(toObjectType, options, credentialId);
+				return options;
+			},
+		},
+	};
+
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		const items = this.getInputData();
+		const returnData: INodeExecutionData[] = [];
+
+		const operation = this.getNodeParameter('operation', 0) as string;
+		const fromObjectTypeRaw = this.getNodeParameter('fromObjectType', 0) as string;
+		const fromObjectType = fromObjectTypeRaw === 'custom'
+			? (this.getNodeParameter('customFromObjectType', 0) as string)
+			: fromObjectTypeRaw;
+		const toObjectTypeRaw = this.getNodeParameter('toObjectType', 0) as string;
+		const toObjectType = toObjectTypeRaw === 'custom'
+			? (this.getNodeParameter('customToObjectType', 0) as string)
+			: toObjectTypeRaw;
+
+		if (operation === 'getAssociations' || operation === 'hydrateAssociations') {
+			const idField = this.getNodeParameter('idField', 0) as string;
+			const outputField = this.getNodeParameter('outputField', 0) as string;
+
+			const objectIds = items
+				.map((item) => item.json[idField] as string)
+				.filter((id) => id);
+
+			if (objectIds.length === 0) {
+				throw new Error(`No valid IDs found in field "${idField}"`);
+			}
+
+			const batchSize = 1000;
+			const allAssociations: any[] = [];
+
+			for (let i = 0; i < objectIds.length; i += batchSize) {
+				const batch = objectIds.slice(i, i + batchSize);
+
+				const body = {
+					inputs: batch.map((id) => ({ id })),
+				};
+
+				const response = await hubspotApiRequest.call(
+					this,
+					'POST',
+					`/crm/v4/associations/${fromObjectType}/${toObjectType}/batch/read`,
+					body,
+				);
+
+				if (response.results) {
+					allAssociations.push(...response.results);
+				}
+			}
+
+			const associationMap = new Map<string, any[]>();
+			allAssociations.forEach((assoc) => {
+				const fromId = assoc.from.id;
+				if (!associationMap.has(fromId)) {
+					associationMap.set(fromId, []);
+				}
+				associationMap.get(fromId)!.push(...assoc.to);
+			});
+
+			if (operation === 'hydrateAssociations') {
+				const properties = this.getNodeParameter('properties', 0, []) as string[] | string;
+				const propertyList = Array.isArray(properties) ? properties : (properties ? properties.split(',').map((p) => p.trim()) : []);
+
+				const uniqueToIds = new Set<string>();
+				allAssociations.forEach((assoc) => {
+					assoc.to.forEach((toObj: any) => {
+						uniqueToIds.add(toObj.toObjectId.toString());
+					});
+				});
+
+				const toIdsArray = Array.from(uniqueToIds);
+				const hydratedObjects = await hubspotBatchRequest.call(
+					this,
+					toObjectType,
+					toIdsArray,
+					propertyList,
+				);
+
+				const objectMap = new Map<string, any>();
+				hydratedObjects.forEach((obj) => {
+					objectMap.set(obj.id, obj);
+				});
+
+				items.forEach((item, index) => {
+					const objectId = item.json[idField] as string;
+					const associations = associationMap.get(objectId) || [];
+
+					const enrichedAssociations = associations.map((assoc) => {
+						const toId = assoc.toObjectId.toString();
+						const fullObject = objectMap.get(toId);
+						return {
+							id: toId,
+							associationTypes: assoc.associationTypes,
+							object: fullObject || null,
+						};
+					});
+
+					returnData.push({
+						json: {
+							...item.json,
+							[outputField]: enrichedAssociations,
+						},
+						pairedItem: { item: index },
+					});
+				});
+			} else {
+				items.forEach((item, index) => {
+					const objectId = item.json[idField] as string;
+					const associations = associationMap.get(objectId) || [];
+
+					returnData.push({
+						json: {
+							...item.json,
+							[outputField]: associations,
+						},
+						pairedItem: { item: index },
+					});
+				});
+			}
+		} else if (operation === 'createAssociation') {
+			for (let i = 0; i < items.length; i++) {
+				const fromObjectId = this.getNodeParameter('fromObjectId', i) as string;
+				const toObjectId = this.getNodeParameter('toObjectId', i) as string;
+
+				await hubspotApiRequest.call(
+					this,
+					'PUT',
+					`/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`,
+				);
+
+				returnData.push({
+					json: {
+						success: true,
+						from: { type: fromObjectType, id: fromObjectId },
+						to: { type: toObjectType, id: toObjectId },
+					},
+					pairedItem: { item: i },
+				});
+			}
+		} else if (operation === 'deleteAssociation') {
+			for (let i = 0; i < items.length; i++) {
+				const fromObjectId = this.getNodeParameter('fromObjectId', i) as string;
+				const toObjectId = this.getNodeParameter('toObjectId', i) as string;
+
+				await hubspotApiRequest.call(
+					this,
+					'DELETE',
+					`/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`,
+				);
+
+				returnData.push({
+					json: {
+						success: true,
+						from: { type: fromObjectType, id: fromObjectId },
+						to: { type: toObjectType, id: toObjectId },
+					},
+					pairedItem: { item: i },
+				});
+			}
+		}
+
+		return [returnData];
+	}
+}

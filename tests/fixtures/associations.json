@@ -1,0 +1,49 @@
+{
+	"status": "COMPLETE",
+	"results": [
+		{
+			"from": {
+				"id": "1001"
+			},
+			"to": [
+				{
+					"toObjectId": 2001,
+					"associationTypes": [
+						{
+							"category": "HUBSPOT_DEFINED",
+							"typeId": 1,
+							"label": "Primary"
+						}
+					]
+				},
+				{
+					"toObjectId": 2002,
+					"associationTypes": [
+						{
+							"category": "USER_DEFINED",
+							"typeId": 28,
+							"label": "Decision Maker"
+						}
+					]
+				}
+			]
+		},
+		{
+			"from": {
+				"id": "1002"
+			},
+			"to": [
+				{
+					"toObjectId": 2001,
+					"associationTypes": [
+						{
+							"category": "HUBSPOT_DEFINED",
+							"typeId": 1,
+							"label": "Primary"
+						}
+					]
+				}
+			]
+		}
+	]
+}

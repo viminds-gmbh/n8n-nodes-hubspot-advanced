@@ -1,0 +1,33 @@
+{
+	"results": [
+		{
+			"id": "1001",
+			"properties": {
+				"firstname": "John",
+				"lastname": "Doe",
+				"email": "john.doe@example.com",
+				"createdate": "2024-01-15T10:30:00Z"
+			},
+			"createdAt": "2024-01-15T10:30:00Z",
+			"updatedAt": "2024-01-20T14:45:00Z",
+			"archived": false
+		},
+		{
+			"id": "1002",
+			"properties": {
+				"firstname": "Jane",
+				"lastname": "Smith",
+				"email": "jane.smith@example.com",
+				"createdate": "2024-01-16T11:00:00Z"
+			},
+			"createdAt": "2024-01-16T11:00:00Z",
+			"updatedAt": "2024-01-21T09:15:00Z",
+			"archived": false
+		}
+	],
+	"paging": {
+		"next": {
+			"after": "1002"
+		}
+	}
+}
