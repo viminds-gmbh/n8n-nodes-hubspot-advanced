@@ -14,10 +14,6 @@
   "bugs": {
     "email": "support@viminds.de"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yourusername/n8n-nodes-hubspot-advanced.git"
-  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
