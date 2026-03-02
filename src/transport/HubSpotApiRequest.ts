@@ -4,7 +4,6 @@ import type {
 	IHttpRequestOptions,
 	IHttpRequestMethods,
 	ILoadOptionsFunctions,
-	INodePropertyOptions,
 } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { HubSpotRateLimiter } from './RateLimiter';

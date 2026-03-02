@@ -329,13 +329,12 @@ export class HubSpotForms implements INodeType {
 					const includeConsent = this.getNodeParameter('includeConsent', i, false) as boolean;
 
 					// Auto-fetch portalId from account details (cache within execution)
-					let portalId: string;
 					const accountDetailsResponse = await hubspotApiRequest.call(
 						this,
 						'GET',
 						'/account-info/v3/details',
 					);
-					portalId = accountDetailsResponse.portalId.toString();
+					const portalId = accountDetailsResponse.portalId.toString();
 
 					const fields: any[] = [];
 					if (fieldsData.field) {
