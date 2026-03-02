@@ -123,6 +123,7 @@ export class HubSpotAssociations implements INodeType {
 				type: 'multiOptions',
 				typeOptions: {
 					loadOptionsMethod: 'getProperties',
+					loadOptionsDependsOn: ['toObjectType', 'customToObjectType'],
 				},
 				default: '',
 				placeholder: 'name,domain,industry',
