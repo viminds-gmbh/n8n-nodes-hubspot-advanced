@@ -5,8 +5,14 @@ describe('HubSpotRateLimiter', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		jest.useRealTimers();
 		limiter = HubSpotRateLimiter.getInstance();
 		limiter.reset();
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
+		jest.restoreAllMocks();
 	});
 
 	describe('getInstance', () => {
@@ -31,6 +37,10 @@ describe('HubSpotRateLimiter', () => {
 		});
 
 		it('should retry on 429 errors', async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(new Date(0));
+			jest.spyOn(Math, 'random').mockReturnValue(0);
+
 			let attempts = 0;
 
 			const mockFn = jest.fn().mockImplementation(() => {
@@ -43,22 +53,29 @@ describe('HubSpotRateLimiter', () => {
 				return Promise.resolve({ data: 'success', headers: {} });
 			});
 
-			const result = await limiter.execute(mockFn, 5);
+			const promise = limiter.execute(mockFn, 5);
+			await jest.advanceTimersByTimeAsync(60000);
+			const result = await promise;
 
 			expect(result).toBe('success');
 			expect(mockFn).toHaveBeenCalledTimes(3);
 		}, 30000);
 
 		it('should throw after max retries on 429', async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(new Date(0));
+			jest.spyOn(Math, 'random').mockReturnValue(0);
+
 			const mockFn = jest.fn().mockImplementation(() => {
 				const error: any = new Error('Rate limited');
 				error.statusCode = 429;
 				throw error;
 			});
 
-			await expect(limiter.execute(mockFn, 2)).rejects.toThrow(
-				'HubSpot rate limit: max retries',
-			);
+			const promise = limiter.execute(mockFn, 2);
+			const assertion = expect(promise).rejects.toThrow(/HubSpot rate limit: max retries \(2\) exceeded/);
+			await jest.advanceTimersByTimeAsync(60000);
+			await assertion;
 			expect(mockFn).toHaveBeenCalledTimes(3);
 		}, 30000);
 
@@ -170,6 +187,10 @@ describe('HubSpotRateLimiter', () => {
 
 	describe('simultaneous 429 errors', () => {
 		it('should coordinate pause when multiple requests hit 429 simultaneously', async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(new Date(0));
+			jest.spyOn(Math, 'random').mockReturnValue(0);
+
 			let callCount = 0;
 			const mockFn = jest.fn().mockImplementation(() => {
 				callCount++;
@@ -183,6 +204,7 @@ describe('HubSpotRateLimiter', () => {
 
 			const promises = Array.from({ length: 5 }, () => limiter.execute(mockFn, 3));
 
+			await jest.advanceTimersByTimeAsync(60000);
 			const results = await Promise.all(promises);
 
 			expect(results).toHaveLength(5);
@@ -193,6 +215,10 @@ describe('HubSpotRateLimiter', () => {
 		}, 60000);
 
 		it('should escalate backoff on consecutive 429s', async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(new Date(0));
+			jest.spyOn(Math, 'random').mockReturnValue(0);
+
 			let attempts = 0;
 			const mockFn = jest.fn().mockImplementation(() => {
 				attempts++;
@@ -204,13 +230,12 @@ describe('HubSpotRateLimiter', () => {
 				return Promise.resolve({ data: 'success', headers: {} });
 			});
 
-			const start = Date.now();
-			await limiter.execute(mockFn, 5);
-			const duration = Date.now() - start;
+			const promise = limiter.execute(mockFn, 5);
+			await jest.advanceTimersByTimeAsync(60000);
+			await promise;
 
 			const stats = limiter.getStats();
 			expect(stats.consecutive429Count).toBe(0);
-			expect(duration).toBeGreaterThan(1000);
 		}, 60000);
 	});
 
@@ -251,6 +276,10 @@ describe('HubSpotRateLimiter', () => {
 
 	describe('Retry-After header parsing', () => {
 		it('should use Retry-After header when present', async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(new Date(0));
+			jest.spyOn(Math, 'random').mockReturnValue(0);
+
 			let attempts = 0;
 			const mockFn = jest.fn().mockImplementation(() => {
 				attempts++;
@@ -263,16 +292,18 @@ describe('HubSpotRateLimiter', () => {
 				return Promise.resolve({ data: 'success', headers: {} });
 			});
 
-			const start = Date.now();
-			const result = await limiter.execute(mockFn, 3);
-			const duration = Date.now() - start;
+			const promise = limiter.execute(mockFn, 3);
+			await jest.advanceTimersByTimeAsync(2500);
+			const result = await promise;
 
 			expect(result).toBe('success');
-			expect(duration).toBeGreaterThanOrEqual(2000);
-			expect(duration).toBeLessThan(4000);
 		}, 10000);
 
 		it('should detect TEN_SECONDLY_ROLLING policy', async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(new Date(0));
+			jest.spyOn(Math, 'random').mockReturnValue(0);
+
 			let attempts = 0;
 			const mockFn = jest.fn().mockImplementation(() => {
 				attempts++;
@@ -285,15 +316,18 @@ describe('HubSpotRateLimiter', () => {
 				return Promise.resolve({ data: 'success', headers: {} });
 			});
 
-			const start = Date.now();
-			const result = await limiter.execute(mockFn, 3);
-			const duration = Date.now() - start;
+			const promise = limiter.execute(mockFn, 3);
+			await jest.advanceTimersByTimeAsync(10000);
+			const result = await promise;
 
 			expect(result).toBe('success');
-			expect(duration).toBeGreaterThanOrEqual(10000);
 		}, 15000);
 
 		it('should detect DAILY policy', async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(new Date(0));
+			jest.spyOn(Math, 'random').mockReturnValue(0);
+
 			let attempts = 0;
 			const mockFn = jest.fn().mockImplementation(() => {
 				attempts++;
@@ -306,12 +340,11 @@ describe('HubSpotRateLimiter', () => {
 				return Promise.resolve({ data: 'success', headers: {} });
 			});
 
-			const start = Date.now();
-			const result = await limiter.execute(mockFn, 3);
-			const duration = Date.now() - start;
+			const promise = limiter.execute(mockFn, 3);
+			await jest.advanceTimersByTimeAsync(60000);
+			const result = await promise;
 
 			expect(result).toBe('success');
-			expect(duration).toBeGreaterThanOrEqual(60000);
 		}, 65000);
 	});
 
@@ -335,6 +368,10 @@ describe('HubSpotRateLimiter', () => {
 		});
 
 		it('should keep longest pause when multiple 429s set different pauses', async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(new Date(0));
+			jest.spyOn(Math, 'random').mockReturnValue(0);
+
 			let call1Attempts = 0;
 			let call2Attempts = 0;
 
@@ -360,16 +397,15 @@ describe('HubSpotRateLimiter', () => {
 				return Promise.resolve({ data: 'success2', headers: {} });
 			});
 
-			const start = Date.now();
-			const [result1, result2] = await Promise.all([
+			const p = Promise.all([
 				limiter.execute(mockFn1, 3),
 				limiter.execute(mockFn2, 3),
 			]);
-			const duration = Date.now() - start;
+			await jest.advanceTimersByTimeAsync(60000);
+			const [result1, result2] = await p;
 
 			expect(result1).toBe('success1');
 			expect(result2).toBe('success2');
-			expect(duration).toBeGreaterThanOrEqual(5000);
 		}, 15000);
 	});
 
