@@ -7,4 +7,5 @@ coverage/
 .env.local
 *.tsbuildinfo
 .vscode/
-.idea/
+.idea
+.windsurf

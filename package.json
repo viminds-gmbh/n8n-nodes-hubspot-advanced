@@ -6,16 +6,26 @@
     "n8n-community-node-package"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/yourusername/n8n-nodes-hubspot-advanced",
+  "homepage": "https://viminds.de",
   "author": {
-    "name": "Your Name",
-    "email": "your.email@example.com"
+    "name": "viminds GmbH",
+    "email": "support@viminds.de"
+  },
+  "bugs": {
+    "email": "support@viminds.de"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yourusername/n8n-nodes-hubspot-advanced.git"
   },
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc && npm run copy:icons",
     "copy:icons": "copyfiles -u 1 \"src/**/*.{png,svg}\" dist/ && copyfiles \"icon.svg\" dist/",
