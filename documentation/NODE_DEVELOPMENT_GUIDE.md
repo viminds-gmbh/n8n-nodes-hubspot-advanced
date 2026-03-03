@@ -652,6 +652,154 @@ Jeder neue Knoten muss in `package.json` unter `n8n.nodes` registriert werden:
 
 ---
 
+## Field Descriptions & Placeholders
+
+### Zweck
+
+Jedes Feld in einem Knoten sollte eine `description` und, wo sinnvoll, einen `placeholder` haben, um die Benutzerfreundlichkeit zu maximieren. Dies ermöglicht es Benutzern, die Funktionalität zu verstehen, ohne externe Dokumentation konsultieren zu müssen.
+
+### Sprachrichtlinie
+
+**Alle `description` und `placeholder` Texte müssen auf Englisch verfasst werden**, da die Nodes weltweit verfügbar sind. Die Guidelines selbst bleiben auf Deutsch, da das Projekt nur intern entwickelt wird.
+
+### Description – Best Practices
+
+#### Format
+- **Kurz und präzise:** Maximal 1-2 Sätze
+- **Aktionsorientiert:** Erklärt, was das Feld tut oder bewirkt
+- **Beispiele einbinden:** Wo hilfreich, konkrete Beispiele nennen (z.B. "e.g., 'email', 'firstname'")
+- **API-Links:** Bei komplexeren Konzepten Link zur HubSpot-Dokumentation einfügen
+
+#### Beispiele
+
+**Gut:**
+```typescript
+{
+  displayName: 'Object ID',
+  name: 'objectId',
+  type: 'string',
+  description: 'The unique ID of the object to retrieve, update, or delete. You can use expressions to reference IDs from previous nodes.',
+}
+```
+
+**Gut mit API-Link:**
+```typescript
+{
+  displayName: 'Properties',
+  name: 'properties',
+  type: 'multiOptions',
+  description: 'Properties to return in the response. Leave empty to return all properties. <a href="https://developers.hubspot.com/docs/api/crm/properties" target="_blank">Learn more</a>.',
+}
+```
+
+**Gut mit Beispielen:**
+```typescript
+{
+  displayName: 'Property Name',
+  name: 'propertyName',
+  type: 'string',
+  description: 'The internal name of the property to filter by (e.g., "email", "firstname", "createdate").',
+}
+```
+
+**Schlecht (zu technisch):**
+```typescript
+description: 'Object identifier for CRM entity retrieval via REST API endpoint',
+```
+
+**Schlecht (zu vage):**
+```typescript
+description: 'The property name',
+```
+
+#### Wann keine Description nötig ist
+
+Bei sehr offensichtlichen Feldern kann die `description` weggelassen werden:
+- `Operation` (wenn die Options bereits `description` haben)
+- Einfache Toggles mit klarem `displayName` (z.B. "Return All")
+
+### Placeholder – Best Practices
+
+#### Format
+- **Konkrete Beispiele:** Zeigt das erwartete Format
+- **Realistisch:** Verwendet echte, plausible Beispielwerte
+- **Kurz:** Maximal 3-4 Wörter oder ein kurzer Wert
+- **Keine Anweisungen:** Nicht "Enter value here", sondern ein Beispielwert
+
+#### Beispiele
+
+**Gut:**
+```typescript
+placeholder: '12345678'  // für Object ID
+placeholder: 'email'  // für Property Name
+placeholder: 'https://example.com/contact'  // für Page URI
+placeholder: 'I agree to receive emails'  // für Consent Text
+placeholder: 'firstname,lastname,email'  // für Properties (comma-separated)
+```
+
+**Schlecht:**
+```typescript
+placeholder: 'Enter value here'  // zu generisch
+placeholder: 'The ID of the object you want to work with'  // zu lang, ist eine Description
+placeholder: 'id'  // zu kurz, wenn ein längerer Wert erwartet wird
+```
+
+#### Wann Placeholder verwenden
+
+Placeholder sollten verwendet werden bei:
+- **String-Feldern:** Immer, außer bei Dropdowns (`type: 'options'`)
+- **Number-Feldern:** Wenn ein typischer Wert hilfreich ist
+- **Nicht verwenden bei:**
+  - Boolean-Feldern (`type: 'boolean'`)
+  - Dropdown-Feldern (`type: 'options'`, `type: 'multiOptions'`)
+  - `fixedCollection`-Feldern (nur bei den Unterfeldern)
+
+### HubSpot API Dokumentations-Links
+
+Verwende diese Links in Descriptions, wo relevant:
+
+| Thema | Link |
+|---|---|
+| CRM Objects (allgemein) | `https://developers.hubspot.com/docs/api/crm/understanding-the-crm` |
+| Properties | `https://developers.hubspot.com/docs/api/crm/properties` |
+| Search API | `https://developers.hubspot.com/docs/api/crm/search` |
+| Associations | `https://developers.hubspot.com/docs/api/crm/associations` |
+| Forms API | `https://developers.hubspot.com/docs/api/marketing/forms` |
+| Custom Objects | `https://developers.hubspot.com/docs/api/crm/crm-custom-objects` |
+| Tracking Code (HUTK) | `https://developers.hubspot.com/docs/api/tracking-code` |
+| Subscriptions | `https://developers.hubspot.com/docs/api/marketing/subscriptions` |
+
+### Vollständiges Beispiel
+
+```typescript
+{
+  displayName: 'Object ID',
+  name: 'objectId',
+  type: 'string',
+  default: '',
+  required: true,
+  placeholder: '12345678',
+  description: 'The unique ID of the object to retrieve, update, or delete. You can use expressions to reference IDs from previous nodes.',
+  displayOptions: {
+    show: {
+      operation: ['get', 'update', 'delete'],
+    },
+  },
+}
+```
+
+### Checkliste für Feld-Definitionen
+
+Jedes Feld sollte:
+- [ ] Eine `description` haben (außer bei offensichtlichen Feldern)
+- [ ] Einen `placeholder` haben, wo sinnvoll (String/Number-Felder)
+- [ ] Englische Sprache verwenden
+- [ ] Konsistent mit anderen Feldern im gleichen Node sein
+- [ ] Bei Bedarf Link zur HubSpot-Dokumentation enthalten
+- [ ] Konkrete Beispiele nennen, wo hilfreich
+
+---
+
 ## Checkliste für neue Knoten
 
 - [ ] Ordner `src/nodes/<NodeName>/` erstellt
