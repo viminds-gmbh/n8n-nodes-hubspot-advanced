@@ -184,3 +184,58 @@ export const HUBSPOT_OBJECT_TYPE_ID_MAPPING: Record<string, string> = {
 	'0-37': 'appointments',
 	'0-38': 'projects',
 } as const;
+
+/**
+ * File and Folder API Types for HubSpot Files API v3
+ */
+export interface HubSpotFileUploadOptions {
+	folderPath?: string;
+	access?: 'PRIVATE' | 'PUBLIC_INDEXABLE' | 'PUBLIC_NOT_INDEXABLE';
+	fileName?: string;
+	mimeType?: string;
+}
+
+export interface HubSpotFileResponse {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	archived: boolean;
+	parentFolderId?: string;
+	name: string;
+	path: string;
+	size: number;
+	height?: number;
+	width?: number;
+	encoding: string;
+	type: string;
+	extension: string;
+	defaultHostingUrl: string;
+	url: string;
+	isUsableInContent: boolean;
+	access: string;
+}
+
+export interface HubSpotFolderResponse {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	archived: boolean;
+	archivedAt?: string;
+	name: string;
+	parentFolderId?: string;
+	path: string;
+}
+
+export interface HubSpotImportTaskResponse {
+	id: string;
+	links: Array<{
+		status: string;
+	}>;
+}
+
+export interface HubSpotImportStatusResponse {
+	id: string;
+	status: 'PENDING' | 'PROCESSING' | 'COMPLETE' | 'FAILED';
+	result?: HubSpotFileResponse;
+	error?: string;
+}

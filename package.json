@@ -43,6 +43,7 @@
       "dist/nodes/HubSpotCrm/HubSpotCrm.node.js",
       "dist/nodes/HubSpotAssociations/HubSpotAssociations.node.js",
       "dist/nodes/HubSpotForms/HubSpotForms.node.js",
+      "dist/nodes/HubSpotFiles/HubSpotFiles.node.js",
       "dist/nodes/HubSpotObjectSchema/HubSpotObjectSchema.node.js",
       "dist/nodes/HubSpotLists/HubSpotLists.node.js"
     ]
@@ -67,7 +68,9 @@
   "peerDependencies": {
     "n8n-workflow": "*"
   },
-  "dependencies": {},
+  "dependencies": {
+    "form-data": "^4.0.0"
+  },
   "engines": {
     "node": ">=18.17.0"
   }

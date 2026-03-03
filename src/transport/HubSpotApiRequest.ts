@@ -153,3 +153,128 @@ export async function hubspotApiRequestForLoadOptions(
 		throw new Error(`HubSpot API request failed: ${error.message}`);
 	}
 }
+
+export async function hubspotFileUploadRequest(
+	this: IExecuteFunctions,
+	binaryData: Buffer,
+	fileName: string,
+	options: {
+		folderPath?: string;
+		access?: 'PRIVATE' | 'PUBLIC_INDEXABLE' | 'PUBLIC_NOT_INDEXABLE';
+		mimeType?: string;
+	} = {}
+): Promise<any> {
+	const rateLimiter = HubSpotRateLimiter.getInstance();
+	const credentials = await this.getCredentials('hubspotAppToken');
+
+	const FormData = (await import('form-data')).default;
+	const formData = new FormData();
+
+	formData.append('file', binaryData, {
+		filename: fileName,
+		contentType: options.mimeType || 'application/octet-stream'
+	});
+
+	formData.append('options', JSON.stringify({
+		access: options.access || 'PRIVATE'
+	}));
+
+	if (options.folderPath) {
+		formData.append('folderPath', options.folderPath);
+	}
+
+	const requestOptions: IHttpRequestOptions = {
+		method: 'POST',
+		url: 'https://api.hubapi.com/files/v3/files',
+		headers: {
+			Authorization: `Bearer ${credentials.appToken}`,
+			...formData.getHeaders()
+		},
+		body: formData
+	};
+
+	return rateLimiter.execute(async () => {
+		try {
+			const response = await this.helpers.httpRequest(requestOptions);
+
+			return {
+				data: response,
+				headers: response.headers || {},
+			};
+		} catch (error: any) {
+			if (error.statusCode === 429 || error.httpCode === 429) {
+				throw error;
+			}
+
+			throw new NodeApiError(this.getNode(), error, {
+				message: error.message || 'HubSpot file upload failed',
+				description: error.description,
+			});
+		}
+	});
+}
+
+export async function hubspotFileReplaceRequest(
+	this: IExecuteFunctions,
+	fileId: string,
+	binaryData: Buffer,
+	fileName: string,
+	options: {
+		access?: 'PRIVATE' | 'PUBLIC_INDEXABLE' | 'PUBLIC_NOT_INDEXABLE';
+		expiresAt?: number;
+		mimeType?: string;
+	} = {}
+): Promise<any> {
+	const rateLimiter = HubSpotRateLimiter.getInstance();
+	const credentials = await this.getCredentials('hubspotAppToken');
+
+	const FormData = (await import('form-data')).default;
+	const formData = new FormData();
+
+	formData.append('file', binaryData, {
+		filename: fileName,
+		contentType: options.mimeType || 'application/octet-stream'
+	});
+
+	const replaceOptions: Record<string, any> = {};
+	if (options.access) {
+		replaceOptions.access = options.access;
+	}
+	if (options.expiresAt) {
+		replaceOptions.expiresAt = options.expiresAt;
+	}
+
+	if (Object.keys(replaceOptions).length > 0) {
+		formData.append('options', JSON.stringify(replaceOptions));
+	}
+
+	const requestOptions: IHttpRequestOptions = {
+		method: 'PUT',
+		url: `https://api.hubapi.com/files/v3/files/${fileId}`,
+		headers: {
+			Authorization: `Bearer ${credentials.appToken}`,
+			...formData.getHeaders()
+		},
+		body: formData
+	};
+
+	return rateLimiter.execute(async () => {
+		try {
+			const response = await this.helpers.httpRequest(requestOptions);
+
+			return {
+				data: response,
+				headers: response.headers || {},
+			};
+		} catch (error: any) {
+			if (error.statusCode === 429 || error.httpCode === 429) {
+				throw error;
+			}
+
+			throw new NodeApiError(this.getNode(), error, {
+				message: error.message || 'HubSpot file replace failed',
+				description: error.description,
+			});
+		}
+	});
+}
