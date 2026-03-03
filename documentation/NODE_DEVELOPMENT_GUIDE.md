@@ -255,6 +255,88 @@ cache.has(objectType, credentialId);  // boolean
 
 Verschiedene HubSpot-Accounts (Portale) haben unterschiedliche Properties. Ohne `credentialId` im Key würden Properties aus Portal A für Portal B angezeigt werden.
 
+### Best Practices für Property-Dropdowns
+
+#### Wann Properties als Dropdown bereitstellen?
+
+Properties sollen **immer** als Optionsauswahl aufbereitet werden, wenn sie in einem Request relevant sind. Dies gilt für:
+- Felder, die in API-Requests verwendet werden (z.B. `properties` in Search/Read)
+- Filter-Konfigurationen
+- Sortier-Felder
+- Update/Create-Operationen
+
+#### Abhängigkeiten
+
+Property-Dropdowns hängen von zwei Faktoren ab:
+
+1. **Credentials** (`credentialId`)
+   - Verschiedene HubSpot-Portale haben unterschiedliche Properties
+   - Cache-Isolation über `credentialId` ist **zwingend erforderlich**
+
+2. **Objekttyp** (`objectType`)
+   - Jeder Objekttyp (Contacts, Companies, Custom Objects) hat eigene Properties
+   - Der aufgelöste Objekttyp (inkl. Custom-Logik) muss für den Cache-Key verwendet werden
+
+#### Einzelauswahl vs. Mehrfachauswahl
+
+| Kontext | Typ | Beispiel |
+|---|---|---|
+| **Einzelnes Property** (z.B. Sortierung, einzelner Filter) | `type: 'options'` | Sort-By-Feld |
+| **Multiple Properties** (z.B. Felder für Response, mehrere Filter) | `type: 'multiOptions'` | Properties-Auswahl bei Search/Read |
+
+```typescript
+// Einzelauswahl
+{
+  displayName: 'Sort By',
+  name: 'sortBy',
+  type: 'options',
+  typeOptions: {
+    loadOptionsMethod: 'getProperties',
+  },
+  default: '',
+}
+
+// Mehrfachauswahl
+{
+  displayName: 'Properties',
+  name: 'properties',
+  type: 'multiOptions',
+  typeOptions: {
+    loadOptionsMethod: 'getProperties',
+  },
+  default: [],
+}
+```
+
+#### Dynamische Abhängigkeiten
+
+Wenn Properties von einem anderen Feld abhängen (z.B. Objekttyp, Listen-ID), verwende `loadOptionsDependsOn`:
+
+```typescript
+{
+  displayName: 'Properties',
+  name: 'properties',
+  type: 'multiOptions',
+  typeOptions: {
+    loadOptionsMethod: 'getProperties',
+    loadOptionsDependsOn: ['objectType', 'customObjectType'],  // Reload bei Änderung
+  },
+  default: [],
+}
+```
+
+#### Vollständige Implementierung
+
+Jede `getProperties`-Implementierung muss:
+
+1. ✅ **Objekttyp auflösen** (inkl. Custom-Logik)
+2. ✅ **Credential-ID extrahieren** (letzte 8 Zeichen des `appToken`)
+3. ✅ **Cache prüfen** vor API-Aufruf
+4. ✅ **Cache befüllen** nach API-Aufruf
+5. ✅ **`hubspotApiRequestForLoadOptions`** verwenden (nicht `hubspotApiRequest`)
+
+Siehe [loadOptions – Vollständiges getProperties-Pattern](#vollständiges-getproperties-pattern-mit-cache) für Code-Beispiel.
+
 ---
 
 ## loadOptions – Dynamische Optionenauswahlen
