@@ -8,15 +8,16 @@ Referenz-Dokumentation für die Erstellung neuer Knoten im `n8n-nodes-hubspot-ad
 
 1. [Projektstruktur](#projektstruktur)
 2. [Knoten-Grundgerüst](#knoten-grundgerüst)
-3. [Credential-Konfiguration](#credential-konfiguration)
-4. [Object-Type-Auswahl (Standard + Custom)](#object-type-auswahl)
-5. [Property Cache – Cache-Keys & Isolation](#property-cache)
-6. [loadOptions – Dynamische Optionenauswahlen](#loadoptions)
-7. [Transport-Schicht (API-Funktionen)](#transport-schicht)
-8. [Rate Limiter](#rate-limiter)
-9. [Gemeinsame Typen & Konstanten](#typen--konstanten)
-10. [Registrierung in package.json](#registrierung)
-11. [Checkliste für neue Knoten](#checkliste)
+3. [Node-Kategorisierung & Gruppierung](#node-kategorisierung--gruppierung)
+4. [Credential-Konfiguration](#credential-konfiguration)
+5. [Object-Type-Auswahl (Standard + Custom)](#object-type-auswahl)
+6. [Property Cache – Cache-Keys & Isolation](#property-cache)
+7. [loadOptions – Dynamische Optionenauswahlen](#loadoptions)
+8. [Transport-Schicht (API-Funktionen)](#transport-schicht)
+9. [Rate Limiter](#rate-limiter)
+10. [Gemeinsame Typen & Konstanten](#typen--konstanten)
+11. [Registrierung in package.json](#registrierung)
+12. [Checkliste für neue Knoten](#checkliste)
 
 ---
 
@@ -210,6 +211,226 @@ subtitle: '={{$parameter["operation"] === "getObjectTypes" ? "Get Object Types" 
 - [ ] Custom Object Types werden **aufgelöst** (nicht "custom" anzeigen)
 - [ ] Format ist **konsistent** mit bestehenden Knoten
 - [ ] Subtitle ist **lesbar** im Canvas (nicht zu lang)
+
+---
+
+## Node-Kategorisierung & Gruppierung
+
+### Zweck
+
+Die `codex`-Eigenschaft ermöglicht es, Nodes in der n8n-Palette zu kategorisieren und über Aliase auffindbar zu machen. Dies verbessert die User Experience, indem verwandte Nodes gruppiert werden und alternative Suchbegriffe unterstützt werden.
+
+### Wichtige Erkenntnisse (Stand 2026)
+
+**❌ Nicht unterstützt:**
+- Benutzerdefinierte Gruppen-Container mit eigenem Logo
+- Hierarchische Node-Gruppierungen außerhalb der vordefinierten Kategorien
+- Separate "Package-Gruppen" in der Node-Palette
+
+**✅ Unterstützt (offiziell und zukunftssicher):**
+- Zuordnung zu bestehenden Kategorien und Subcategories
+- Aliase für alternative Suchbegriffe
+- Dokumentations-Links
+- Individuelle Node-Icons (jeder Node behält sein eigenes Logo)
+
+### Codex-Struktur
+
+Die `codex`-Eigenschaft wird in der `INodeTypeDescription` nach `defaults` eingefügt:
+
+```typescript
+description: INodeTypeDescription = {
+  displayName: 'HubSpot CRM',
+  name: 'hubSpotCrm',
+  icon: 'file:../../icon.svg',
+  group: ['transform'],  // Legacy, beibehalten für Kompatibilität
+  version: 1,
+  subtitle: '={{$parameter["operation"]}}',
+  description: 'Interact with HubSpot CRM API',
+  defaults: {
+    name: 'HubSpot CRM',
+  },
+  codex: {
+    categories: ['Marketing & Content'],
+    subcategories: {
+      'Marketing & Content': ['CRM'],
+    },
+    alias: [
+      'HubSpot Advanced',
+      'viminds',
+      'viminds HubSpot',
+      'HubSpot viminds',
+      'Advanced HubSpot',
+      'HubSpot Pro',
+      'HubSpot Extended',
+      'HubSpot Batch',
+      'HubSpot Rate Limit',
+      'HubSpot Association',
+      'HubSpot Hydrate',
+      'HubSpot Custom Objects',
+      'HubSpot Search',
+      'HubSpot Filter',
+    ],
+    resources: {
+      primaryDocumentation: [
+        {
+          url: 'https://viminds.de',
+        },
+      ],
+    },
+  },
+  inputs: ['main'],
+  outputs: ['main'],
+  // ...
+};
+```
+
+### Verfügbare Kategorien
+
+n8n bietet folgende vordefinierte Kategorien (Stand 2026):
+
+| Kategorie | Subcategories (Beispiele) | Verwendung |
+|---|---|---|
+| `Marketing & Content` | CRM, Email, Social Media | **Empfohlen für HubSpot** |
+| `Sales` | CRM, Leads, Deals | Alternative für Sales-fokussierte Nodes |
+| `Communication` | Chat, Email, SMS | Messaging & Kommunikation |
+| `Data & Storage` | Database, File Storage | Datenbanken, Speicher |
+| `Development` | Code, Version Control | Developer Tools |
+| `Productivity` | Calendar, Tasks, Notes | Produktivitäts-Tools |
+
+**Für dieses Projekt:** Alle HubSpot-Nodes verwenden `Marketing & Content` → `CRM`.
+
+### Alias-Strategie
+
+Aliase ermöglichen es Benutzern, Nodes über alternative Suchbegriffe zu finden. Eine gute Alias-Liste sollte enthalten:
+
+#### 1. Marken-Aliase
+- Package-Name: `HubSpot Advanced`
+- Firmenname: `viminds`
+- Kombinationen: `viminds HubSpot`, `HubSpot viminds`
+
+#### 2. Feature-Aliase
+- Qualitätsindikatoren: `Advanced HubSpot`, `HubSpot Pro`, `HubSpot Extended`
+- Kern-Features: `HubSpot Batch`, `HubSpot Rate Limit`
+- Spezial-Features: `HubSpot Association`, `HubSpot Hydrate`
+- Capabilities: `HubSpot Custom Objects`, `HubSpot Search`, `HubSpot Filter`
+
+#### 3. Use-Case-Aliase
+- Häufige Anwendungsfälle oder Suchbegriffe, die Benutzer verwenden könnten
+
+### Best Practices
+
+#### Konsistenz über alle Nodes
+Alle Nodes im gleichen Package sollten:
+- ✅ Die **gleiche Kategorie** verwenden (`Marketing & Content`)
+- ✅ Die **gleiche Subcategory** verwenden (`CRM`)
+- ✅ Die **gleichen Aliase** verwenden (für Package-weite Auffindbarkeit)
+- ✅ Den **gleichen Dokumentations-Link** verwenden
+
+#### Alias-Anzahl
+- **Minimum:** 5-7 Aliase (Marke + wichtigste Features)
+- **Empfohlen:** 10-15 Aliase (gute Balance zwischen Auffindbarkeit und Wartbarkeit)
+- **Maximum:** Keine technische Grenze, aber >20 wird unübersichtlich
+
+#### Sprachrichtlinie
+- Aliase sollten **englisch** sein (internationale Verfügbarkeit)
+- Firmennamen bleiben wie original (`viminds`, nicht `viminds GmbH`)
+
+### Wirkung in n8n
+
+Nach Implementierung der `codex`-Eigenschaft:
+
+**In der Node-Palette:**
+- Nodes erscheinen unter **Marketing & Content** → **CRM**
+- Gruppiert mit anderen CRM-Tools (z.B. Salesforce, Pipedrive)
+
+**In der Suche:**
+- Suche nach "HubSpot Advanced" → zeigt alle Package-Nodes
+- Suche nach "viminds" → zeigt alle Package-Nodes
+- Suche nach Feature-Namen → zeigt alle Package-Nodes
+- Suche nach spezifischem Node-Namen → zeigt den jeweiligen Node
+
+**Branding:**
+- Jeder Node zeigt sein eigenes Icon (viminds-Logo)
+- Konsistente Darstellung in der Palette
+
+### Legacy-Eigenschaft: `group`
+
+Die `group`-Eigenschaft ist veraltet, sollte aber **beibehalten** werden für Abwärtskompatibilität:
+
+```typescript
+group: ['transform'],  // Legacy, nicht entfernen
+```
+
+Sie hat keine Auswirkung mehr auf die Kategorisierung, wenn `codex` definiert ist.
+
+### Vollständiges Beispiel
+
+```typescript
+export class HubSpotMyNode implements INodeType {
+  description: INodeTypeDescription = {
+    displayName: 'HubSpot My Node',
+    name: 'hubSpotMyNode',
+    icon: 'file:../../icon.svg',
+    group: ['transform'],
+    version: 1,
+    subtitle: '={{$parameter["operation"]}}',
+    description: 'Description of the node',
+    defaults: {
+      name: 'HubSpot My Node',
+    },
+    codex: {
+      categories: ['Marketing & Content'],
+      subcategories: {
+        'Marketing & Content': ['CRM'],
+      },
+      alias: [
+        'HubSpot Advanced',
+        'viminds',
+        'viminds HubSpot',
+        'HubSpot viminds',
+        'Advanced HubSpot',
+        'HubSpot Pro',
+        'HubSpot Extended',
+        'HubSpot Batch',
+        'HubSpot Rate Limit',
+        'HubSpot Association',
+        'HubSpot Hydrate',
+        'HubSpot Custom Objects',
+        'HubSpot Search',
+        'HubSpot Filter',
+      ],
+      resources: {
+        primaryDocumentation: [
+          {
+            url: 'https://viminds.de',
+          },
+        ],
+      },
+    },
+    inputs: ['main'],
+    outputs: ['main'],
+    credentials: [
+      {
+        name: 'hubspotAppToken',
+        required: true,
+      },
+    ],
+    properties: [
+      // ...
+    ],
+  };
+}
+```
+
+### Checkliste für codex-Eigenschaft
+
+- [ ] `codex`-Eigenschaft nach `defaults` eingefügt
+- [ ] `categories: ['Marketing & Content']` gesetzt
+- [ ] `subcategories: { 'Marketing & Content': ['CRM'] }` gesetzt
+- [ ] Mindestens 10 Aliase definiert (Marke + Features)
+- [ ] `resources.primaryDocumentation` mit viminds.de-Link
+- [ ] `group: ['transform']` beibehalten (Legacy-Kompatibilität)
+- [ ] Konsistent mit anderen Nodes im Package
 
 ---
 
@@ -802,21 +1023,49 @@ Jedes Feld sollte:
 
 ## Checkliste für neue Knoten
 
+### Grundstruktur
 - [ ] Ordner `src/nodes/<NodeName>/` erstellt
 - [ ] Datei `<NodeName>.node.ts` mit `INodeType`-Implementierung
 - [ ] `name` ist camelCase mit `hubSpot`-Präfix und **einzigartig**
 - [ ] `icon: 'file:../../icon.svg'` gesetzt
+- [ ] `group: ['transform']` gesetzt (Legacy-Kompatibilität)
 - [ ] `credentials` verweist auf `hubspotAppToken`
+
+### Kategorisierung & Branding
+- [ ] **`codex`-Eigenschaft nach `defaults` eingefügt**
+- [ ] **`categories: ['Marketing & Content']` gesetzt**
+- [ ] **`subcategories: { 'Marketing & Content': ['CRM'] }` gesetzt**
+- [ ] **Mindestens 10 Aliase definiert** (Marke + Features)
+- [ ] **`resources.primaryDocumentation` mit viminds.de-Link**
+- [ ] **Aliase konsistent mit anderen Package-Nodes**
+
+### Subtitle & Beschreibung
 - [ ] **`subtitle` zeigt Aktion + Objekt** (siehe [Subtitle-Richtlinien](#subtitle-richtlinien))
 - [ ] **Custom Object Types im Subtitle aufgelöst** (nicht "custom" anzeigen)
+- [ ] `description` ist aussagekräftig und englisch
+
+### Properties & Felder
 - [ ] `properties`-Array enthält mindestens `operation`-Feld
 - [ ] Object-Type-Felder nutzen `HUBSPOT_OBJECT_TYPE_OPTIONS` + Custom-Fallback
 - [ ] Custom-Object-Type-Feld hat `displayOptions.show` auf `objectType: ['custom']`
+- [ ] Alle Felder haben `description` (außer offensichtliche)
+- [ ] String/Number-Felder haben `placeholder` mit Beispielwerten
+
+### loadOptions & Caching
 - [ ] `loadOptions` verwenden `hubspotApiRequestForLoadOptions` (nicht `hubspotApiRequest`)
 - [ ] **Property-Dropdowns als `options` oder `multiOptions`** je nach Kontext
 - [ ] **Property-Dropdowns nutzen `PropertyCache` mit `credentialId`-Isolation**
 - [ ] **Property-Dropdowns mit `loadOptionsDependsOn`** bei dynamischen Abhängigkeiten
+
+### Execution & Error Handling
 - [ ] `execute()` nutzt `hubspotApiRequest` (mit automatischem Rate Limiting)
 - [ ] Error-Handling mit `continueOnFail()`-Pattern
+- [ ] Batch-Operationen nutzen `hubspotBatchRequest` wo sinnvoll
+- [ ] Paginierung nutzt `hubspotApiRequestAllItems` wo sinnvoll
+
+### Registrierung & Testing
 - [ ] Knoten in `package.json` → `n8n.nodes` registriert
+- [ ] `npm run build` erfolgreich
 - [ ] Lokaler Test gemäß `/local-testing`-Workflow
+- [ ] Node erscheint in n8n unter **Marketing & Content** → **CRM**
+- [ ] Aliase funktionieren in der Suche
