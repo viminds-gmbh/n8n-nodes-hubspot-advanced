@@ -64,6 +64,7 @@ export class HubSpotForms implements INodeType {
 				},
 				default: '',
 				required: true,
+				description: 'Select the form to work with. Forms are loaded from your HubSpot account.',
 				displayOptions: {
 					show: {
 						operation: ['getSubmissions', 'submitForm'],
@@ -78,15 +79,16 @@ export class HubSpotForms implements INodeType {
 					{
 						name: 'Secure',
 						value: 'secure',
-						description: 'Use secure endpoint (/secure/submit/)',
+						description: 'Use secure endpoint with better spam protection (recommended)',
 					},
 					{
 						name: 'Unsecure',
 						value: 'unsecure',
-						description: 'Use unsecure endpoint (/submit/)',
+						description: 'Use unsecure endpoint (legacy)',
 					},
 				],
 				default: 'secure',
+				description: 'The endpoint type to use for form submission. <a href="https://legacydocs.hubspot.com/docs/methods/forms/submit_form" target="_blank">Learn more</a>.',
 				displayOptions: {
 					show: {
 						operation: ['submitForm'],
@@ -98,6 +100,7 @@ export class HubSpotForms implements INodeType {
 				name: 'context',
 				type: 'fixedCollection',
 				default: {},
+				description: 'Optional context information about where and how the form was submitted. Used for analytics and tracking.',
 				displayOptions: {
 					show: {
 						operation: ['submitForm'],
@@ -113,30 +116,32 @@ export class HubSpotForms implements INodeType {
 								name: 'pageUri',
 								type: 'string',
 								default: '',
-								placeholder: 'https://example.com',
-								description: 'The URI of the page where the form was submitted',
+								placeholder: 'https://example.com/contact',
+								description: 'The URI of the page where the form was submitted. Used for analytics and tracking.',
 							},
 							{
 								displayName: 'Page Name',
 								name: 'pageName',
 								type: 'string',
 								default: '',
-								placeholder: 'Contact Form',
-								description: 'The name of the page where the form was submitted',
+								placeholder: 'Contact Page',
+								description: 'The name of the page where the form was submitted. Used for analytics and tracking.',
 							},
 							{
 								displayName: 'HubSpot User Token (HUTK)',
 								name: 'hutk',
 								type: 'string',
 								default: '',
-								description: 'HubSpot user tracking token (optional)',
+								placeholder: 'abc123def456',
+								description: 'HubSpot user tracking token from the hubspotutk cookie. Used to associate the submission with a visitor. <a href="https://developers.hubspot.com/docs/api/tracking-code" target="_blank">Learn more</a>.',
 							},
 							{
 								displayName: 'IP Address',
 								name: 'ipAddress',
 								type: 'string',
 								default: '',
-								description: 'IP address of the submitter (optional)',
+								placeholder: '192.168.1.1',
+								description: 'The IP address of the form submitter. Used for geolocation and analytics.',
 							},
 						],
 					},
@@ -147,6 +152,7 @@ export class HubSpotForms implements INodeType {
 				name: 'includeConsent',
 				type: 'boolean',
 				default: false,
+				description: 'Whether to include GDPR consent and email subscription preferences with the form submission.',
 				displayOptions: {
 					show: {
 						operation: ['submitForm'],
@@ -157,7 +163,9 @@ export class HubSpotForms implements INodeType {
 				displayName: 'Consent Text',
 				name: 'consentText',
 				type: 'string',
-				default: 'Ich stimme der Verarbeitung zu',
+				default: 'I agree to allow Example Company to store and process my personal data.',
+				placeholder: 'I agree to the privacy policy',
+				description: 'The consent text shown to the user. Required for GDPR compliance.',
 				displayOptions: {
 					show: {
 						operation: ['submitForm'],
@@ -170,6 +178,7 @@ export class HubSpotForms implements INodeType {
 				name: 'consentToProcess',
 				type: 'boolean',
 				default: true,
+				description: 'Whether the user consented to data processing. Required for GDPR compliance.',
 				displayOptions: {
 					show: {
 						operation: ['submitForm'],
@@ -185,6 +194,7 @@ export class HubSpotForms implements INodeType {
 					multipleValues: true,
 				},
 				default: {},
+				description: 'Email subscription preferences for different communication types.',
 				displayOptions: {
 					show: {
 						operation: ['submitForm'],
@@ -205,12 +215,14 @@ export class HubSpotForms implements INodeType {
 								},
 								default: '',
 								required: true,
+								description: 'The type of communication subscription (e.g., marketing emails, newsletters). <a href="https://developers.hubspot.com/docs/api/marketing/subscriptions" target="_blank">Learn more</a>.',
 							},
 							{
 								displayName: 'Value',
 								name: 'value',
 								type: 'boolean',
 								default: true,
+								description: 'Whether the user opted in (true) or out (false) of this communication type.',
 							},
 							{
 								displayName: 'Text',
@@ -218,6 +230,8 @@ export class HubSpotForms implements INodeType {
 								type: 'string',
 								default: '',
 								required: true,
+								placeholder: 'I want to receive product updates',
+								description: 'The subscription consent text shown to the user.',
 							},
 						],
 					},
@@ -232,6 +246,7 @@ export class HubSpotForms implements INodeType {
 					minValue: 1,
 					maxValue: 1000,
 				},
+				description: 'Maximum number of form submissions to return. The API supports up to 1000 submissions per request.',
 				displayOptions: {
 					show: {
 						operation: ['getSubmissions'],

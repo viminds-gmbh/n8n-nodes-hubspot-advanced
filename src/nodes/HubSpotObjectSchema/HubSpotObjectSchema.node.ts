@@ -56,6 +56,7 @@ export class HubSpotObjectSchema implements INodeType {
 				options: [...HUBSPOT_OBJECT_TYPE_OPTIONS],
 				default: 'contacts',
 				required: true,
+				description: 'The type of CRM object to retrieve properties for. <a href="https://developers.hubspot.com/docs/api/crm/properties" target="_blank">Learn more about properties</a>.',
 				displayOptions: {
 					show: {
 						operation: ['getProperties'],
@@ -68,8 +69,8 @@ export class HubSpotObjectSchema implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
-				placeholder: 'e.g. cars or 2-12345',
-				description: 'The name or ID of the custom object type',
+				placeholder: 'cars',
+				description: 'The name or ID of the custom object type (e.g., "cars" or "2-12345"). <a href="https://developers.hubspot.com/docs/api/crm/crm-custom-objects" target="_blank">Learn more about custom objects</a>.',
 				displayOptions: {
 					show: {
 						operation: ['getProperties'],

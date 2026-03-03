@@ -55,7 +55,7 @@ export class HubSpotLists implements INodeType {
 				},
 				default: '',
 				required: true,
-				description: 'The ID of the HubSpot list to get members from',
+				description: 'Select the HubSpot list to get members from. Lists are loaded from your HubSpot account.',
 			},
 			{
 				displayName: 'Properties',
@@ -67,14 +67,14 @@ export class HubSpotLists implements INodeType {
 				},
 				default: [],
 				placeholder: 'firstname,lastname,email',
-				description: 'Properties to return. Select from dropdown or use comma-separated keys as expression.',
+				description: 'Properties to return for each list member. Leave empty to return all properties. <a href="https://developers.hubspot.com/docs/api/crm/properties" target="_blank">Learn more</a>.',
 			},
 			{
 				displayName: 'Return All',
 				name: 'returnAll',
 				type: 'boolean',
 				default: false,
-				description: 'Whether to return all results (auto-paginate)',
+				description: 'Whether to automatically paginate and return all list members. May take longer for large lists.',
 			},
 			{
 				displayName: 'Limit',
@@ -85,6 +85,7 @@ export class HubSpotLists implements INodeType {
 					minValue: 1,
 					maxValue: 10000,
 				},
+				description: 'Maximum number of list members to return.',
 				displayOptions: {
 					show: {
 						returnAll: [false],

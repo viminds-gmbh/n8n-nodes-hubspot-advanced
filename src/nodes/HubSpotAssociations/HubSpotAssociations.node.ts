@@ -68,6 +68,7 @@ export class HubSpotAssociations implements INodeType {
 				options: [...HUBSPOT_OBJECT_TYPE_OPTIONS],
 				default: 'contacts',
 				required: true,
+				description: 'The source object type for the association. <a href="https://developers.hubspot.com/docs/api/crm/associations" target="_blank">Learn more about associations</a>.',
 			},
 			{
 				displayName: 'Custom From Object Type',
@@ -75,8 +76,8 @@ export class HubSpotAssociations implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
-				placeholder: 'e.g. cars or 2-12345',
-				description: 'The name or ID of the custom object type',
+				placeholder: 'cars',
+				description: 'The name or ID of the custom source object type (e.g., "cars" or "2-12345").',
 				displayOptions: {
 					show: {
 						fromObjectType: ['custom'],
@@ -90,6 +91,7 @@ export class HubSpotAssociations implements INodeType {
 				options: [...HUBSPOT_OBJECT_TYPE_OPTIONS],
 				default: 'companies',
 				required: true,
+				description: 'The target object type for the association.',
 			},
 			{
 				displayName: 'Custom To Object Type',
@@ -97,8 +99,8 @@ export class HubSpotAssociations implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
-				placeholder: 'e.g. cars or 2-12345',
-				description: 'The name or ID of the custom object type',
+				placeholder: 'cars',
+				description: 'The name or ID of the custom target object type (e.g., "cars" or "2-12345").',
 				displayOptions: {
 					show: {
 						toObjectType: ['custom'],
@@ -110,7 +112,8 @@ export class HubSpotAssociations implements INodeType {
 				name: 'idField',
 				type: 'string',
 				default: 'id',
-				description: 'Field name in input items containing the object ID',
+				placeholder: 'id',
+				description: 'Field name in input items containing the source object ID. The node will process all input items in batch.',
 				displayOptions: {
 					show: {
 						operation: ['getAssociations', 'hydrateAssociations'],
@@ -127,7 +130,7 @@ export class HubSpotAssociations implements INodeType {
 				},
 				default: '',
 				placeholder: 'name,domain,industry',
-				description: 'Comma-separated list of properties to return for associated objects',
+				description: 'Properties to return for associated objects when using "Hydrate Associations". Leave empty to return only IDs.',
 				displayOptions: {
 					show: {
 						operation: ['hydrateAssociations'],
@@ -139,7 +142,8 @@ export class HubSpotAssociations implements INodeType {
 				name: 'outputField',
 				type: 'string',
 				default: 'associations',
-				description: 'Field name to store the associations in the output',
+				placeholder: 'associations',
+				description: 'The field name where associations will be stored in the output. Default: "associations".',
 				displayOptions: {
 					show: {
 						operation: ['getAssociations', 'hydrateAssociations'],
@@ -152,6 +156,8 @@ export class HubSpotAssociations implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
+				placeholder: '12345678',
+				description: 'The ID of the source object to associate or disassociate.',
 				displayOptions: {
 					show: {
 						operation: ['createAssociation', 'deleteAssociation'],
@@ -164,6 +170,8 @@ export class HubSpotAssociations implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
+				placeholder: '87654321',
+				description: 'The ID of the target object to associate or disassociate.',
 				displayOptions: {
 					show: {
 						operation: ['createAssociation', 'deleteAssociation'],

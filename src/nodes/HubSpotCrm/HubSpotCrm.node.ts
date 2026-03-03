@@ -38,6 +38,7 @@ export class HubSpotCrm implements INodeType {
 				options: [...HUBSPOT_OBJECT_TYPE_OPTIONS],
 				default: 'contacts',
 				required: true,
+				description: 'The type of CRM object to work with. <a href="https://developers.hubspot.com/docs/api/crm/understanding-the-crm" target="_blank">Learn more about HubSpot CRM objects</a>.',
 			},
 			{
 				displayName: 'Custom Object Type',
@@ -45,8 +46,8 @@ export class HubSpotCrm implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
-				placeholder: 'e.g. cars or 2-12345',
-				description: 'The name or ID of the custom object type',
+				placeholder: 'cars',
+				description: 'The name or ID of the custom object type (e.g., "cars" or "2-12345"). <a href="https://developers.hubspot.com/docs/api/crm/crm-custom-objects" target="_blank">Learn more about custom objects</a>.',
 				displayOptions: {
 					show: {
 						objectType: ['custom'],
@@ -59,12 +60,12 @@ export class HubSpotCrm implements INodeType {
 				type: 'options',
 				noDataExpression: true,
 				options: [
-					{ name: 'Get', value: 'get' },
-					{ name: 'Get Many', value: 'getMany' },
-					{ name: 'Search', value: 'search' },
-					{ name: 'Create', value: 'create' },
-					{ name: 'Update', value: 'update' },
-					{ name: 'Delete', value: 'delete' },
+					{ name: 'Get', value: 'get', description: 'Retrieve a single object by ID' },
+					{ name: 'Get Many', value: 'getMany', description: 'Retrieve multiple objects by IDs from input items' },
+					{ name: 'Search', value: 'search', description: 'Search for objects using filters' },
+					{ name: 'Create', value: 'create', description: 'Create a new object' },
+					{ name: 'Update', value: 'update', description: 'Update an existing object' },
+					{ name: 'Delete', value: 'delete', description: 'Delete an object' },
 				],
 				default: 'search',
 				required: true,
@@ -75,6 +76,8 @@ export class HubSpotCrm implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
+				placeholder: '12345678',
+				description: 'The unique ID of the object to retrieve, update, or delete. You can use expressions to reference IDs from previous nodes.',
 				displayOptions: {
 					show: {
 						operation: ['get', 'update', 'delete'],
@@ -103,7 +106,7 @@ export class HubSpotCrm implements INodeType {
 				},
 				default: [],
 				placeholder: 'firstname,lastname,email',
-				description: 'Properties to return. Select from dropdown or use comma-separated keys as expression.',
+				description: 'Properties to return in the response. Leave empty to return all properties. <a href="https://developers.hubspot.com/docs/api/crm/properties" target="_blank">Learn more</a>.',
 				displayOptions: {
 					show: {
 						operation: ['get', 'getMany', 'search'],
@@ -135,6 +138,8 @@ export class HubSpotCrm implements INodeType {
 								type: 'string',
 								default: '',
 								required: true,
+								placeholder: 'email',
+								description: 'The internal name of the property to filter by (e.g., "email", "firstname", "createdate").',
 							},
 							{
 								displayName: 'Operator',
@@ -156,6 +161,7 @@ export class HubSpotCrm implements INodeType {
 									{ name: 'Not Has Property', value: 'NOT_HAS_PROPERTY' },
 								],
 								default: 'EQ',
+								description: 'The comparison operator to use for filtering. <a href="https://developers.hubspot.com/docs/api/crm/search" target="_blank">See all available operators</a>.',
 							},
 							{
 								displayName: 'Value',
@@ -163,6 +169,8 @@ export class HubSpotCrm implements INodeType {
 								type: 'string',
 								default: '',
 								required: true,
+								placeholder: 'john@example.com',
+								description: 'The value to compare against. For IN/NOT_IN operators, use semicolon-separated values.',
 							},
 						],
 					},
@@ -188,6 +196,8 @@ export class HubSpotCrm implements INodeType {
 								name: 'propertyName',
 								type: 'string',
 								default: 'createdate',
+								placeholder: 'createdate',
+								description: 'The property to sort results by (e.g., "createdate", "lastname").',
 							},
 							{
 								displayName: 'Direction',
@@ -198,6 +208,7 @@ export class HubSpotCrm implements INodeType {
 									{ name: 'Descending', value: 'DESCENDING' },
 								],
 								default: 'DESCENDING',
+								description: 'The sort order for results.',
 							},
 						],
 					},
@@ -212,6 +223,7 @@ export class HubSpotCrm implements INodeType {
 					minValue: 1,
 					maxValue: 10000,
 				},
+				description: 'Maximum number of results to return. Use with "Return All" disabled for pagination.',
 				displayOptions: {
 					show: {
 						operation: ['search', 'getMany'],
@@ -223,7 +235,7 @@ export class HubSpotCrm implements INodeType {
 				name: 'returnAll',
 				type: 'boolean',
 				default: false,
-				description: 'Whether to return all results (auto-paginate)',
+				description: 'Whether to automatically paginate and return all matching results. May take longer for large datasets.',
 				displayOptions: {
 					show: {
 						operation: ['search'],
@@ -265,6 +277,8 @@ export class HubSpotCrm implements INodeType {
 								name: 'value',
 								type: 'string',
 								default: '',
+								placeholder: 'John Doe',
+								description: 'The value to set for this property. Use expressions to reference data from previous nodes.',
 							},
 						],
 					},
