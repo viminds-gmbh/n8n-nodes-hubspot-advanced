@@ -249,11 +249,16 @@ export class HubSpotCrm implements INodeType {
 						displayName: 'Property',
 						values: [
 							{
-								displayName: 'Name',
+								displayName: 'Property Name',
 								name: 'name',
-								type: 'string',
+								type: 'options',
+								typeOptions: {
+									loadOptionsMethod: 'getProperties',
+									loadOptionsDependsOn: ['objectType', 'customObjectType'],
+								},
 								default: '',
 								required: true,
+								description: 'The property to set. Select from the dropdown or use an expression.',
 							},
 							{
 								displayName: 'Value',
