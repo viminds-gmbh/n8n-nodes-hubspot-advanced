@@ -21,6 +21,35 @@ export class HubSpotForms implements INodeType {
 		defaults: {
 			name: 'HubSpot Forms',
 		},
+		codex: {
+			categories: ['Marketing & Content'],
+			subcategories: {
+				'Marketing & Content': ['CRM'],
+			},
+			alias: [
+				'HubSpot Advanced',
+				'viminds',
+				'viminds HubSpot',
+				'HubSpot viminds',
+				'Advanced HubSpot',
+				'HubSpot Pro',
+				'HubSpot Extended',
+				'HubSpot Batch',
+				'HubSpot Rate Limit',
+				'HubSpot Association',
+				'HubSpot Hydrate',
+				'HubSpot Custom Objects',
+				'HubSpot Search',
+				'HubSpot Filter',
+			],
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://viminds.de',
+					},
+				],
+			},
+		},
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [
