@@ -119,7 +119,97 @@ export class HubSpotMyNode implements INodeType {
 | `displayName` | Title Case mit Leerzeichen | `HubSpot My Node` |
 | `icon` | Relativer Pfad zum gemeinsamen SVG | `file:../../icon.svg` |
 | `credentials.name` | Immer `hubspotAppToken` | – |
-| `subtitle` | Expression mit Operation/Resource | `={{$parameter["operation"]}}` |
+| `subtitle` | Expression mit Aktion + Objekt | Siehe [Subtitle-Richtlinien](#subtitle-richtlinien) |
+
+---
+
+## Subtitle-Richtlinien
+
+Der Subtitle wird im Canvas unter dem Knoten-Namen angezeigt und soll auf einen Blick erkennbar machen, **was der Knoten tut**.
+
+### Grundprinzip
+
+**Format:** `Aktion: Objekt`
+
+- **Aktion:** Die Operation, die ausgeführt wird (z.B. `create`, `update`, `search`, `get`)
+- **Objekt:** Das betroffene Objekt oder die Ressource (z.B. `contacts`, `companies`, Custom Object)
+
+### Pattern nach Knoten-Typ
+
+#### 1. Einfache Operation ohne Objekttyp
+
+Wenn der Knoten nur eine oder wenige fixe Operationen hat:
+
+```typescript
+subtitle: 'Get List Members',
+```
+
+**Beispiel:** `HubSpotLists` (nur eine Operation)
+
+#### 2. Multiple Operationen ohne Objekttyp
+
+Wenn verschiedene Operationen auf unterschiedlichen Ressourcen arbeiten:
+
+```typescript
+subtitle: '={{$parameter["operation"] === "submitForm" ? "Submit Form" : $parameter["operation"] === "getForms" ? "Get Forms" : "Get Submissions"}}',
+```
+
+**Beispiel:** `HubSpotForms` (submitForm, getForms, getSubmissions)
+
+#### 3. Operation + Objekttyp (Standard-Pattern)
+
+Wenn der Knoten mit verschiedenen CRM-Objekttypen arbeitet:
+
+```typescript
+subtitle: '={{$parameter["operation"] + ": " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
+```
+
+**Ausgabe:** `create: contacts`, `update: companies`, `search: cars`
+
+**Beispiel:** `HubSpotCrm`
+
+#### 4. Operation + Beziehung (From → To)
+
+Für Assoziations-Knoten mit Quell- und Zielobjekt:
+
+```typescript
+subtitle: '={{$parameter["operation"] + ": " + ($parameter["fromObjectType"] === "custom" ? $parameter["customFromObjectType"] : $parameter["fromObjectType"]) + " → " + ($parameter["toObjectType"] === "custom" ? $parameter["customToObjectType"] : $parameter["toObjectType"])}}',
+```
+
+**Ausgabe:** `create: contacts → companies`, `get: deals → line_items`
+
+**Beispiel:** `HubSpotAssociations`
+
+#### 5. Konditionale Anzeige nach Operation
+
+Wenn verschiedene Operationen unterschiedliche Kontexte haben:
+
+```typescript
+subtitle: '={{$parameter["operation"] === "getObjectTypes" ? "Get Object Types" : "Get Properties: " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
+```
+
+**Ausgabe:** `Get Object Types` oder `Get Properties: contacts`
+
+**Beispiel:** `HubSpotObjectSchema`
+
+### Wichtige Regeln
+
+1. **Immer Aktion + Objekt zeigen** (außer bei Single-Operation-Knoten)
+2. **Custom Object Types auflösen:** Zeige den tatsächlichen Custom-Namen, nicht "custom"
+3. **Title Case für fixe Strings:** `"Get List Members"`, nicht `"get list members"`
+4. **Operation-Parameter verwenden:** Nutze `$parameter["operation"]` für dynamische Aktionen
+5. **Kurz und prägnant:** Maximal 2-3 Komponenten (Aktion, Objekt, ggf. Ziel)
+6. **Konsistente Trennzeichen:**
+   - `: ` für Aktion-Objekt-Trennung
+   - ` → ` für Beziehungen (From → To)
+
+### Checkliste für neue Knoten
+
+- [ ] Subtitle zeigt die **Aktion** (Operation)
+- [ ] Subtitle zeigt das **Objekt** (Ressource/Objekttyp)
+- [ ] Custom Object Types werden **aufgelöst** (nicht "custom" anzeigen)
+- [ ] Format ist **konsistent** mit bestehenden Knoten
+- [ ] Subtitle ist **lesbar** im Canvas (nicht zu lang)
 
 ---
 
@@ -569,11 +659,15 @@ Jeder neue Knoten muss in `package.json` unter `n8n.nodes` registriert werden:
 - [ ] `name` ist camelCase mit `hubSpot`-Präfix und **einzigartig**
 - [ ] `icon: 'file:../../icon.svg'` gesetzt
 - [ ] `credentials` verweist auf `hubspotAppToken`
+- [ ] **`subtitle` zeigt Aktion + Objekt** (siehe [Subtitle-Richtlinien](#subtitle-richtlinien))
+- [ ] **Custom Object Types im Subtitle aufgelöst** (nicht "custom" anzeigen)
 - [ ] `properties`-Array enthält mindestens `operation`-Feld
 - [ ] Object-Type-Felder nutzen `HUBSPOT_OBJECT_TYPE_OPTIONS` + Custom-Fallback
 - [ ] Custom-Object-Type-Feld hat `displayOptions.show` auf `objectType: ['custom']`
 - [ ] `loadOptions` verwenden `hubspotApiRequestForLoadOptions` (nicht `hubspotApiRequest`)
-- [ ] Property-Dropdowns nutzen `PropertyCache` mit `credentialId`-Isolation
+- [ ] **Property-Dropdowns als `options` oder `multiOptions`** je nach Kontext
+- [ ] **Property-Dropdowns nutzen `PropertyCache` mit `credentialId`-Isolation**
+- [ ] **Property-Dropdowns mit `loadOptionsDependsOn`** bei dynamischen Abhängigkeiten
 - [ ] `execute()` nutzt `hubspotApiRequest` (mit automatischem Rate Limiting)
 - [ ] Error-Handling mit `continueOnFail()`-Pattern
 - [ ] Knoten in `package.json` → `n8n.nodes` registriert
