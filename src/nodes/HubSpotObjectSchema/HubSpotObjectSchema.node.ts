@@ -15,7 +15,7 @@ export class HubSpotObjectSchema implements INodeType {
 		icon: 'file:../../icon.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"]}}',
+		subtitle: '={{$parameter["operation"] === "getObjectTypes" ? "Get Object Types" : "Get Properties: " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
 		description: 'Get HubSpot object schema information',
 		defaults: {
 			name: 'HubSpot Object Schema',

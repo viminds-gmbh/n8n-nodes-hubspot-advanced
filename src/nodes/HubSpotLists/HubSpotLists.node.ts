@@ -17,7 +17,7 @@ export class HubSpotLists implements INodeType {
 		icon: 'file:../../icon.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"]}}',
+		subtitle: 'Get List Members',
 		description: 'Get HubSpot list members',
 		defaults: {
 			name: 'HubSpot Lists',

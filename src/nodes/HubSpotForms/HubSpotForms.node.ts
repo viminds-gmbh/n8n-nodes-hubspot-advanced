@@ -16,7 +16,7 @@ export class HubSpotForms implements INodeType {
 		icon: 'file:../../icon.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"]}}',
+		subtitle: '={{$parameter["operation"] === "submitForm" ? "Submit Form" : $parameter["operation"] === "getForms" ? "Get Forms" : "Get Submissions"}}',
 		description: 'Interact with HubSpot Forms API',
 		defaults: {
 			name: 'HubSpot Forms',
