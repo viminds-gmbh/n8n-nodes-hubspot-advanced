@@ -2,7 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/n8n-nodes-hubspot-advanced.svg)](https://www.npmjs.com/package/n8n-nodes-hubspot-advanced)
 
-Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations, and association hydration.
+Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations, association hydration, file management, and list operations.
 
 ## Features
 
@@ -12,6 +12,9 @@ Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations,
 - ✅ **Multi-API Version Support** – v1, v3, v3-legacy, and v4 endpoints
 - ✅ **Type-Safe** – Full TypeScript implementation
 - ✅ **Test-Driven** – Comprehensive test coverage
+- ✅ **File Management** – Upload, replace, and search files in HubSpot File Manager
+- ✅ **List Operations** – Retrieve list members efficiently
+- ✅ **Dynamic Property Loading** – Enhanced property selection with real-time options
 
 ## Installation
 
@@ -100,6 +103,31 @@ Retrieve metadata about object types and properties.
 **Operations:**
 - Get Object Types
 - Get Properties for an object type
+
+### 5. HubSpot Files
+
+Work with HubSpot File Manager for uploading, replacing, and searching files.
+
+**Operations:**
+- Upload File
+- Replace File
+- Search Files
+
+**Key Features:**
+- Multipart form-data support for uploads
+- Folder path and extension filtering for searches
+- Dynamic property selection
+
+### 6. HubSpot Lists
+
+Retrieve members of HubSpot lists.
+
+**Operations:**
+- Get List Members
+
+**Key Features:**
+- Batch retrieval for large lists
+- Efficient association handling
 
 ## Rate Limiting
 
@@ -211,7 +239,9 @@ src/
 │   ├── HubSpotCrm/              # Main CRM node
 │   ├── HubSpotAssociations/     # Associations with hydration
 │   ├── HubSpotForms/            # Forms API
-│   └── HubSpotObjectSchema/     # Schema metadata
+│   ├── HubSpotObjectSchema/     # Schema metadata
+│   ├── HubSpotFiles/            # File Manager operations
+│   └── HubSpotLists/             # List member retrieval
 ├── transport/
 │   ├── RateLimiter.ts           # Adaptive rate limiting
 │   └── HubSpotApiRequest.ts     # API wrapper
@@ -235,6 +265,10 @@ tests/
 | Form Submissions | v1 (legacy) | HubSpot Forms |
 | Submit Form | v3-legacy | HubSpot Forms |
 | Object Schema | v3 | HubSpot Object Schema |
+| File Upload | v3 | HubSpot Files |
+| File Replace | v3 | HubSpot Files |
+| File Search | v3 | HubSpot Files |
+| List Members | v3 | HubSpot Lists |
 
 ## Roadmap
 
