@@ -278,3 +278,38 @@ export async function hubspotFileReplaceRequest(
 		}
 	});
 }
+
+export async function hubspotFormSubmitRequest(
+	this: IExecuteFunctions,
+	portalId: string,
+	formGuid: string,
+	body: IDataObject,
+	useSecureEndpoint: boolean = true,
+): Promise<any> {
+	const credentials = await this.getCredentials('hubspotAppToken');
+
+	const endpoint = useSecureEndpoint
+		? `/submissions/v3/integration/secure/submit/${portalId}/${formGuid}`
+		: `/submissions/v3/integration/submit/${portalId}/${formGuid}`;
+
+	const options: IHttpRequestOptions = {
+		method: 'POST',
+		url: `https://api.hsforms.com${endpoint}`,
+		body,
+		headers: {
+			Authorization: `Bearer ${credentials.appToken}`,
+			'Content-Type': 'application/json',
+		},
+		json: true,
+	};
+
+	try {
+		const response = await this.helpers.httpRequest(options);
+		return response;
+	} catch (error: any) {
+		throw new NodeApiError(this.getNode(), error, {
+			message: error.message || 'HubSpot form submission failed',
+			description: error.description,
+		});
+	}
+}

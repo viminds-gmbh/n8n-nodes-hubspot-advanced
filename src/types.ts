@@ -186,6 +186,43 @@ export const HUBSPOT_OBJECT_TYPE_ID_MAPPING: Record<string, string> = {
 } as const;
 
 /**
+ * Reverse mapping from object type names to object type IDs for Forms API
+ */
+export const HUBSPOT_OBJECT_TYPE_TO_ID: Record<string, string> = {
+	'contacts': '0-1',
+	'companies': '0-2',
+	'deals': '0-3',
+	'tickets': '0-5',
+	'products': '0-6',
+	'line_items': '0-8',
+	'quotes': '0-14',
+	'calls': '0-15',
+	'emails': '0-16',
+	'meetings': '0-17',
+	'notes': '0-18',
+	'tasks': '0-19',
+	'communications': '0-20',
+	'feedback_submissions': '0-21',
+	'invoices': '0-22',
+	'marketing_events': '0-23',
+	'subscriptions': '0-24',
+	'goals': '0-25',
+	'discounts': '0-26',
+	'fees': '0-27',
+	'taxes': '0-28',
+	'payments': '0-29',
+	'user_details': '0-30',
+	'postal_mail': '0-31',
+	'orders': '0-32',
+	'leads': '0-33',
+	'carts': '0-34',
+	'services': '0-35',
+	'listings': '0-36',
+	'appointments': '0-37',
+	'projects': '0-38',
+} as const;
+
+/**
  * File and Folder API Types for HubSpot Files API v3
  */
 export interface HubSpotFileUploadOptions {

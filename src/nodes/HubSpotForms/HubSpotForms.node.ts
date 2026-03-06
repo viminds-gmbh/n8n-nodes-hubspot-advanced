@@ -7,7 +7,8 @@ import type {
 	INodePropertyOptions,
 } from 'n8n-workflow';
 
-import { hubspotApiRequest, hubspotApiRequestForLoadOptions } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequest, hubspotApiRequestForLoadOptions, hubspotFormSubmitRequest } from '../../transport/HubSpotApiRequest';
+import { HUBSPOT_OBJECT_TYPE_OPTIONS, HUBSPOT_OBJECT_TYPE_TO_ID } from '../../types';
 
 export class HubSpotForms implements INodeType {
 	description: INodeTypeDescription = {
@@ -123,6 +124,84 @@ export class HubSpotForms implements INodeType {
 						operation: ['submitForm'],
 					},
 				},
+			},
+			{
+				displayName: 'Email',
+				name: 'email',
+				type: 'string',
+				default: '',
+				required: true,
+				placeholder: 'john@example.com',
+				description: 'The email address to submit with the form. This field is required for contact creation.',
+				displayOptions: {
+					show: {
+						operation: ['submitForm'],
+					},
+				},
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: true,
+				},
+				default: {},
+				description: 'Additional fields to submit with the form. These can be properties from any HubSpot object type.',
+				displayOptions: {
+					show: {
+						operation: ['submitForm'],
+					},
+				},
+				options: [
+					{
+						name: 'field',
+						displayName: 'Field',
+						values: [
+							{
+								displayName: 'Object Type',
+								name: 'objectType',
+								type: 'options',
+								options: [...HUBSPOT_OBJECT_TYPE_OPTIONS],
+								default: 'contacts',
+								required: true,
+								description: 'The type of HubSpot object this property belongs to.',
+							},
+							{
+								displayName: 'Custom Object Type',
+								name: 'customObjectType',
+								type: 'string',
+								default: '',
+								required: true,
+								placeholder: 'cars',
+								description: 'The name or ID of the custom object type (e.g., "cars" or "2-12345").',
+								displayOptions: {
+									show: {
+										objectType: ['custom'],
+									},
+								},
+							},
+							{
+								displayName: 'Property Name',
+								name: 'propertyName',
+								type: 'string',
+								default: '',
+								required: true,
+								placeholder: 'firstname',
+								description: 'The internal name of the property to submit (e.g., firstname, lastname, company, phone). <a href="https://knowledge.hubspot.com/contacts/hubspots-default-contact-properties" target="_blank">See default properties</a>.',
+							},
+							{
+								displayName: 'Value',
+								name: 'value',
+								type: 'string',
+								default: '',
+								required: true,
+								placeholder: 'John',
+								description: 'The value to submit for this property.',
+							},
+						],
+					},
+				],
 			},
 			{
 				displayName: 'Context',
@@ -367,7 +446,8 @@ export class HubSpotForms implements INodeType {
 					}
 				} else if (operation === 'submitForm') {
 					const formGuid = this.getNodeParameter('formGuid', i) as string;
-					const fieldsData = this.getNodeParameter('fields', i, {}) as any;
+					const email = this.getNodeParameter('email', i) as string;
+					const additionalFieldsData = this.getNodeParameter('additionalFields', i, {}) as any;
 					const contextData = this.getNodeParameter('context', i, {}) as any;
 					const submitEndpoint = this.getNodeParameter('submitEndpoint', i, 'secure') as string;
 					const includeConsent = this.getNodeParameter('includeConsent', i, false) as boolean;
@@ -380,11 +460,31 @@ export class HubSpotForms implements INodeType {
 					);
 					const portalId = accountDetailsResponse.portalId.toString();
 
-					const fields: any[] = [];
-					if (fieldsData.field) {
-						fieldsData.field.forEach((field: any) => {
+					// Build fields array starting with email (contacts object type)
+					const fields: any[] = [
+						{
+							objectTypeId: '0-1', // contacts
+							name: 'email',
+							value: email,
+						},
+					];
+
+					// Add additional fields if provided
+					if (additionalFieldsData.field) {
+						additionalFieldsData.field.forEach((field: any) => {
+							const objectTypeRaw = field.objectType;
+							const objectType = objectTypeRaw === 'custom'
+								? field.customObjectType
+								: objectTypeRaw;
+							
+							// Get objectTypeId from mapping, or use the custom object type directly if it's already an ID
+							const objectTypeId = objectTypeRaw === 'custom'
+								? objectType // Custom objects use their ID directly
+								: HUBSPOT_OBJECT_TYPE_TO_ID[objectType] || '0-1'; // Default to contacts if not found
+
 							fields.push({
-								name: field.name,
+								objectTypeId,
+								name: field.propertyName,
 								value: field.value,
 							});
 						});
@@ -416,29 +516,27 @@ export class HubSpotForms implements INodeType {
 							communicationsData.communication.forEach((comm: any) => {
 								communications.push({
 									value: comm.value,
-									subscriptionTypeId: comm.subscriptionTypeId,
+									subscriptionTypeId: parseInt(comm.subscriptionTypeId, 10),
 									text: comm.text,
 								});
 							});
 						}
 
-						body.consent = {
-							consentToProcess,
-							text: consentText,
-							communications,
+						body.legalConsentOptions = {
+							consent: {
+								consentToProcess,
+								text: consentText,
+								communications,
+							},
 						};
 					}
 
-					// Use dynamic endpoint based on submitEndpoint parameter
-					const endpointPath = submitEndpoint === 'secure'
-						? `/submissions/v3/integration/secure/submit/${portalId}/${formGuid}`
-						: `/submissions/v3/integration/submit/${portalId}/${formGuid}`;
-
-					const response = await hubspotApiRequest.call(
+					const response = await hubspotFormSubmitRequest.call(
 						this,
-						'POST',
-						endpointPath,
+						portalId,
+						formGuid,
 						body,
+						submitEndpoint === 'secure',
 					);
 
 					returnData.push({ json: response });
