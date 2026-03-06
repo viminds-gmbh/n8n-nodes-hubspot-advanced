@@ -132,6 +132,7 @@ export class HubSpotCrm implements INodeType {
 				type: 'multiOptions',
 				typeOptions: {
 					loadOptionsMethod: 'getProperties',
+					loadOptionsDependsOn: ['objectType', 'customObjectType'],
 				},
 				default: [],
 				placeholder: 'firstname,lastname,email',
@@ -164,11 +165,15 @@ export class HubSpotCrm implements INodeType {
 							{
 								displayName: 'Property Name',
 								name: 'propertyName',
-								type: 'string',
+								type: 'options',
+								typeOptions: {
+									loadOptionsMethod: 'getProperties',
+									loadOptionsDependsOn: ['objectType', 'customObjectType'],
+								},
 								default: '',
 								required: true,
 								placeholder: 'email',
-								description: 'The internal name of the property to filter by (e.g., "email", "firstname", "createdate").',
+								description: 'The internal name of the property to filter by. Select from the dropdown or use an expression.',
 							},
 							{
 								displayName: 'Operator',
@@ -223,10 +228,14 @@ export class HubSpotCrm implements INodeType {
 							{
 								displayName: 'Property Name',
 								name: 'propertyName',
-								type: 'string',
+								type: 'options',
+								typeOptions: {
+									loadOptionsMethod: 'getProperties',
+									loadOptionsDependsOn: ['objectType', 'customObjectType'],
+								},
 								default: 'createdate',
 								placeholder: 'createdate',
-								description: 'The property to sort results by (e.g., "createdate", "lastname").',
+								description: 'The property to sort results by. Select from the dropdown or use an expression.',
 							},
 							{
 								displayName: 'Direction',

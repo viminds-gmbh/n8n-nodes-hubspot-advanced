@@ -377,14 +377,44 @@ export class HubSpotFiles implements INodeType {
 					},
 				},
 			},
+			// Search - Path
+			{
+				displayName: 'Folder Path',
+				name: 'path',
+				type: 'string',
+				default: '',
+				placeholder: '/uploads/documents',
+				description: 'Search only in this folder path. Leave empty to search all folders.',
+				displayOptions: {
+					show: {
+						resource: ['file'],
+						operation: ['search'],
+					},
+				},
+			},
 			// Search - Folder ID
 			{
-				displayName: 'Folder ID',
+				displayName: 'Parent Folder ID',
 				name: 'parentFolderId',
 				type: 'string',
 				default: '',
 				placeholder: '1234567890',
-				description: 'Search only in this specific folder. Leave empty to search all folders.',
+				description: 'Search only in this specific folder by ID. Leave empty to search all folders.',
+				displayOptions: {
+					show: {
+						resource: ['file'],
+						operation: ['search'],
+					},
+				},
+			},
+			// Search - Extension
+			{
+				displayName: 'File Extension',
+				name: 'extension',
+				type: 'string',
+				default: '',
+				placeholder: 'pdf',
+				description: 'Search for files with this extension (e.g. pdf, jpg, png). Leave empty to search all extensions.',
 				displayOptions: {
 					show: {
 						resource: ['file'],
@@ -538,7 +568,9 @@ export class HubSpotFiles implements INodeType {
 
 						case 'search': {
 							const name = this.getNodeParameter('name', i, '') as string;
+							const path = this.getNodeParameter('path', i, '') as string;
 							const parentFolderId = this.getNodeParameter('parentFolderId', i, '') as string;
+							const extension = this.getNodeParameter('extension', i, '') as string;
 							const limit = this.getNodeParameter('limit', i, 20) as number;
 
 							const queryParams: Record<string, any> = {
@@ -549,8 +581,16 @@ export class HubSpotFiles implements INodeType {
 								queryParams.name = name;
 							}
 
+							if (path) {
+								queryParams.path = path;
+							}
+
 							if (parentFolderId) {
 								queryParams.parentFolderId = parentFolderId;
+							}
+
+							if (extension) {
+								queryParams.extension = extension;
 							}
 
 							response = await hubspotApiRequest.call(
