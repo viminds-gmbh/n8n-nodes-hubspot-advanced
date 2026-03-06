@@ -89,12 +89,35 @@ API Calls: ~4 (instead of 500!)
 
 ### 3. HubSpot Forms
 
-Work with HubSpot forms and submissions.
+Work with HubSpot forms and submissions with advanced field mapping and GDPR compliance.
 
 **Operations:**
 - Get Forms (v3)
 - Get Submissions (v1 API)
-- Submit Form (v3-legacy)
+- **Submit Form (v3-legacy)** ⭐
+
+**Key Features:**
+- Multi-object field support (contacts, companies, deals, custom objects)
+- GDPR consent and subscription management
+- Secure and unsecure endpoint options
+- Context tracking (page URI, HUTK, IP address)
+- Dynamic subscription type loading
+- Dedicated API handler (doesn't impact rate limits of other nodes)
+
+**Submit Form Example:**
+```
+[HubSpot Forms: Submit Form]
+  Form: Contact Form
+  Email: john@example.com
+  Additional Fields:
+    - Contact: firstname = John
+    - Contact: lastname = Doe
+    - Company: name = Acme Corp
+  Consent & Subscriptions:
+    - Marketing Emails: ✓ Opted In
+    - Newsletter: ✓ Opted In
+  Endpoint: Secure (recommended)
+```
 
 ### 4. HubSpot Object Schema
 
@@ -263,7 +286,7 @@ tests/
 | Batch Read | v3 | All nodes |
 | Forms List | v3 | HubSpot Forms |
 | Form Submissions | v1 (legacy) | HubSpot Forms |
-| Submit Form | v3-legacy | HubSpot Forms |
+| Submit Form | v3-legacy (api.hsforms.com) | HubSpot Forms |
 | Object Schema | v3 | HubSpot Object Schema |
 | File Upload | v3 | HubSpot Files |
 | File Replace | v3 | HubSpot Files |
@@ -276,9 +299,12 @@ tests/
 - [x] 429-Handling mit Exponential Backoff + Jitter
 - [x] Retry-After Header Support
 - [x] Comprehensive Test Suite (23 Tests)
+- [x] Forms API v3 with multi-object support
+- [x] GDPR consent and subscription management
+- [x] Dedicated form submission handler (rate-limit isolated)
 - [ ] OAuth2 support
 - [ ] Webhook triggers
-- [ ] Custom object support
+- [x] Custom object support (in Forms and CRM)
 - [ ] Association labels
 - [ ] Batch operations UI
 - [ ] Advanced filtering
