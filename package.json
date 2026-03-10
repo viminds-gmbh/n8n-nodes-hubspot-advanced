@@ -23,7 +23,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && npm run copy:icons",
+    "build": "npm run lint && npm run lint:fix && tsc && npm run copy:icons",
     "copy:icons": "copyfiles -u 1 \"src/**/*.{png,svg}\" dist/ && copyfiles \"icon.svg\" dist/",
     "dev": "tsc --watch",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -45,7 +45,8 @@
       "dist/nodes/HubSpotForms/HubSpotForms.node.js",
       "dist/nodes/HubSpotFiles/HubSpotFiles.node.js",
       "dist/nodes/HubSpotObjectSchema/HubSpotObjectSchema.node.js",
-      "dist/nodes/HubSpotLists/HubSpotLists.node.js"
+      "dist/nodes/HubSpotLists/HubSpotLists.node.js",
+      "dist/nodes/HubSpotMarketingEvents/HubSpotMarketingEvents.node.js"
     ]
   },
   "devDependencies": {
