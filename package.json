@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-hubspot-advanced",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Advanced HubSpot nodes for n8n with rate limiting, batch operations, and association hydration",
   "keywords": [
     "n8n-community-node-package"
