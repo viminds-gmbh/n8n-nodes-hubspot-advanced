@@ -26,17 +26,109 @@ Referenz-Dokumentation für die Erstellung neuer Knoten im `n8n-nodes-hubspot-ad
 ```
 src/
 ├── nodes/
-│   ├── HubSpotCrm/           # CRUD + Search für CRM-Objekte
-│   ├── HubSpotAssociations/   # Assoziationen lesen/schreiben
-│   ├── HubSpotForms/          # Formulare + Submissions
-│   ├── HubSpotLists/          # Listen-Mitglieder abrufen
-│   └── HubSpotObjectSchema/   # Schema/Properties-Introspection
+│   ├── HubSpotCrm/              # CRUD + Search für CRM-Objekte
+│   │   ├── HubSpotCrm.node.ts   # Haupt-Node (Orchestrierung)
+│   │   ├── descriptions/        # Feld-Definitionen
+│   │   │   ├── index.ts
+│   │   │   └── crmDescriptions.ts
+│   │   └── operations/          # Business-Logik
+│   │       ├── index.ts
+│   │       └── crmOperations.ts
+│   ├── HubSpotAssociations/     # Assoziationen lesen/schreiben
+│   ├── HubSpotFiles/            # Datei-Manager (Upload, Replace, Search)
+│   ├── HubSpotForms/            # Formulare + Submissions
+│   ├── HubSpotLists/            # Listen-Mitglieder abrufen (einfach, keine Unterordner)
+│   ├── HubSpotMarketingEvents/  # Marketing Events
+│   └── HubSpotObjectSchema/     # Schema/Properties-Introspection
 ├── transport/
-│   ├── HubSpotApiRequest.ts   # API-Hilfsfunktionen (execute + loadOptions)
-│   ├── PropertyCache.ts       # Singleton-Cache für Property-Dropdowns
-│   └── RateLimiter.ts         # Adaptives Rate Limiting (Singleton)
-├── types.ts                   # Shared Interfaces, Konstanten, Options-Arrays
-└── icon.svg                   # Gemeinsames Icon
+│   ├── HubSpotApiRequest.ts     # API-Hilfsfunktionen (execute + loadOptions)
+│   ├── PropertyCache.ts         # Singleton-Cache für Property-Dropdowns
+│   └── RateLimiter.ts           # Adaptives Rate Limiting (Singleton)
+├── types.ts                     # Shared Interfaces, Konstanten, Options-Arrays
+└── icon.svg                     # Gemeinsames Icon
+```
+
+### Modulare Knoten-Struktur (empfohlen für komplexe Knoten)
+
+Für Knoten mit mehreren Ressourcen oder Operationen (>300 Zeilen) wird die modulare Struktur empfohlen:
+
+```
+NodeName/
+├── NodeName.node.ts        # Haupt-Node (~80-150 Zeilen, Orchestrierung)
+├── types.ts                # Lokale Typen (optional)
+├── descriptions/           # Feld-Definitionen
+│   ├── index.ts            # Re-exports
+│   ├── sharedDescriptions.ts    # Gemeinsame Felder (Resource, Limit, etc.)
+│   ├── resourceADescriptions.ts # Ressource A Felder
+│   └── resourceBDescriptions.ts # Ressource B Felder
+└── operations/             # Business-Logik
+    ├── index.ts            # Re-exports
+    ├── resourceAOperations.ts   # Ressource A Logik
+    └── resourceBOperations.ts   # Ressource B Logik
+```
+
+#### Vorteile der modularen Struktur
+
+| Vorteil | Beschreibung |
+|---------|--------------|
+| **Lesbarkeit** | Hauptdatei fokussiert auf Orchestrierung (~100 vs. ~500+ Zeilen) |
+| **Wiederverwendbarkeit** | Shared Descriptions können von mehreren Ressourcen genutzt werden |
+| **Testbarkeit** | Operationen sind isoliert testbar |
+| **Skalierbarkeit** | Neue Ressourcen/Operationen leicht hinzufügbar |
+| **Separation of Concerns** | Beschreibungen, Logik und Typen sind getrennt |
+
+#### Wann welche Struktur?
+
+| Knoten-Komplexität | Empfohlene Struktur |
+|--------------------|---------------------|
+| **Einfach** (1 Operation, <200 Zeilen) | Einzelne `.node.ts` (z.B. `HubSpotLists`) |
+| **Mittel** (2-3 Operationen, <400 Zeilen) | Einzelne `.node.ts` oder beginne Extraktion |
+| **Komplex** (4+ Operationen, mehrere Ressourcen) | Modulare Struktur mit `descriptions/` + `operations/` |
+
+#### Beispiel: Modulare Haupt-Node
+
+```typescript
+import type { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import { resourceField, resourceAFields, resourceBFields } from './descriptions';
+import { executeResourceAOperation, executeResourceBOperation } from './operations';
+
+export class HubSpotMyNode implements INodeType {
+  description: INodeTypeDescription = {
+    // ... metadata ...
+    properties: [
+      resourceField,
+      ...resourceAFields,
+      ...resourceBFields,
+    ],
+  };
+
+  async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+    const items = this.getInputData();
+    const returnData: INodeExecutionData[] = [];
+    const resource = this.getNodeParameter('resource', 0) as string;
+    const operation = this.getNodeParameter('operation', 0) as string;
+
+    for (let i = 0; i < items.length; i++) {
+      try {
+        if (resource === 'resourceA') {
+          const results = await executeResourceAOperation(this, operation, items, i);
+          returnData.push(...results);
+        } else if (resource === 'resourceB') {
+          const result = await executeResourceBOperation(this, operation, i);
+          returnData.push(result);
+        }
+      } catch (error) {
+        if (this.continueOnFail()) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
+          continue;
+        }
+        throw error;
+      }
+    }
+    return [returnData];
+  }
+}
 ```
 
 Jeder Knoten liegt in einem eigenen Ordner unter `src/nodes/<NodeName>/` und enthält mindestens eine Datei `<NodeName>.node.ts`.
@@ -1030,6 +1122,13 @@ Jedes Feld sollte:
 - [ ] `icon: 'file:../../icon.svg'` gesetzt
 - [ ] `group: ['transform']` gesetzt (Legacy-Kompatibilität)
 - [ ] `credentials` verweist auf `hubspotAppToken`
+
+### Modulare Struktur (für komplexe Knoten)
+- [ ] **Bei >300 Zeilen:** `descriptions/` Unterordner mit Feld-Definitionen
+- [ ] **Bei >300 Zeilen:** `operations/` Unterordner mit Business-Logik
+- [ ] **Re-Export-Dateien:** `index.ts` in jedem Unterordner
+- [ ] **Haupt-Node:** Fokus auf Orchestrierung, importiert aus Unterordnern
+- [ ] **Shared Descriptions:** Wiederverwendbare Felder extrahiert
 
 ### Kategorisierung & Branding
 - [ ] **`codex`-Eigenschaft nach `defaults` eingefügt**
