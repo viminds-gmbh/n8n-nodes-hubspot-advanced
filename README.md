@@ -14,6 +14,7 @@ Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations,
 - ✅ **Test-Driven** – Comprehensive test coverage
 - ✅ **File Management** – Upload, replace, and search files in HubSpot File Manager
 - ✅ **List Operations** – Retrieve list members efficiently
+- ✅ **Marketing Events** – Create, manage, and track marketing events with participant registration
 - ✅ **Dynamic Property Loading** – Enhanced property selection with real-time options
 
 ## Installation
@@ -152,6 +153,49 @@ Retrieve members of HubSpot lists.
 - Batch retrieval for large lists
 - Efficient association handling
 
+### 7. HubSpot Marketing Events
+
+Create and manage marketing events with participant tracking.
+
+**Event Operations:**
+- Get single event
+- Create or Update event (upsert)
+- Search/list all events
+- Update event
+- Delete event
+- Get participants with filtering
+- Get participation statistics
+
+**Contact Operations:**
+- Register contacts for events
+- Mark contacts as attended
+- Cancel contact registration
+
+**Key Features:**
+- Support for both contact ID and email identification
+- Custom property management
+- Participant state filtering (registered, attended, cancelled)
+- Automatic pagination for large participant lists
+- Dynamic property loading from HubSpot schema
+
+**Example Workflow:**
+```
+[HubSpot Marketing Events: Create]
+  Event Name: Product Launch Webinar 2024
+  Event Organizer: Marketing Team
+  External Event ID: webinar-2024-q1
+  Start Date: 2024-03-15T14:00:00Z
+  Event Type: WEBINAR
+        ↓
+[HubSpot Marketing Events: Register]
+  Event: Product Launch Webinar 2024
+  Identifier Type: Email
+  Email: john@example.com
+        ↓
+[HubSpot Marketing Events: Get Participants]
+  Filter: State = REGISTERED
+```
+
 ## Rate Limiting
 
 **Adaptive, response-based rate limiting** – works reliably even in n8n Queue Mode with multiple workers.
@@ -264,7 +308,8 @@ src/
 │   ├── HubSpotForms/            # Forms API
 │   ├── HubSpotObjectSchema/     # Schema metadata
 │   ├── HubSpotFiles/            # File Manager operations
-│   └── HubSpotLists/             # List member retrieval
+│   ├── HubSpotLists/            # List member retrieval
+│   └── HubSpotMarketingEvents/  # Marketing events and participants
 ├── transport/
 │   ├── RateLimiter.ts           # Adaptive rate limiting
 │   └── HubSpotApiRequest.ts     # API wrapper
@@ -292,6 +337,9 @@ tests/
 | File Replace | v3 | HubSpot Files |
 | File Search | v3 | HubSpot Files |
 | List Members | v3 | HubSpot Lists |
+| Marketing Events (CRUD) | v3 | HubSpot Marketing Events |
+| Event Participants | v3 | HubSpot Marketing Events |
+| Contact Registration | v3 | HubSpot Marketing Events |
 
 ## Roadmap
 
