@@ -145,7 +145,7 @@ export class HubSpotLists implements INodeType {
 					);
 
 					if (response.lists) {
-						response.lists.forEach((list: any) => {
+						response.lists.forEach((list: { objectTypeId: string; name: string; listId: string | number }) => {
 							const objectType = HUBSPOT_OBJECT_TYPE_ID_MAPPING[list.objectTypeId] || list.objectTypeId;
 							const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1);
 							options.push({
@@ -246,7 +246,7 @@ export class HubSpotLists implements INodeType {
 					let hasMore = true;
 
 					while (hasMore) {
-						const queryParams: Record<string, any> = { limit: 250 };
+						const queryParams: Record<string, string | number> = { limit: 250 };
 						if (after) {
 							queryParams.after = after;
 						}
@@ -260,7 +260,7 @@ export class HubSpotLists implements INodeType {
 						);
 
 						if (membershipsResponse.results) {
-							membershipsResponse.results.forEach((membership: any) => {
+							membershipsResponse.results.forEach((membership: { recordId: string }) => {
 								memberRecordIds.push(membership.recordId);
 							});
 						}
@@ -289,9 +289,10 @@ export class HubSpotLists implements INodeType {
 						hydratedRecords.forEach((record) => returnData.push({ json: record }));
 					}
 				}
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
 					continue;
 				}
 				throw error;

@@ -9,6 +9,7 @@ import { NodeApiError } from 'n8n-workflow';
 import { HubSpotRateLimiter } from './RateLimiter';
 import type { HubSpotApiResponse } from '../types';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotApiRequest(
 	this: IExecuteFunctions,
 	method: IHttpRequestMethods,
@@ -40,14 +41,15 @@ export async function hubspotApiRequest(
 				data: response,
 				headers: response.headers || {},
 			};
-		} catch (error: any) {
-			if (error.statusCode === 429 || error.httpCode === 429) {
+		} catch (error) {
+			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
+			if (err.statusCode === 429 || err.httpCode === 429) {
 				throw error;
 			}
 
-			throw new NodeApiError(this.getNode(), error, {
-				message: error.message || 'HubSpot API request failed',
-				description: error.description,
+			throw new NodeApiError(this.getNode(), error as { message: string }, {
+				message: err.message || 'HubSpot API request failed',
+				description: err.description,
 			});
 		}
 	});
@@ -59,8 +61,8 @@ export async function hubspotApiRequestAllItems(
 	endpoint: string,
 	body: IDataObject = {},
 	limit?: number,
-): Promise<any[]> {
-	const results: any[] = [];
+): Promise<IDataObject[]> {
+	const results: IDataObject[] = [];
 	let after: string | undefined;
 
 	do {
@@ -80,7 +82,7 @@ export async function hubspotApiRequestAllItems(
 		);
 
 		if (response.results) {
-			results.push(...response.results);
+			results.push(...(response.results as IDataObject[]));
 		}
 
 		after = response.paging?.next?.after;
@@ -98,9 +100,9 @@ export async function hubspotBatchRequest(
 	objectType: string,
 	ids: string[],
 	properties: string[] = [],
-): Promise<any[]> {
+): Promise<IDataObject[]> {
 	const batchSize = 100;
-	const results: any[] = [];
+	const results: IDataObject[] = [];
 
 	for (let i = 0; i < ids.length; i += batchSize) {
 		const batch = ids.slice(i, i + batchSize);
@@ -117,14 +119,15 @@ export async function hubspotBatchRequest(
 			body,
 		);
 
-		if (response.results) {
-			results.push(...response.results);
+		if (response.results && Array.isArray(response.results)) {
+			results.push(...(response.results as IDataObject[]));
 		}
 	}
 
 	return results;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotApiRequestForLoadOptions(
 	this: ILoadOptionsFunctions,
 	method: IHttpRequestMethods,
@@ -149,11 +152,13 @@ export async function hubspotApiRequestForLoadOptions(
 	try {
 		const response = await this.helpers.httpRequest(options);
 		return response;
-	} catch (error: any) {
-		throw new Error(`HubSpot API request failed: ${error.message}`);
+	} catch (error) {
+		const err = error as { message?: string };
+		throw new Error(`HubSpot API request failed: ${err.message || 'Unknown error'}`);
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotFileUploadRequest(
 	this: IExecuteFunctions,
 	binaryData: Buffer,
@@ -201,19 +206,21 @@ export async function hubspotFileUploadRequest(
 				data: response,
 				headers: response.headers || {},
 			};
-		} catch (error: any) {
-			if (error.statusCode === 429 || error.httpCode === 429) {
+		} catch (error) {
+			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
+			if (err.statusCode === 429 || err.httpCode === 429) {
 				throw error;
 			}
 
-			throw new NodeApiError(this.getNode(), error, {
-				message: error.message || 'HubSpot file upload failed',
-				description: error.description,
+			throw new NodeApiError(this.getNode(), error as { message: string }, {
+				message: err.message || 'HubSpot file upload failed',
+				description: err.description,
 			});
 		}
 	});
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotFileReplaceRequest(
 	this: IExecuteFunctions,
 	fileId: string,
@@ -236,7 +243,7 @@ export async function hubspotFileReplaceRequest(
 		contentType: options.mimeType || 'application/octet-stream'
 	});
 
-	const replaceOptions: Record<string, any> = {};
+	const replaceOptions: Record<string, string | number> = {};
 	if (options.access) {
 		replaceOptions.access = options.access;
 	}
@@ -266,19 +273,21 @@ export async function hubspotFileReplaceRequest(
 				data: response,
 				headers: response.headers || {},
 			};
-		} catch (error: any) {
-			if (error.statusCode === 429 || error.httpCode === 429) {
+		} catch (error) {
+			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
+			if (err.statusCode === 429 || err.httpCode === 429) {
 				throw error;
 			}
 
-			throw new NodeApiError(this.getNode(), error, {
-				message: error.message || 'HubSpot file replace failed',
-				description: error.description,
+			throw new NodeApiError(this.getNode(), error as { message: string }, {
+				message: err.message || 'HubSpot file replace failed',
+				description: err.description,
 			});
 		}
 	});
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotFormSubmitRequest(
 	this: IExecuteFunctions,
 	portalId: string,
@@ -306,10 +315,11 @@ export async function hubspotFormSubmitRequest(
 	try {
 		const response = await this.helpers.httpRequest(options);
 		return response;
-	} catch (error: any) {
-		throw new NodeApiError(this.getNode(), error, {
-			message: error.message || 'HubSpot form submission failed',
-			description: error.description,
+	} catch (error) {
+		const err = error as { message?: string; description?: string };
+		throw new NodeApiError(this.getNode(), error as { message: string }, {
+			message: err.message || 'HubSpot form submission failed',
+			description: err.description,
 		});
 	}
 }

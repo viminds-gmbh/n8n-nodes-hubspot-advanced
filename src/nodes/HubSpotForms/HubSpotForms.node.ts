@@ -5,10 +5,42 @@ import type {
 	INodeTypeDescription,
 	ILoadOptionsFunctions,
 	INodePropertyOptions,
+	IDataObject,
 } from 'n8n-workflow';
 
-import { hubspotApiRequest, hubspotApiRequestForLoadOptions, hubspotFormSubmitRequest } from '../../transport/HubSpotApiRequest';
-import { HUBSPOT_OBJECT_TYPE_OPTIONS, HUBSPOT_OBJECT_TYPE_TO_ID } from '../../types';
+import { hubspotApiRequest, hubspotFormSubmitRequest, hubspotApiRequestForLoadOptions } from '../../transport/HubSpotApiRequest';
+import { HUBSPOT_OBJECT_TYPE_TO_ID, HUBSPOT_OBJECT_TYPE_OPTIONS } from '../../types';
+
+interface FormField {
+	objectTypeId: string;
+	name: string;
+	value: string;
+}
+
+interface FormContext {
+	pageUri?: string;
+	pageName?: string;
+	hutk?: string;
+	ipAddress?: string;
+}
+
+interface FormCommunication {
+	value: boolean;
+	subscriptionTypeId: number;
+	text?: string;
+}
+
+interface FormSubmissionBody extends IDataObject {
+	fields: FormField[];
+	context: FormContext;
+	legalConsentOptions?: {
+		consent: {
+			consentToProcess: boolean;
+			text: string;
+			communications: FormCommunication[];
+		};
+	};
+}
 
 export class HubSpotForms implements INodeType {
 	description: INodeTypeDescription = {
@@ -423,7 +455,7 @@ export class HubSpotForms implements INodeType {
 					);
 
 					if (response.results) {
-						response.results.forEach((form: any) => {
+						response.results.forEach((form: IDataObject) => {
 							returnData.push({ json: form });
 						});
 					}
@@ -440,15 +472,15 @@ export class HubSpotForms implements INodeType {
 					);
 
 					if (response.results) {
-						response.results.forEach((submission: any) => {
+						for (const submission of response.results) {
 							returnData.push({ json: submission });
-						});
+						}
 					}
 				} else if (operation === 'submitForm') {
 					const formGuid = this.getNodeParameter('formGuid', i) as string;
 					const email = this.getNodeParameter('email', i) as string;
-					const additionalFieldsData = this.getNodeParameter('additionalFields', i, {}) as any;
-					const contextData = this.getNodeParameter('context', i, {}) as any;
+					const additionalFieldsData = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
+					const contextData = this.getNodeParameter('context', i, {}) as IDataObject;
 					const submitEndpoint = this.getNodeParameter('submitEndpoint', i, 'secure') as string;
 					const includeConsent = this.getNodeParameter('includeConsent', i, false) as boolean;
 
@@ -461,7 +493,7 @@ export class HubSpotForms implements INodeType {
 					const portalId = accountDetailsResponse.portalId.toString();
 
 					// Build fields array starting with email (contacts object type)
-					const fields: any[] = [
+					const fields: FormField[] = [
 						{
 							objectTypeId: '0-1', // contacts
 							name: 'email',
@@ -470,11 +502,11 @@ export class HubSpotForms implements INodeType {
 					];
 
 					// Add additional fields if provided
-					if (additionalFieldsData.field) {
-						additionalFieldsData.field.forEach((field: any) => {
-							const objectTypeRaw = field.objectType;
+					if (additionalFieldsData.field && Array.isArray(additionalFieldsData.field)) {
+						(additionalFieldsData.field as IDataObject[]).forEach((field) => {
+							const objectTypeRaw = field.objectType as string;
 							const objectType = objectTypeRaw === 'custom'
-								? field.customObjectType
+								? (field.customObjectType as string)
 								: objectTypeRaw;
 							
 							// Get objectTypeId from mapping, or use the custom object type directly if it's already an ID
@@ -484,23 +516,23 @@ export class HubSpotForms implements INodeType {
 
 							fields.push({
 								objectTypeId,
-								name: field.propertyName,
-								value: field.value,
+								name: field.propertyName as string,
+								value: field.value as string,
 							});
 						});
 					}
 
 					// Build context from parameters
-					const context: any = {};
+					const context: FormContext = {};
 					if (contextData.contextFields) {
-						const ctx = contextData.contextFields;
-						if (ctx.pageUri) context.pageUri = ctx.pageUri;
-						if (ctx.pageName) context.pageName = ctx.pageName;
-						if (ctx.hutk) context.hutk = ctx.hutk;
-						if (ctx.ipAddress) context.ipAddress = ctx.ipAddress;
+						const ctx = contextData.contextFields as IDataObject;
+						if (ctx.pageUri) context.pageUri = ctx.pageUri as string;
+						if (ctx.pageName) context.pageName = ctx.pageName as string;
+						if (ctx.hutk) context.hutk = ctx.hutk as string;
+						if (ctx.ipAddress) context.ipAddress = ctx.ipAddress as string;
 					}
 
-					const body: any = {
+					const body: FormSubmissionBody = {
 						fields,
 						context,
 					};
@@ -509,15 +541,15 @@ export class HubSpotForms implements INodeType {
 					if (includeConsent) {
 						const consentText = this.getNodeParameter('consentText', i, 'Ich stimme der Verarbeitung zu') as string;
 						const consentToProcess = this.getNodeParameter('consentToProcess', i, true) as boolean;
-						const communicationsData = this.getNodeParameter('communications', i, {}) as any;
+						const communicationsData = this.getNodeParameter('communications', i, {}) as IDataObject;
 
-						const communications: any[] = [];
-						if (communicationsData.communication) {
-							communicationsData.communication.forEach((comm: any) => {
+						const communications: FormCommunication[] = [];
+						if (communicationsData.communication && Array.isArray(communicationsData.communication)) {
+							(communicationsData.communication as IDataObject[]).forEach((comm) => {
 								communications.push({
-									value: comm.value,
-									subscriptionTypeId: parseInt(comm.subscriptionTypeId, 10),
-									text: comm.text,
+									value: comm.value as boolean,
+									subscriptionTypeId: parseInt(comm.subscriptionTypeId as string, 10),
+									text: comm.text as string,
 								});
 							});
 						}
@@ -541,9 +573,10 @@ export class HubSpotForms implements INodeType {
 
 					returnData.push({ json: response });
 				}
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
 					continue;
 				}
 				throw error;

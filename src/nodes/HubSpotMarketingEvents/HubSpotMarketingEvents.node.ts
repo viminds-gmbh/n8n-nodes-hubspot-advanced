@@ -14,7 +14,7 @@ import { executeEventOperation, executeContactOperation } from './operations';
 
 export class HubSpotMarketingEvents implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'HubSpot Marketing Events.',
+		displayName: 'HubSpot Marketing Events',
 		name: 'hubSpotMarketingEvents',
 		icon: 'file:../../icon.svg',
 		group: ['transform'],

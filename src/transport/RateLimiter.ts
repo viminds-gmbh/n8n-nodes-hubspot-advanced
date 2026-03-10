@@ -32,7 +32,7 @@ export class HubSpotRateLimiter {
 	 * All nodes in the same n8n worker process share this.
 	 */
 	static getInstance(): HubSpotRateLimiter {
-		const g = globalThis as any;
+		const g = globalThis as typeof globalThis & { [GLOBAL_KEY]?: HubSpotRateLimiter };
 		if (!g[GLOBAL_KEY]) {
 			g[GLOBAL_KEY] = new HubSpotRateLimiter();
 		}
@@ -52,7 +52,7 @@ export class HubSpotRateLimiter {
 		fn: () => Promise<{ data: T; headers?: Record<string, string> }>,
 		maxRetries = 5,
 	): Promise<T> {
-		let lastError: any;
+		let lastError: Error | unknown;
 
 		for (let attempt = 0; attempt <= maxRetries; attempt++) {
 			try {
@@ -66,7 +66,7 @@ export class HubSpotRateLimiter {
 
 				this.consecutive429Count = 0;
 				return result.data;
-			} catch (error: any) {
+			} catch (error: unknown) {
 				lastError = error;
 
 				if (this.is429(error)) {
@@ -85,10 +85,8 @@ export class HubSpotRateLimiter {
 			}
 		}
 
-		throw new Error(
-			`HubSpot rate limit: max retries (${maxRetries}) exceeded. ` +
-				`Last error: ${lastError?.message || 'unknown'}`,
-		);
+		const errorMessage = lastError instanceof Error ? lastError.message : String(lastError);
+		throw new Error(`Rate limit exceeded after ${maxRetries} retries: ${errorMessage}`);
 	}
 
 	/**
@@ -167,7 +165,7 @@ export class HubSpotRateLimiter {
 	 * 1. Retry-After header (HubSpot sometimes sends this)
 	 * 2. Exponential backoff with jitter, escalating with consecutive 429s
 	 */
-	private calculateBackoff(error: any, attempt: number): number {
+	private calculateBackoff(error: unknown, attempt: number): number {
 		const retryAfter = this.extractRetryAfter(error);
 		if (retryAfter !== null) {
 			return retryAfter + this.jitter(500);
@@ -184,8 +182,13 @@ export class HubSpotRateLimiter {
 	 * Try to extract Retry-After from error response.
 	 * HubSpot may send it as seconds in the header or in the response body.
 	 */
-	private extractRetryAfter(error: any): number | null {
-		const headers = error?.response?.headers || error?.headers || {};
+	private extractRetryAfter(error: unknown): number | null {
+		const err = error as { 
+			response?: { headers?: Record<string, string>; body?: { policyName?: string } }; 
+			headers?: Record<string, string>;
+			body?: { policyName?: string };
+		};
+		const headers = err?.response?.headers || err?.headers || {};
 
 		const retryAfterHeader = headers['retry-after'] || headers['Retry-After'];
 		if (retryAfterHeader) {
@@ -195,7 +198,7 @@ export class HubSpotRateLimiter {
 			}
 		}
 
-		const policyName = error?.response?.body?.policyName || error?.body?.policyName;
+		const policyName = err?.response?.body?.policyName || err?.body?.policyName;
 		if (policyName === 'TEN_SECONDLY_ROLLING') {
 			return 10000;
 		}
@@ -206,12 +209,13 @@ export class HubSpotRateLimiter {
 		return null;
 	}
 
-	is429(error: any): boolean {
+	is429(error: unknown): boolean {
+		const err = error as { statusCode?: number; response?: { statusCode?: number }; httpCode?: number; code?: number };
 		return (
-			error?.statusCode === 429 ||
-			error?.response?.statusCode === 429 ||
-			error?.httpCode === 429 ||
-			error?.code === 429
+			err?.statusCode === 429 ||
+			err?.response?.statusCode === 429 ||
+			err?.httpCode === 429 ||
+			err?.code === 429
 		);
 	}
 

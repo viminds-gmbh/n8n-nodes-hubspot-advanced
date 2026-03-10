@@ -22,7 +22,7 @@ export class PropertyCache {
 	 * All nodes in the same n8n worker process share this.
 	 */
 	static getInstance(): PropertyCache {
-		const g = globalThis as any;
+		const g = globalThis as typeof globalThis & { [GLOBAL_CACHE_KEY]?: PropertyCache };
 		if (!g[GLOBAL_CACHE_KEY]) {
 			g[GLOBAL_CACHE_KEY] = new PropertyCache();
 		}

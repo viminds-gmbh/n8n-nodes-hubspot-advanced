@@ -3,6 +3,7 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	IBinaryData,
 } from 'n8n-workflow';
 
 import { hubspotApiRequest, hubspotFileUploadRequest, hubspotFileReplaceRequest } from '../../transport/HubSpotApiRequest';
@@ -496,7 +497,7 @@ export class HubSpotFiles implements INodeType {
 			i: number,
 			binaryPropertyName: string,
 			customFileName?: string
-		): Promise<{ buffer: Buffer; fileName: string; mimeType: string; binaryData: any }> => {
+		): Promise<{ buffer: Buffer; fileName: string; mimeType: string; binaryData: IBinaryData }> => {
 			const itemBinaryData = items[i].binary;
 			if (!itemBinaryData || !itemBinaryData[binaryPropertyName]) {
 				throw new Error(`No binary data found in property "${binaryPropertyName}"`);
@@ -517,6 +518,7 @@ export class HubSpotFiles implements INodeType {
 
 		for (let i = 0; i < items.length; i++) {
 			try {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				let response: any;
 
 				// File Operations
@@ -573,7 +575,7 @@ export class HubSpotFiles implements INodeType {
 							const extension = this.getNodeParameter('extension', i, '') as string;
 							const limit = this.getNodeParameter('limit', i, 20) as number;
 
-							const queryParams: Record<string, any> = {
+							const queryParams: Record<string, string | number> = {
 								limit: Math.min(limit, 100)
 							};
 
@@ -609,7 +611,7 @@ export class HubSpotFiles implements INodeType {
 							const access = this.getNodeParameter('access', i) as string;
 							const fileName = this.getNodeParameter('fileName', i, '') as string;
 
-							const body: Record<string, any> = {
+							const body: Record<string, string> = {
 								url,
 								access
 							};
@@ -690,7 +692,7 @@ export class HubSpotFiles implements INodeType {
 							const updateAccess = this.getNodeParameter('updateAccess', i, '') as string;
 							const updateParentFolderId = this.getNodeParameter('updateParentFolderId', i, '') as string;
 
-							const body: Record<string, any> = {};
+							const body: Record<string, string> = {};
 							if (updateName) body.name = updateName;
 							if (updateAccess) body.access = updateAccess;
 							if (updateParentFolderId) body.parentFolderId = updateParentFolderId;
@@ -747,7 +749,7 @@ export class HubSpotFiles implements INodeType {
 							const name = this.getNodeParameter('name', i, '') as string;
 							const limit = this.getNodeParameter('limit', i, 20) as number;
 
-							const queryParams: Record<string, any> = {
+							const queryParams: Record<string, string | number> = {
 								limit: Math.min(limit, 100)
 							};
 
@@ -770,7 +772,7 @@ export class HubSpotFiles implements INodeType {
 							const folderName = this.getNodeParameter('folderName', i) as string;
 							const parentFolderId = this.getNodeParameter('parentFolderId', i, '') as string;
 
-							const body: Record<string, any> = {
+							const body: Record<string, string> = {
 								name: folderName,
 								path: folderPath
 							};
@@ -793,7 +795,7 @@ export class HubSpotFiles implements INodeType {
 							const updateFolderName = this.getNodeParameter('updateFolderName', i, '') as string;
 							const updateFolderParentId = this.getNodeParameter('updateFolderParentId', i, '') as string;
 
-							const body: Record<string, any> = {};
+							const body: Record<string, string> = {};
 							if (updateFolderName) body.name = updateFolderName;
 							if (updateFolderParentId) body.parentFolderId = updateFolderParentId;
 
@@ -839,9 +841,10 @@ export class HubSpotFiles implements INodeType {
 					pairedItem: { item: i }
 				});
 
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
 					continue;
 				}
 				throw error;

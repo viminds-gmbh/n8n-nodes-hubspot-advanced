@@ -6,7 +6,7 @@ export interface HubSpotRateLimitHeaders {
 	'x-hubspot-ratelimit-daily-remaining'?: string;
 }
 
-export interface HubSpotApiResponse<T = any> {
+export interface HubSpotApiResponse<T = unknown> {
 	results?: T[];
 	paging?: {
 		next?: {
@@ -20,7 +20,7 @@ export interface HubSpotApiResponse<T = any> {
 
 export interface HubSpotObject {
 	id: string;
-	properties: Record<string, any>;
+	properties: Record<string, string | number | boolean | null>;
 	createdAt?: string;
 	updatedAt?: string;
 	archived?: boolean;
@@ -30,7 +30,7 @@ export interface HubSpotObject {
 export interface AssociatedObject {
 	id: string;
 	type: string;
-	properties?: Record<string, any>;
+	properties?: Record<string, string | number | boolean | null>;
 }
 
 export interface HubSpotSearchFilter {

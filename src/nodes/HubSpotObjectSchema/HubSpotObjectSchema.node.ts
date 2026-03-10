@@ -3,6 +3,7 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	IDataObject,
 } from 'n8n-workflow';
 
 import { hubspotApiRequest } from '../../transport/HubSpotApiRequest';
@@ -126,7 +127,7 @@ export class HubSpotObjectSchema implements INodeType {
 					);
 
 					if (response.results) {
-						response.results.forEach((schema: any) => {
+						response.results.forEach((schema: IDataObject) => {
 							returnData.push({ json: schema });
 						});
 					}
@@ -143,14 +144,15 @@ export class HubSpotObjectSchema implements INodeType {
 					);
 
 					if (response.results) {
-						response.results.forEach((property: any) => {
+						response.results.forEach((property: IDataObject) => {
 							returnData.push({ json: property });
 						});
 					}
 				}
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
 					continue;
 				}
 				throw error;

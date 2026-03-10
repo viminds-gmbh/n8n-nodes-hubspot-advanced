@@ -279,7 +279,13 @@ export class HubSpotAssociations implements INodeType {
 			}
 
 			const batchSize = 1000;
-			const allAssociations: any[] = [];
+			const allAssociations: Array<{ 
+			from: { id: string }; 
+			to: Array<{ 
+				toObjectId: number; 
+				associationTypes: Array<{ category: string; typeId: number; label: string | null }> 
+			}> 
+		}> = [];
 
 			for (let i = 0; i < objectIds.length; i += batchSize) {
 				const batch = objectIds.slice(i, i + batchSize);
@@ -300,7 +306,10 @@ export class HubSpotAssociations implements INodeType {
 				}
 			}
 
-			const associationMap = new Map<string, any[]>();
+			const associationMap = new Map<string, Array<{ 
+			toObjectId: number; 
+			associationTypes: Array<{ category: string; typeId: number; label: string | null }> 
+		}>>();
 			allAssociations.forEach((assoc) => {
 				const fromId = assoc.from.id;
 				if (!associationMap.has(fromId)) {
@@ -315,7 +324,7 @@ export class HubSpotAssociations implements INodeType {
 
 				const uniqueToIds = new Set<string>();
 				allAssociations.forEach((assoc) => {
-					assoc.to.forEach((toObj: any) => {
+					assoc.to.forEach((toObj) => {
 						uniqueToIds.add(toObj.toObjectId.toString());
 					});
 				});
@@ -328,9 +337,10 @@ export class HubSpotAssociations implements INodeType {
 					propertyList,
 				);
 
-				const objectMap = new Map<string, any>();
+				const objectMap = new Map<string, { id: string; [key: string]: unknown }>();
 				hydratedObjects.forEach((obj) => {
-					objectMap.set(obj.id, obj);
+					const id = String(obj.id);
+					objectMap.set(id, obj as { id: string; [key: string]: unknown });
 				});
 
 				items.forEach((item, index) => {
