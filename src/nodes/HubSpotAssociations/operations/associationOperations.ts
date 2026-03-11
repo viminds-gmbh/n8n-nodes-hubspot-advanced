@@ -1,6 +1,10 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { hubspotApiRequest, hubspotBatchRequest } from '../../../transport/HubSpotApiRequest';
 
+function toStringId(value: unknown): string {
+	return value != null ? String(value) : '';
+}
+
 interface AssociationType {
 	category: string;
 	typeId: number;
@@ -49,7 +53,7 @@ async function getAssociations(
 	const outputField = context.getNodeParameter('outputField', 0) as string;
 
 	const objectIds = items
-		.map((item) => item.json[idField] as string)
+		.map((item) => toStringId(item.json[idField]))
 		.filter((id) => id);
 
 	if (objectIds.length === 0) {
@@ -60,7 +64,7 @@ async function getAssociations(
 
 	const returnData: INodeExecutionData[] = [];
 	items.forEach((item, index) => {
-		const objectId = item.json[idField] as string;
+		const objectId = toStringId(item.json[idField]);
 		const associations = associationMap.get(objectId) || [];
 
 		returnData.push({
@@ -89,7 +93,7 @@ async function hydrateAssociations(
 		: (properties ? properties.split(',').map((p) => p.trim()) : []);
 
 	const objectIds = items
-		.map((item) => item.json[idField] as string)
+		.map((item) => toStringId(item.json[idField]))
 		.filter((id) => id);
 
 	if (objectIds.length === 0) {
@@ -126,7 +130,7 @@ async function hydrateAssociations(
 
 	const returnData: INodeExecutionData[] = [];
 	items.forEach((item, index) => {
-		const objectId = item.json[idField] as string;
+		const objectId = toStringId(item.json[idField]);
 		const associations = associationMap.get(objectId) || [];
 
 		const enrichedAssociations = associations.map((assoc) => {
