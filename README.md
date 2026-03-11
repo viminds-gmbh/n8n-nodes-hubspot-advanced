@@ -7,12 +7,13 @@ Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations,
 ## Features
 
 - ✅ **Intelligent Rate Limiting** – Respects HubSpot API limits with adaptive throttling
-- ✅ **Batch Operations** – Efficient bulk reads using HubSpot's batch APIs
-- ✅ **Association Hydration** – Fetch full associated objects in a single workflow step
+- ✅ **Batch Operations** – Efficient bulk reads and association hydration using HubSpot's batch APIs
+- ✅ **Association Hydration** – Fetch full associated objects in a single workflow step with batch support
 - ✅ **Multi-API Version Support** – v1, v3, v3-legacy, and v4 endpoints
-- ✅ **Type-Safe** – Full TypeScript implementation
+- ✅ **Type-Safe** – Full TypeScript implementation with improved type safety (74% reduction in `any` types)
+- ✅ **Modular Architecture** – Clean separation of concerns with dedicated field descriptions and operations
 - ✅ **Test-Driven** – Comprehensive test coverage
-- ✅ **File Management** – Upload, replace, and search files in HubSpot File Manager
+- ✅ **File Management** – Upload, replace, update properties, and search files in HubSpot File Manager
 - ✅ **List Operations** – Retrieve list members efficiently
 - ✅ **Marketing Events** – Create, manage, and track marketing events with participant registration
 - ✅ **Dynamic Property Loading** – Enhanced property selection with real-time options
@@ -67,19 +68,27 @@ Advanced CRM operations with search, filtering, and batch support.
 
 ### 2. HubSpot Associations
 
-Read and enrich object associations with optional hydration.
+Read and enrich object associations with optional hydration and batch operations.
 
 **Operations:**
 - Get Associations (IDs only)
 - **Hydrate Associations** (full objects) ⭐
+- **Batch Get Associations** (bulk ID retrieval) ⭐ NEW
+- **Batch Hydrate Associations** (bulk full objects) ⭐ NEW
 - Create Association
 - Delete Association
 
-**Hydrate Example:**
+**Key Features:**
+- Efficient batch processing for multiple source objects
+- Automatic chunking and pagination
+- Full object hydration with custom property selection
+- Support for all HubSpot object types including custom objects
+
+**Batch Hydrate Example:**
 ```
 [HubSpot CRM: Search Contacts] → 500 contacts
         ↓
-[HubSpot Associations: Hydrate]
+[HubSpot Associations: Batch Hydrate]
   From: contacts
   To: companies
   Properties: name,domain,industry
@@ -130,17 +139,23 @@ Retrieve metadata about object types and properties.
 
 ### 5. HubSpot Files
 
-Work with HubSpot File Manager for uploading, replacing, and searching files.
+Work with HubSpot File Manager for uploading, replacing, updating, and searching files.
 
 **Operations:**
 - Upload File
 - Replace File
+- **Update Properties** (name, access, parent folder) ⭐
 - Search Files
+- Import from URL
+- Get File
+- Delete File
 
 **Key Features:**
 - Multipart form-data support for uploads
+- File metadata updates without re-uploading
 - Folder path and extension filtering for searches
 - Dynamic property selection
+- Async URL import support
 
 ### 6. HubSpot Lists
 
@@ -350,12 +365,15 @@ tests/
 - [x] Forms API v3 with multi-object support
 - [x] GDPR consent and subscription management
 - [x] Dedicated form submission handler (rate-limit isolated)
+- [x] Custom object support (in Forms and CRM)
+- [x] Batch association operations (Get & Hydrate)
+- [x] TypeScript type safety improvements (74% reduction in `any` types)
+- [x] Modular architecture with separated field descriptions
+- [x] File property updates without re-upload
 - [ ] OAuth2 support
 - [ ] Webhook triggers
-- [x] Custom object support (in Forms and CRM)
 - [ ] Association labels
-- [ ] Batch operations UI
-- [ ] Advanced filtering
+- [ ] Advanced filtering UI
 - [ ] Workflow enrollment
 - [ ] Property history retrieval
 
