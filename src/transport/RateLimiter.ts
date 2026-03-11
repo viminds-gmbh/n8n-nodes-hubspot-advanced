@@ -86,7 +86,7 @@ export class HubSpotRateLimiter {
 		}
 
 		const errorMessage = lastError instanceof Error ? lastError.message : String(lastError);
-		throw new Error(`Rate limit exceeded after ${maxRetries} retries: ${errorMessage}`);
+		throw new Error(`HubSpot rate limit: max retries (${maxRetries}) exceeded. Last error: ${errorMessage}`);
 	}
 
 	/**
