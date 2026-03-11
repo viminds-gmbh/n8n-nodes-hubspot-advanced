@@ -10,12 +10,22 @@ export const operationField: INodeProperties = {
 		{
 			name: 'Get Associations',
 			value: 'getAssociations',
-			description: 'Get associated object IDs',
+			description: 'Get associated object IDs for a single object',
 		},
 		{
 			name: 'Hydrate Associations',
 			value: 'hydrateAssociations',
-			description: 'Get full associated objects with properties',
+			description: 'Get full associated objects with properties for a single object',
+		},
+		{
+			name: 'Batch Get Associations',
+			value: 'batchGetAssociations',
+			description: 'Get associated object IDs for multiple objects using a field key',
+		},
+		{
+			name: 'Batch Hydrate Associations',
+			value: 'batchHydrateAssociations',
+			description: 'Get full associated objects with properties for multiple objects using a field key',
 		},
 		{
 			name: 'Create Association',
@@ -82,6 +92,21 @@ export const customToObjectTypeField: INodeProperties = {
 	},
 };
 
+export const objectIdField: INodeProperties = {
+	displayName: 'Object ID',
+	name: 'objectId',
+	type: 'string',
+	default: '',
+	required: true,
+	placeholder: '12345678',
+	description: 'The ID of the source object to get associations for.',
+	displayOptions: {
+		show: {
+			operation: ['getAssociations', 'hydrateAssociations'],
+		},
+	},
+};
+
 export const idFieldField: INodeProperties = {
 	displayName: 'ID Field',
 	name: 'idField',
@@ -91,7 +116,7 @@ export const idFieldField: INodeProperties = {
 	description: 'Field name in input items containing the source object ID. The node will process all input items in batch.',
 	displayOptions: {
 		show: {
-			operation: ['getAssociations', 'hydrateAssociations'],
+			operation: ['batchGetAssociations', 'batchHydrateAssociations'],
 		},
 	},
 };
@@ -109,7 +134,7 @@ export const propertiesField: INodeProperties = {
 	description: 'Properties to return for associated objects when using "Hydrate Associations". Leave empty to return only IDs.',
 	displayOptions: {
 		show: {
-			operation: ['hydrateAssociations'],
+			operation: ['hydrateAssociations', 'batchHydrateAssociations'],
 		},
 	},
 };
@@ -123,7 +148,7 @@ export const outputFieldField: INodeProperties = {
 	description: 'The field name where associations will be stored in the output. Default: "associations".',
 	displayOptions: {
 		show: {
-			operation: ['getAssociations', 'hydrateAssociations'],
+			operation: ['getAssociations', 'hydrateAssociations', 'batchGetAssociations', 'batchHydrateAssociations'],
 		},
 	},
 };
@@ -164,6 +189,7 @@ export const associationFields: INodeProperties[] = [
 	customFromObjectTypeField,
 	toObjectTypeField,
 	customToObjectTypeField,
+	objectIdField,
 	idFieldField,
 	propertiesField,
 	outputFieldField,

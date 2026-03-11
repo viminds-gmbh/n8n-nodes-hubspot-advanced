@@ -118,7 +118,7 @@ export class HubSpotAssociations implements INodeType {
 			? (this.getNodeParameter('customToObjectType', 0) as string)
 			: toObjectTypeRaw;
 
-		if (operation === 'getAssociations' || operation === 'hydrateAssociations') {
+		if (operation === 'batchGetAssociations' || operation === 'batchHydrateAssociations') {
 			try {
 				const results = await executeAssociationOperation(
 					this,
