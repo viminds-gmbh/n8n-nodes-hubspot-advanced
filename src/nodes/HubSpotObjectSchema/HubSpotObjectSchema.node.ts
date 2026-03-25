@@ -16,7 +16,7 @@ export class HubSpotObjectSchema implements INodeType {
 		icon: 'file:../../icon.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"] === "getObjectTypes" ? "Get Object Types" : "Get Properties: " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
+		subtitle: '={{$parameter["operation"] === "getObjectTypes" ? "Get Custom Object Types" : $parameter["operation"] === "getObjectSchema" ? "Get Schema: " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"]) : "Get Properties: " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
 		description: 'Get HubSpot object schema information',
 		defaults: {
 			name: 'HubSpot Object Schema',
@@ -66,9 +66,14 @@ export class HubSpotObjectSchema implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Get Object Types',
+						name: 'Get Custom Object Types',
 						value: 'getObjectTypes',
-						description: 'Get all available object types',
+						description: 'Get all custom object types (only returns custom objects, not standard objects like contacts/companies)',
+					},
+					{
+						name: 'Get Object Schema',
+						value: 'getObjectSchema',
+						description: 'Get the complete schema for a specific object type (properties, associations, etc.)',
 					},
 					{
 						name: 'Get Properties',
@@ -89,7 +94,7 @@ export class HubSpotObjectSchema implements INodeType {
 				description: 'The type of CRM object to retrieve properties for. <a href="https://developers.hubspot.com/docs/api/crm/properties" target="_blank">Learn more about properties</a>.',
 				displayOptions: {
 					show: {
-						operation: ['getProperties'],
+						operation: ['getProperties', 'getObjectSchema'],
 					},
 				},
 			},
@@ -103,7 +108,7 @@ export class HubSpotObjectSchema implements INodeType {
 				description: 'The name or ID of the custom object type (e.g., "cars" or "2-12345"). <a href="https://developers.hubspot.com/docs/api/crm/crm-custom-objects" target="_blank">Learn more about custom objects</a>.',
 				displayOptions: {
 					show: {
-						operation: ['getProperties'],
+						operation: ['getProperties', 'getObjectSchema'],
 						objectType: ['custom'],
 					},
 				},
@@ -160,6 +165,19 @@ export class HubSpotObjectSchema implements INodeType {
 							returnData.push({ json: schema });
 						});
 					}
+				} else if (operation === 'getObjectSchema') {
+					const objectTypeRaw = this.getNodeParameter('objectType', i) as string;
+					const objectType = objectTypeRaw === 'custom'
+						? (this.getNodeParameter('customObjectType', i) as string)
+						: objectTypeRaw;
+
+					const response = await hubspotApiRequest.call(
+						this,
+						'GET',
+						`/crm/v3/schemas/${objectType}`,
+					);
+
+					returnData.push({ json: response, pairedItem: { item: i } });
 				} else if (operation === 'getProperties') {
 					const objectTypeRaw = this.getNodeParameter('objectType', i) as string;
 					const objectType = objectTypeRaw === 'custom'
