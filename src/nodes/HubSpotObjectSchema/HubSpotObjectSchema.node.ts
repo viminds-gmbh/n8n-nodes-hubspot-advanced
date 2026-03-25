@@ -6,7 +6,7 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
-import { hubspotApiRequest } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequest, hubspotApiRequestAllItems } from '../../transport/HubSpotApiRequest';
 import { HUBSPOT_OBJECT_TYPE_OPTIONS } from '../../types';
 
 export class HubSpotObjectSchema implements INodeType {
@@ -108,6 +108,35 @@ export class HubSpotObjectSchema implements INodeType {
 					},
 				},
 			},
+			{
+				displayName: 'Return All',
+				name: 'returnAll',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to automatically paginate and return all properties. May take longer for object types with many properties.',
+				displayOptions: {
+					show: {
+						operation: ['getProperties'],
+					},
+				},
+			},
+			{
+				displayName: 'Limit',
+				name: 'limit',
+				type: 'number',
+				default: 100,
+				typeOptions: {
+					minValue: 1,
+					maxValue: 10000,
+				},
+				description: 'Maximum number of properties to return',
+				displayOptions: {
+					show: {
+						operation: ['getProperties'],
+						returnAll: [false],
+					},
+				},
+			},
 		],
 	};
 
@@ -137,17 +166,32 @@ export class HubSpotObjectSchema implements INodeType {
 						? (this.getNodeParameter('customObjectType', i) as string)
 						: objectTypeRaw;
 
-					const response = await hubspotApiRequest.call(
-						this,
-						'GET',
-						`/crm/v3/properties/${objectType}`,
-					);
+					const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+					const limit = returnAll ? undefined : (this.getNodeParameter('limit', i, 100) as number);
 
-					if (response.results) {
-						response.results.forEach((property: IDataObject) => {
-							returnData.push({ json: property });
-						});
+					const body: IDataObject = {};
+
+					let results: IDataObject[];
+					if (returnAll) {
+						results = await hubspotApiRequestAllItems.call(
+							this,
+							'GET',
+							`/crm/v3/properties/${objectType}`,
+							body,
+						);
+					} else {
+						results = await hubspotApiRequestAllItems.call(
+							this,
+							'GET',
+							`/crm/v3/properties/${objectType}`,
+							body,
+							limit,
+						);
 					}
+
+					results.forEach((property: IDataObject) => {
+						returnData.push({ json: property });
+					});
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {

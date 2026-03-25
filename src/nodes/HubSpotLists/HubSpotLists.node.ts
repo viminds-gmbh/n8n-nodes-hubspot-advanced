@@ -7,7 +7,7 @@ import type {
 	INodePropertyOptions,
 } from 'n8n-workflow';
 
-import { hubspotApiRequest, hubspotBatchRequest, hubspotApiRequestForLoadOptions } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequest, hubspotBatchRequest, hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
 import { HUBSPOT_OBJECT_TYPE_ID_MAPPING } from '../../types';
 
 export class HubSpotLists implements INodeType {
@@ -191,20 +191,18 @@ export class HubSpotLists implements INodeType {
 					return cached;
 				}
 
-				const response = await hubspotApiRequestForLoadOptions.call(
+				const results = await hubspotApiRequestAllItemsForLoadOptions.call(
 					this,
 					'GET',
 					`/crm/v3/properties/${objectType}`,
 				);
 
 				const options: INodePropertyOptions[] = [];
-				if (response.results) {
-					for (const property of response.results) {
-						options.push({
-							name: property.label || property.name,
-							value: property.name,
-						});
-					}
+				for (const property of results) {
+					options.push({
+						name: (property.label || property.name) as string,
+						value: property.name as string,
+					});
 				}
 
 				cache.set(objectType, options, credentialId);

@@ -159,6 +159,54 @@ export async function hubspotApiRequestForLoadOptions(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function hubspotApiRequestAllItemsForLoadOptions(
+	this: ILoadOptionsFunctions,
+	method: IHttpRequestMethods,
+	endpoint: string,
+	qs: IDataObject = {},
+): Promise<IDataObject[]> {
+	const credentials = await this.getCredentials('hubspotAppToken');
+	const results: IDataObject[] = [];
+	let after: string | undefined;
+
+	do {
+		const queryParams = { ...qs };
+		if (after) {
+			queryParams.after = after;
+		}
+
+		const limit = 500;
+		queryParams.limit = limit;
+
+		const options: IHttpRequestOptions = {
+			method,
+			url: `https://api.hubapi.com${endpoint}`,
+			qs: queryParams,
+			headers: {
+				Authorization: `Bearer ${credentials.appToken}`,
+				'Content-Type': 'application/json',
+			},
+			json: true,
+		};
+
+		try {
+			const response = await this.helpers.httpRequest(options);
+
+			if (response.results && Array.isArray(response.results)) {
+				results.push(...(response.results as IDataObject[]));
+			}
+
+			after = response.paging?.next?.after;
+		} catch (error) {
+			const err = error as { message?: string };
+			throw new Error(`HubSpot API request failed: ${err.message || 'Unknown error'}`);
+		}
+	} while (after);
+
+	return results;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotFileUploadRequest(
 	this: IExecuteFunctions,
 	binaryData: Buffer,
