@@ -288,13 +288,8 @@ export async function hubspotFileReplaceRequest(
 	if (options.access) {
 		replaceOptions.access = options.access;
 	}
-	if (options.expiresAt) {
-		replaceOptions.expiresAt = options.expiresAt;
-	}
 
-	if (Object.keys(replaceOptions).length > 0) {
-		formData.append('options', JSON.stringify(replaceOptions));
-	}
+	formData.append('options', JSON.stringify(replaceOptions));
 
 	const requestOptions: IHttpRequestOptions = {
 		method: 'PUT',
