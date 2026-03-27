@@ -32,7 +32,7 @@ export async function executeFileOperation(
 	operation: string,
 	items: INodeExecutionData[],
 	itemIndex: number
-): Promise<INodeExecutionData> {
+): Promise<INodeExecutionData | INodeExecutionData[]> {
 	switch (operation) {
 		case 'upload':
 			return uploadFile(context, items, itemIndex);
@@ -83,7 +83,7 @@ async function uploadFile(
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		binary: {
 			[binaryPropertyName]: binaryData
 		},
@@ -101,12 +101,12 @@ async function getFile(context: IExecuteFunctions, i: number): Promise<INodeExec
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		pairedItem: { item: i }
 	};
 }
 
-async function searchFiles(context: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
+async function searchFiles(context: IExecuteFunctions, i: number): Promise<INodeExecutionData[]> {
 	const name = context.getNodeParameter('name', i, '') as string;
 	const path = context.getNodeParameter('path', i, '') as string;
 	const parentFolderId = context.getNodeParameter('parentFolderId', i, '') as string;
@@ -136,11 +136,10 @@ async function searchFiles(context: IExecuteFunctions, i: number): Promise<INode
 			queryParams
 		) as IDataObject;
 
-		const responseData = (response.data || response) as IDataObject;
-		const results = (responseData.results || []) as IDataObject[];
+		const results = (response.results || []) as IDataObject[];
 		allResults.push(...results);
 
-		const paging = responseData.paging as IDataObject | undefined;
+		const paging = response.paging as IDataObject | undefined;
 		after = paging?.next ? (paging.next as IDataObject).after as string | undefined : undefined;
 		hasMore = !!after && (returnAll || allResults.length < limit);
 
@@ -152,10 +151,10 @@ async function searchFiles(context: IExecuteFunctions, i: number): Promise<INode
 		if (!after) break;
 	}
 
-	return {
-		json: { results: allResults, total: allResults.length },
+	return allResults.map((file) => ({
+		json: file,
 		pairedItem: { item: i }
-	};
+	}));
 }
 
 async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
@@ -179,12 +178,11 @@ async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INo
 		body
 	) as IDataObject;
 
-	const responseData = (response.data || response) as IDataObject;
-	const taskId = responseData.id as string;
+	const taskId = response.id as string;
 	let status = 'PENDING';
 	let attempts = 0;
 	const maxAttempts = 30;
-	let finalResponse: IDataObject = responseData;
+	let finalResponse: IDataObject = response;
 
 	while ((status === 'PENDING' || status === 'PROCESSING') && attempts < maxAttempts) {
 		await new Promise(resolve => setTimeout(resolve, 1000));
@@ -195,15 +193,14 @@ async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INo
 			`/files/v3/files/import-from-url/async/tasks/${taskId}/status`
 		) as IDataObject;
 
-		const statusData = (statusResponse.data || statusResponse) as IDataObject;
-		status = statusData.status as string;
+		status = statusResponse.status as string;
 		attempts++;
 
 		if (status === 'COMPLETE') {
-			finalResponse = statusData;
+			finalResponse = statusResponse;
 			break;
 		} else if (status === 'FAILED') {
-			throw new Error(`File import failed: ${(statusData.error as string) || 'Unknown error'}`);
+			throw new Error(`File import failed: ${(statusResponse.error as string) || 'Unknown error'}`);
 		}
 	}
 
@@ -243,7 +240,7 @@ async function replaceFile(
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		pairedItem: { item: i }
 	};
 }
@@ -271,7 +268,7 @@ async function updateFileProperties(context: IExecuteFunctions, i: number): Prom
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		pairedItem: { item: i }
 	};
 }
@@ -286,7 +283,7 @@ async function deleteFile(context: IExecuteFunctions, i: number): Promise<INodeE
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		pairedItem: { item: i }
 	};
 }

@@ -129,7 +129,7 @@ export const propertiesField: INodeProperties = {
 		loadOptionsMethod: 'getProperties',
 		loadOptionsDependsOn: ['toObjectType', 'customToObjectType'],
 	},
-	default: '',
+	default: [],
 	placeholder: 'name,domain,industry',
 	description: 'Properties to return for associated objects when using "Hydrate Associations". Leave empty to return only IDs.',
 	displayOptions: {

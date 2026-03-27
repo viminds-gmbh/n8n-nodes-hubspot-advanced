@@ -122,13 +122,20 @@ async function getListMembers(
 			queryParams,
 		);
 
-		if (membershipsResponse.results) {
-			membershipsResponse.results.forEach((membership: { recordId: string }) => {
-				memberRecordIds.push(membership.recordId);
+		if (!membershipsResponse) {
+			throw new Error('Empty response from HubSpot API');
+		}
+
+		const responseData = membershipsResponse as IDataObject;
+
+		if (responseData.results && Array.isArray(responseData.results)) {
+			(responseData.results as IDataObject[]).forEach((membership: IDataObject) => {
+				memberRecordIds.push(membership.recordId as string);
 			});
 		}
 
-		after = membershipsResponse.paging?.next?.after;
+		const paging = responseData?.paging as IDataObject | undefined;
+		after = paging?.next ? (paging.next as IDataObject).after as string | undefined : undefined;
 		hasMore = !!after && (returnAll || !limit || memberRecordIds.length < limit);
 
 		if (!returnAll && limit && memberRecordIds.length >= limit) {

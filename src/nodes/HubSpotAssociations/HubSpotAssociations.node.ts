@@ -10,6 +10,7 @@ import type {
 import { hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
 import { associationFields } from './descriptions';
 import { executeAssociationOperation } from './operations';
+import { PropertyCache } from '../../transport/PropertyCache';
 
 export class HubSpotAssociations implements INodeType {
 	description: INodeTypeDescription = {
@@ -66,7 +67,6 @@ export class HubSpotAssociations implements INodeType {
 	methods = {
 		loadOptions: {
 			async getProperties(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-				const { PropertyCache } = await import('../../transport/PropertyCache');
 
 				const toObjectTypeRaw = this.getCurrentNodeParameter('toObjectType') as string;
 				const toObjectType = toObjectTypeRaw === 'custom'

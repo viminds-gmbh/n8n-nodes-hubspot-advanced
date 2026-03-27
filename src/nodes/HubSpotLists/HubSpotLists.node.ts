@@ -8,7 +8,6 @@ import type {
 } from 'n8n-workflow';
 
 import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
-// import { HUBSPOT_OBJECT_TYPE_ID_MAPPING, HUBSPOT_OBJECT_TYPE_TO_ID } from '../../types';
 import { HUBSPOT_OBJECT_TYPE_TO_ID } from '../../types';
 import { listFields } from './descriptions';
 import { executeListOperation } from './operations';

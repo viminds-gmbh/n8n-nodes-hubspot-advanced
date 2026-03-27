@@ -7,7 +7,6 @@ import type {
 } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { HubSpotRateLimiter } from './RateLimiter';
-import type { HubSpotApiResponse } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotApiRequest(
@@ -36,11 +35,7 @@ export async function hubspotApiRequest(
 	return rateLimiter.execute(async () => {
 		try {
 			const response = await this.helpers.httpRequest(options);
-
-			return {
-				data: response,
-				headers: response.headers || {},
-			};
+			return { data: response, headers: {} };
 		} catch (error) {
 			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
 			if (err.statusCode === 429 || err.httpCode === 429) {
@@ -74,18 +69,19 @@ export async function hubspotApiRequestAllItems(
 		const batchLimit = limit ? Math.min(limit - results.length, 100) : 100;
 		requestBody.limit = batchLimit;
 
-		const response: HubSpotApiResponse = await hubspotApiRequest.call(
+		const response = await hubspotApiRequest.call(
 			this,
 			method,
 			endpoint,
 			requestBody,
-		);
+		) as IDataObject;
 
 		if (response.results) {
 			results.push(...(response.results as IDataObject[]));
 		}
 
-		after = response.paging?.next?.after;
+		const paging = response.paging as IDataObject | undefined;
+		after = paging?.next ? (paging.next as IDataObject).after as string | undefined : undefined;
 
 		if (limit && results.length >= limit) {
 			break;
@@ -117,7 +113,7 @@ export async function hubspotBatchRequest(
 			'POST',
 			`/crm/v3/objects/${objectType}/batch/read`,
 			body,
-		);
+		) as IDataObject;
 
 		if (response.results && Array.isArray(response.results)) {
 			results.push(...(response.results as IDataObject[]));
@@ -190,13 +186,14 @@ export async function hubspotApiRequestAllItemsForLoadOptions(
 		};
 
 		try {
-			const response = await this.helpers.httpRequest(options);
+			const response = await this.helpers.httpRequest(options) as IDataObject;
 
 			if (response.results && Array.isArray(response.results)) {
 				results.push(...(response.results as IDataObject[]));
 			}
 
-			after = response.paging?.next?.after;
+			const paging = response.paging as IDataObject | undefined;
+			after = paging?.next ? (paging.next as IDataObject).after as string | undefined : undefined;
 		} catch (error) {
 			const err = error as { message?: string };
 			throw new Error(`HubSpot API request failed: ${err.message || 'Unknown error'}`);
@@ -249,11 +246,7 @@ export async function hubspotFileUploadRequest(
 	return rateLimiter.execute(async () => {
 		try {
 			const response = await this.helpers.httpRequest(requestOptions);
-
-			return {
-				data: response,
-				headers: response.headers || {},
-			};
+			return { data: response, headers: {} };
 		} catch (error) {
 			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
 			if (err.statusCode === 429 || err.httpCode === 429) {
@@ -316,11 +309,7 @@ export async function hubspotFileReplaceRequest(
 	return rateLimiter.execute(async () => {
 		try {
 			const response = await this.helpers.httpRequest(requestOptions);
-
-			return {
-				data: response,
-				headers: response.headers || {},
-			};
+			return { data: response, headers: {} };
 		} catch (error) {
 			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
 			if (err.statusCode === 429 || err.httpCode === 429) {
@@ -335,7 +324,6 @@ export async function hubspotFileReplaceRequest(
 	});
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotFormSubmitRequest(
 	this: IExecuteFunctions,
 	portalId: string,
@@ -343,6 +331,7 @@ export async function hubspotFormSubmitRequest(
 	body: IDataObject,
 	useSecureEndpoint: boolean = true,
 ): Promise<any> {
+	const rateLimiter = HubSpotRateLimiter.getInstance();
 	const credentials = await this.getCredentials('hubspotAppToken');
 
 	const endpoint = useSecureEndpoint
@@ -360,14 +349,20 @@ export async function hubspotFormSubmitRequest(
 		json: true,
 	};
 
-	try {
-		const response = await this.helpers.httpRequest(options);
-		return response;
-	} catch (error) {
-		const err = error as { message?: string; description?: string };
-		throw new NodeApiError(this.getNode(), error as { message: string }, {
-			message: err.message || 'HubSpot form submission failed',
-			description: err.description,
-		});
-	}
+	return rateLimiter.execute(async () => {
+		try {
+			const response = await this.helpers.httpRequest(options);
+			return { data: response, headers: {} };
+		} catch (error) {
+			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
+			if (err.statusCode === 429 || err.httpCode === 429) {
+				throw error;
+			}
+
+			throw new NodeApiError(this.getNode(), error as { message: string }, {
+				message: err.message || 'HubSpot form submission failed',
+				description: err.description,
+			});
+		}
+	});
 }

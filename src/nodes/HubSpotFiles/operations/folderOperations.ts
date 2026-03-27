@@ -5,7 +5,7 @@ export async function executeFolderOperation(
 	context: IExecuteFunctions,
 	operation: string,
 	itemIndex: number
-): Promise<INodeExecutionData> {
+): Promise<INodeExecutionData | INodeExecutionData[]> {
 	switch (operation) {
 		case 'get':
 			return getFolder(context, itemIndex);
@@ -37,12 +37,12 @@ async function getFolder(context: IExecuteFunctions, i: number): Promise<INodeEx
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		pairedItem: { item: i }
 	};
 }
 
-async function searchFolders(context: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
+async function searchFolders(context: IExecuteFunctions, i: number): Promise<INodeExecutionData[]> {
 	const name = context.getNodeParameter('name', i, '') as string;
 	const returnAll = context.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = context.getNodeParameter('limit', i, 20) as number;
@@ -66,11 +66,10 @@ async function searchFolders(context: IExecuteFunctions, i: number): Promise<INo
 			queryParams
 		) as IDataObject;
 
-		const responseData = (response.data || response) as IDataObject;
-		const results = (responseData.results || []) as IDataObject[];
+		const results = (response.results || []) as IDataObject[];
 		allResults.push(...results);
 
-		const paging = responseData.paging as IDataObject | undefined;
+		const paging = response.paging as IDataObject | undefined;
 		after = paging?.next ? (paging.next as IDataObject).after as string | undefined : undefined;
 		hasMore = !!after && (returnAll || allResults.length < limit);
 
@@ -82,10 +81,10 @@ async function searchFolders(context: IExecuteFunctions, i: number): Promise<INo
 		if (!after) break;
 	}
 
-	return {
-		json: { results: allResults, total: allResults.length },
+	return allResults.map((folder) => ({
+		json: folder,
 		pairedItem: { item: i }
-	};
+	}));
 }
 
 async function createFolder(context: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
@@ -108,7 +107,7 @@ async function createFolder(context: IExecuteFunctions, i: number): Promise<INod
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		pairedItem: { item: i }
 	};
 }
@@ -134,7 +133,7 @@ async function updateFolder(context: IExecuteFunctions, i: number): Promise<INod
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		pairedItem: { item: i }
 	};
 }
@@ -149,7 +148,7 @@ async function deleteFolder(context: IExecuteFunctions, i: number): Promise<INod
 	) as IDataObject;
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: response,
 		pairedItem: { item: i }
 	};
 }

@@ -79,10 +79,18 @@ export class HubSpotFiles implements INodeType {
 			try {
 				if (resource === 'file') {
 					const result = await executeFileOperation(this, operation, items, i);
-					returnData.push(result);
+					if (Array.isArray(result)) {
+						returnData.push(...result);
+					} else {
+						returnData.push(result);
+					}
 				} else if (resource === 'folder') {
 					const result = await executeFolderOperation(this, operation, i);
-					returnData.push(result);
+					if (Array.isArray(result)) {
+						returnData.push(...result);
+					} else {
+						returnData.push(result);
+					}
 				} else {
 					throw new Error(`Unknown resource: ${resource}`);
 				}
