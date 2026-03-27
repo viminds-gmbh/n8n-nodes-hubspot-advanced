@@ -5,7 +5,7 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 
-import { resourceField, searchLimitField, fileFields, folderFields } from './descriptions';
+import { resourceField, returnAllField, searchLimitField, fileFields, folderFields } from './descriptions';
 import { executeFileOperation, executeFolderOperation } from './operations';
 
 export class HubSpotFiles implements INodeType {
@@ -63,6 +63,7 @@ export class HubSpotFiles implements INodeType {
 			resourceField,
 			...fileFields,
 			...folderFields,
+			returnAllField,
 			searchLimitField,
 		],
 	};

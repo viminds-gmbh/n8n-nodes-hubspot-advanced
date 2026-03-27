@@ -44,24 +44,46 @@ async function getFolder(context: IExecuteFunctions, i: number): Promise<INodeEx
 
 async function searchFolders(context: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
 	const name = context.getNodeParameter('name', i, '') as string;
+	const returnAll = context.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = context.getNodeParameter('limit', i, 20) as number;
 
-	const queryParams: Record<string, string | number> = {
-		limit: Math.min(limit, 100)
-	};
+	const baseQueryParams: Record<string, string | number> = {};
+	if (name) baseQueryParams.name = name;
 
-	if (name) queryParams.name = name;
+	const allResults: IDataObject[] = [];
+	let after: string | undefined;
+	let hasMore = true;
 
-	const response = await hubspotApiRequest.call(
-		context,
-		'GET',
-		'/files/v3/folders/search',
-		{},
-		queryParams
-	) as IDataObject;
+	while (hasMore) {
+		const queryParams: Record<string, string | number> = { ...baseQueryParams, limit: 100 };
+		if (after) queryParams.after = after;
+
+		const response = await hubspotApiRequest.call(
+			context,
+			'GET',
+			'/files/v3/folders/search',
+			{},
+			queryParams
+		) as IDataObject;
+
+		const responseData = (response.data || response) as IDataObject;
+		const results = (responseData.results || []) as IDataObject[];
+		allResults.push(...results);
+
+		const paging = responseData.paging as IDataObject | undefined;
+		after = paging?.next ? (paging.next as IDataObject).after as string | undefined : undefined;
+		hasMore = !!after && (returnAll || allResults.length < limit);
+
+		if (!returnAll && allResults.length >= limit) {
+			allResults.splice(limit);
+			break;
+		}
+
+		if (!after) break;
+	}
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: { results: allResults, total: allResults.length },
 		pairedItem: { item: i }
 	};
 }

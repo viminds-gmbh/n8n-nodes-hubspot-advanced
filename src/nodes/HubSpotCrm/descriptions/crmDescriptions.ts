@@ -213,7 +213,8 @@ export const limitField: INodeProperties = {
 	description: 'Maximum number of results to return. Use with "Return All" disabled for pagination.',
 	displayOptions: {
 		show: {
-			operation: ['search', 'getMany'],
+			operation: ['search'],
+			returnAll: [false],
 		},
 	},
 };

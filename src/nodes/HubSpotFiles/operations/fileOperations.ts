@@ -111,27 +111,49 @@ async function searchFiles(context: IExecuteFunctions, i: number): Promise<INode
 	const path = context.getNodeParameter('path', i, '') as string;
 	const parentFolderId = context.getNodeParameter('parentFolderId', i, '') as string;
 	const extension = context.getNodeParameter('extension', i, '') as string;
+	const returnAll = context.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = context.getNodeParameter('limit', i, 20) as number;
 
-	const queryParams: Record<string, string | number> = {
-		limit: Math.min(limit, 100)
-	};
+	const baseQueryParams: Record<string, string | number> = {};
+	if (name) baseQueryParams.name = name;
+	if (path) baseQueryParams.path = path;
+	if (parentFolderId) baseQueryParams.parentFolderId = parentFolderId;
+	if (extension) baseQueryParams.extension = extension;
 
-	if (name) queryParams.name = name;
-	if (path) queryParams.path = path;
-	if (parentFolderId) queryParams.parentFolderId = parentFolderId;
-	if (extension) queryParams.extension = extension;
+	const allResults: IDataObject[] = [];
+	let after: string | undefined;
+	let hasMore = true;
 
-	const response = await hubspotApiRequest.call(
-		context,
-		'GET',
-		'/files/v3/files/search',
-		{},
-		queryParams
-	) as IDataObject;
+	while (hasMore) {
+		const queryParams: Record<string, string | number> = { ...baseQueryParams, limit: 100 };
+		if (after) queryParams.after = after;
+
+		const response = await hubspotApiRequest.call(
+			context,
+			'GET',
+			'/files/v3/files/search',
+			{},
+			queryParams
+		) as IDataObject;
+
+		const responseData = (response.data || response) as IDataObject;
+		const results = (responseData.results || []) as IDataObject[];
+		allResults.push(...results);
+
+		const paging = responseData.paging as IDataObject | undefined;
+		after = paging?.next ? (paging.next as IDataObject).after as string | undefined : undefined;
+		hasMore = !!after && (returnAll || allResults.length < limit);
+
+		if (!returnAll && allResults.length >= limit) {
+			allResults.splice(limit);
+			break;
+		}
+
+		if (!after) break;
+	}
 
 	return {
-		json: (response.data as IDataObject) || response,
+		json: { results: allResults, total: allResults.length },
 		pairedItem: { item: i }
 	};
 }
