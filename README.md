@@ -7,14 +7,16 @@ Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations,
 ## Features
 
 - ✅ **Intelligent Rate Limiting** – Respects HubSpot API limits with adaptive throttling
+- ✅ **Automatic Pagination** – ReturnAll option across all nodes for effortless large dataset retrieval
 - ✅ **Batch Operations** – Efficient bulk reads and association hydration using HubSpot's batch APIs
 - ✅ **Association Hydration** – Fetch full associated objects in a single workflow step with batch support
+- ✅ **Association Labels** – Create associations with custom labels during object creation
 - ✅ **Multi-API Version Support** – v1, v3, v3-legacy, and v4 endpoints
 - ✅ **Type-Safe** – Full TypeScript implementation with improved type safety (74% reduction in `any` types)
 - ✅ **Modular Architecture** – Clean separation of concerns with dedicated field descriptions and operations
 - ✅ **Test-Driven** – Comprehensive test coverage
 - ✅ **File Management** – Upload, replace, update properties, and search files in HubSpot File Manager
-- ✅ **List Operations** – Retrieve list members efficiently
+- ✅ **List Operations** – Retrieve list members efficiently with object type filtering
 - ✅ **Marketing Events** – Create, manage, and track marketing events with participant registration
 - ✅ **Dynamic Property Loading** – Enhanced property selection with real-time options
 
@@ -53,7 +55,8 @@ Advanced CRM operations with search, filtering, and batch support.
 - Custom property selection
 - Advanced filtering (EQ, NEQ, LT, GT, CONTAINS, etc.)
 - Sorting by any property
-- Auto-pagination for large result sets
+- **ReturnAll option** for automatic pagination of large result sets
+- **Association labels** support during object creation
 
 **Example Workflow:**
 ```
@@ -99,20 +102,31 @@ API Calls: ~4 (instead of 500!)
 
 ### 3. HubSpot Forms
 
-Work with HubSpot forms and submissions with advanced field mapping and GDPR compliance.
+Work with HubSpot forms and submissions with advanced field mapping, automatic pagination, and GDPR compliance.
 
 **Operations:**
 - Get Forms (v3)
-- Get Submissions (v1 API)
+- **Get Submissions (v1 API)** ⭐ with automatic pagination
 - **Submit Form (v3-legacy)** ⭐
 
 **Key Features:**
+- **Automatic pagination** for form submissions with returnAll option
 - Multi-object field support (contacts, companies, deals, custom objects)
 - GDPR consent and subscription management
 - Secure and unsecure endpoint options
 - Context tracking (page URI, HUTK, IP address)
 - Dynamic subscription type loading
 - Dedicated API handler (doesn't impact rate limits of other nodes)
+- Efficient batch retrieval (50 submissions per API call)
+
+**Get Submissions Example:**
+```
+[HubSpot Forms: Get Submissions]
+  Form: Contact Form
+  Return All: ✓ (automatically fetches all submissions)
+  → Retrieves all submissions with automatic pagination
+  → Internal: 50 submissions per API call
+```
 
 **Submit Form Example:**
 ```
@@ -134,8 +148,14 @@ Work with HubSpot forms and submissions with advanced field mapping and GDPR com
 Retrieve metadata about object types and properties.
 
 **Operations:**
-- Get Object Types
+- Get Custom Object Types
+- **Get Object Schema** (full schema including properties) ⭐
 - Get Properties for an object type
+
+**Key Features:**
+- Retrieve complete object schemas with all properties
+- Support for both standard and custom objects
+- Dynamic property metadata loading
 
 ### 5. HubSpot Files
 
@@ -151,6 +171,7 @@ Work with HubSpot File Manager for uploading, replacing, updating, and searching
 - Delete File
 
 **Key Features:**
+- **ReturnAll option** for file searches with automatic pagination
 - Multipart form-data support for uploads
 - File metadata updates without re-uploading
 - Folder path and extension filtering for searches
@@ -159,12 +180,15 @@ Work with HubSpot File Manager for uploading, replacing, updating, and searching
 
 ### 6. HubSpot Lists
 
-Retrieve members of HubSpot lists.
+Retrieve members of HubSpot lists with automatic pagination and filtering.
 
 **Operations:**
 - Get List Members
+- Search Lists
 
 **Key Features:**
+- **ReturnAll option** for automatic pagination
+- **Object type filtering** for list searches
 - Batch retrieval for large lists
 - Efficient association handling
 
@@ -370,9 +394,13 @@ tests/
 - [x] TypeScript type safety improvements (74% reduction in `any` types)
 - [x] Modular architecture with separated field descriptions
 - [x] File property updates without re-upload
+- [x] Association labels during object creation
+- [x] Automatic pagination with returnAll across all nodes
+- [x] Object schema retrieval
+- [x] List filtering by object type
+- [x] Form submissions pagination (API v1)
 - [ ] OAuth2 support
 - [ ] Webhook triggers
-- [ ] Association labels
 - [ ] Advanced filtering UI
 - [ ] Workflow enrollment
 - [ ] Property history retrieval
