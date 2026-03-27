@@ -296,22 +296,37 @@ export const communicationsField: INodeProperties = {
 	],
 };
 
-export const limitField: INodeProperties = {
-	displayName: 'Limit',
-	name: 'limit',
-	type: 'number',
-	default: 50,
-	typeOptions: {
-		minValue: 1,
-		maxValue: 1000,
-	},
-	description: 'Maximum number of form submissions to return. The API supports up to 1000 submissions per request.',
+export const returnAllField: INodeProperties = {
+	displayName: 'Return All',
+	name: 'returnAll',
+	type: 'boolean',
+	default: false,
+	description: 'Whether to automatically paginate and return all form submissions. May take longer for forms with many submissions.',
 	displayOptions: {
 		show: {
 			operation: ['getSubmissions'],
 		},
 	},
 };
+
+export const limitField: INodeProperties = {
+	displayName: 'Limit',
+	name: 'limit',
+	type: 'number',
+	default: 100,
+	typeOptions: {
+		minValue: 1,
+		maxValue: 10000,
+	},
+	description: 'Maximum number of form submissions to return. Use with "Return All" disabled for pagination.',
+	displayOptions: {
+		show: {
+			operation: ['getSubmissions'],
+			returnAll: [false],
+		},
+	},
+};
+
 
 export const formFields: INodeProperties[] = [
 	operationField,
@@ -324,5 +339,6 @@ export const formFields: INodeProperties[] = [
 	consentTextField,
 	consentToProcessField,
 	communicationsField,
+	returnAllField,
 	limitField,
 ];

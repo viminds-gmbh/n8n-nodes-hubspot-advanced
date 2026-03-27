@@ -37,29 +37,59 @@ async function getForms(context: IExecuteFunctions): Promise<INodeExecutionData[
 	return results;
 }
 
+async function getAllFormSubmissions(
+	context: IExecuteFunctions,
+	formGuid: string,
+	limit?: number,
+): Promise<IDataObject[]> {
+	const results: IDataObject[] = [];
+	let after: string | undefined;
+
+	do {
+		const queryParams: IDataObject = { limit: 50 };
+		if (after) {
+			queryParams.after = after;
+		}
+
+		const response = await hubspotApiRequest.call(
+			context,
+			'GET',
+			`/form-integrations/v1/submissions/forms/${formGuid}`,
+			{},
+			queryParams,
+		) as IDataObject;
+
+		if (response.results && Array.isArray(response.results)) {
+			results.push(...(response.results as IDataObject[]));
+		}
+
+		const paging = response.paging as IDataObject | undefined;
+		after = paging?.next ? (paging.next as IDataObject).after as string | undefined : undefined;
+
+		if (limit && results.length >= limit) {
+			break;
+		}
+	} while (after);
+
+	return limit ? results.slice(0, limit) : results;
+}
+
 async function getSubmissions(
 	context: IExecuteFunctions,
 	i: number
 ): Promise<INodeExecutionData[]> {
 	const formGuid = context.getNodeParameter('formGuid', i) as string;
-	const limit = context.getNodeParameter('limit', i, 50) as number;
+	const returnAll = context.getNodeParameter('returnAll', i) as boolean;
+	const limit = context.getNodeParameter('limit', i, 100) as number;
 
-	const response = await hubspotApiRequest.call(
-		context,
-		'GET',
-		`/form-integrations/v1/submissions/forms/${formGuid}`,
-		{},
-		{ limit },
-	) as IDataObject;
-
-	const results: INodeExecutionData[] = [];
-	if (response.results && Array.isArray(response.results)) {
-		for (const submission of response.results as IDataObject[]) {
-			results.push({ json: submission });
-		}
+	let results: IDataObject[];
+	if (returnAll) {
+		results = await getAllFormSubmissions(context, formGuid);
+	} else {
+		results = await getAllFormSubmissions(context, formGuid, limit);
 	}
 
-	return results;
+	return results.map((result) => ({ json: result }));
 }
 
 async function submitForm(
