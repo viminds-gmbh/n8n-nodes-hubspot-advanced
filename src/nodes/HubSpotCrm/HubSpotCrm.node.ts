@@ -8,6 +8,7 @@ import type {
 } from 'n8n-workflow';
 
 import { hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
+import { PropertyCache } from '../../transport/PropertyCache';
 import { crmFields } from './descriptions';
 import { executeCrmOperation } from './operations';
 
@@ -66,8 +67,6 @@ export class HubSpotCrm implements INodeType {
 	methods = {
 		loadOptions: {
 			async getProperties(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-
-				const { PropertyCache } = await import('../../transport/PropertyCache');
 
 				const objectTypeRaw = this.getCurrentNodeParameter('objectType') as string;
 				const objectType = objectTypeRaw === 'custom'

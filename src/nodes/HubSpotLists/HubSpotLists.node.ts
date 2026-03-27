@@ -8,6 +8,7 @@ import type {
 } from 'n8n-workflow';
 
 import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
+import { PropertyCache } from '../../transport/PropertyCache';
 import { HUBSPOT_OBJECT_TYPE_TO_ID } from '../../types';
 import { listFields } from './descriptions';
 import { executeListOperation } from './operations';
@@ -129,8 +130,6 @@ export class HubSpotLists implements INodeType {
 				return options;
 			},
 			async getProperties(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-				const { PropertyCache } = await import('../../transport/PropertyCache');
-
 				const objectTypeRaw = this.getCurrentNodeParameter('objectType') as string;
 				const objectType = objectTypeRaw === 'custom'
 					? this.getCurrentNodeParameter('customObjectType') as string
