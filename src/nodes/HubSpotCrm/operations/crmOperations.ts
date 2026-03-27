@@ -168,7 +168,16 @@ async function createObject(
 	objectType: string,
 	i: number
 ): Promise<INodeExecutionData> {
+	const { getAssociationTypeId, isCustomObjectType } = await import('../../../transport/AssociationTypeMapping');
+
 	const propertiesToSet = context.getNodeParameter('propertiesToSet', i, {}) as { property?: PropertyToSet[] };
+	const associationsToCreate = context.getNodeParameter('associations', i, {}) as { 
+		association?: Array<{
+			toObjectType: string;
+			customToObjectType?: string;
+			toObjectId: string;
+		}>;
+	};
 
 	const properties: IDataObject = {};
 	if (propertiesToSet.property) {
@@ -177,12 +186,76 @@ async function createObject(
 		});
 	}
 
+	const body: IDataObject = { properties };
+
+	// Process associations if provided
+	if (associationsToCreate.association && associationsToCreate.association.length > 0) {
+		const associations: Array<{
+			to: { id: string };
+			types: Array<{
+				associationCategory: string;
+				associationTypeId: number;
+			}>;
+		}> = [];
+
+		for (const assoc of associationsToCreate.association) {
+			const toObjectType = assoc.toObjectType === 'custom' 
+				? assoc.customToObjectType! 
+				: assoc.toObjectType;
+
+			// Check if custom object - these need separate API calls
+			if (isCustomObjectType(objectType) || isCustomObjectType(toObjectType)) {
+				// Skip for now - will handle after object creation
+				continue;
+			}
+
+			// Standard object → Use static mapping for default association
+			const typeId = getAssociationTypeId(objectType, toObjectType);
+			if (!typeId) {
+				throw new Error(`No default association type found for ${objectType} → ${toObjectType}`);
+			}
+
+			associations.push({
+				to: { id: String(assoc.toObjectId) },
+				types: [{
+					associationCategory: 'HUBSPOT_DEFINED',
+					associationTypeId: typeId,
+				}],
+			});
+		}
+
+		if (associations.length > 0) {
+			body.associations = associations;
+		}
+	}
+
 	const response = await hubspotApiRequest.call(
 		context,
 		'POST',
 		`/crm/v3/objects/${objectType}`,
-		{ properties },
+		body,
 	) as IDataObject;
+
+	// Handle custom object associations separately
+	if (associationsToCreate.association && associationsToCreate.association.length > 0) {
+		const createdObjectId = (response.id || response.hs_object_id) as string;
+		
+		for (const assoc of associationsToCreate.association) {
+			const toObjectType = assoc.toObjectType === 'custom' 
+				? assoc.customToObjectType! 
+				: assoc.toObjectType;
+
+			// Only process custom object associations here
+			if (isCustomObjectType(objectType) || isCustomObjectType(toObjectType)) {
+				// Use default association API for custom objects
+				await hubspotApiRequest.call(
+					context,
+					'PUT',
+					`/crm/v4/objects/${objectType}/${createdObjectId}/associations/default/${toObjectType}/${assoc.toObjectId}`,
+				);
+			}
+		}
+	}
 
 	return { json: response };
 }

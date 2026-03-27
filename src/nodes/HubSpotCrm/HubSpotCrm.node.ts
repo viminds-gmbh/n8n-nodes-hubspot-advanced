@@ -10,7 +10,6 @@ import type {
 import { hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
 import { crmFields } from './descriptions';
 import { executeCrmOperation } from './operations';
-import { PropertyCache } from '../../transport/PropertyCache';
 
 export class HubSpotCrm implements INodeType {
 	description: INodeTypeDescription = {
@@ -67,6 +66,8 @@ export class HubSpotCrm implements INodeType {
 	methods = {
 		loadOptions: {
 			async getProperties(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+
+				const { PropertyCache } = await import('../../transport/PropertyCache');
 
 				const objectTypeRaw = this.getCurrentNodeParameter('objectType') as string;
 				const objectType = objectTypeRaw === 'custom'

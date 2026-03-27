@@ -241,13 +241,56 @@ async function createAssociation(
 	toObjectType: string,
 	i: number
 ): Promise<INodeExecutionData> {
+	const { getAssociationTypeId, isCustomObjectType } = await import('../../../transport/AssociationTypeMapping');
+
 	const fromObjectId = String(context.getNodeParameter('fromObjectId', i));
 	const toObjectId = String(context.getNodeParameter('toObjectId', i));
+	const associationLabelRaw = context.getNodeParameter('associationLabel', i, '') as string;
 
+	let endpoint: string;
+	let body: Array<{ associationCategory: string; associationTypeId: number }> | undefined;
+
+	// Parse label selection (if any)
+	let labelData: { typeId: number; category: string } | null = null;
+	if (associationLabelRaw) {
+		try {
+			labelData = JSON.parse(associationLabelRaw);
+		} catch (error) {
+			throw new Error('Invalid association label format');
+		}
+	}
+
+	// Decision tree: Label > Custom Object > Static Mapping
+	if (labelData) {
+		// User selected a label → Use label's typeId and category
+		endpoint = `/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`;
+		body = [{
+			associationCategory: labelData.category,
+			associationTypeId: labelData.typeId,
+		}];
+	} else if (isCustomObjectType(fromObjectType) || isCustomObjectType(toObjectType)) {
+		// Custom object → Use default association API
+		endpoint = `/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/default/${toObjectType}/${toObjectId}`;
+		body = undefined;
+	} else {
+		// Standard object → Use static mapping
+		const typeId = getAssociationTypeId(fromObjectType, toObjectType);
+		if (!typeId) {
+			throw new Error(`No default association type found for ${fromObjectType} → ${toObjectType}`);
+		}
+		endpoint = `/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`;
+		body = [{
+			associationCategory: 'HUBSPOT_DEFINED',
+			associationTypeId: typeId,
+		}];
+	}
+
+	// Execute API call
 	await hubspotApiRequest.call(
 		context,
 		'PUT',
-		`/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`,
+		endpoint,
+		body as unknown as IDataObject,
 	);
 
 	return {
@@ -255,6 +298,7 @@ async function createAssociation(
 			success: true,
 			from: { type: fromObjectType, id: fromObjectId },
 			to: { type: toObjectType, id: toObjectId },
+			associationType: labelData ? `${labelData.category} (${labelData.typeId})` : 'Default',
 		},
 		pairedItem: { item: i },
 	};

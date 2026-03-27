@@ -275,6 +275,63 @@ export const propertiesToSetField: INodeProperties = {
 	],
 };
 
+export const associationsField: INodeProperties = {
+	displayName: 'Associations',
+	name: 'associations',
+	type: 'fixedCollection',
+	typeOptions: {
+		multipleValues: true,
+	},
+	default: {},
+	placeholder: 'Add Association',
+	description: 'Associate the created object with other objects. This allows you to link records together (e.g., contact to company).',
+	displayOptions: {
+		show: {
+			operation: ['create'],
+		},
+	},
+	options: [
+		{
+			name: 'association',
+			displayName: 'Association',
+			values: [
+				{
+					displayName: 'To Object Type',
+					name: 'toObjectType',
+					type: 'options',
+					options: [...HUBSPOT_OBJECT_TYPE_OPTIONS],
+					default: 'companies',
+					required: true,
+					description: 'The type of object to associate with.',
+				},
+				{
+					displayName: 'Custom To Object Type',
+					name: 'customToObjectType',
+					type: 'string',
+					default: '',
+					required: true,
+					placeholder: 'cars',
+					description: 'The name or ID of the custom object type (e.g., "cars" or "2-12345").',
+					displayOptions: {
+						show: {
+							toObjectType: ['custom'],
+						},
+					},
+				},
+				{
+					displayName: 'To Object ID',
+					name: 'toObjectId',
+					type: 'string',
+					default: '',
+					required: true,
+					placeholder: '12345678',
+					description: 'The ID of the object to associate with. Use expressions to reference IDs from previous nodes.',
+				},
+			],
+		},
+	],
+};
+
 export const crmFields: INodeProperties[] = [
 	objectTypeField,
 	customObjectTypeField,
@@ -287,4 +344,5 @@ export const crmFields: INodeProperties[] = [
 	limitField,
 	returnAllField,
 	propertiesToSetField,
+	associationsField,
 ];

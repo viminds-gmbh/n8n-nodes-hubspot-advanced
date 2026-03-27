@@ -28,14 +28,14 @@ export const operationField: INodeProperties = {
 			description: 'Get full associated objects with properties for multiple objects using a field key',
 		},
 		{
-			name: 'Create Association',
+			name: 'Associate Objects',
 			value: 'createAssociation',
-			description: 'Associate two objects',
+			description: 'Create an association between two objects',
 		},
 		{
-			name: 'Delete Association',
+			name: 'Dissociate Objects',
 			value: 'deleteAssociation',
-			description: 'Remove association between objects',
+			description: 'Remove association between two objects',
 		},
 	],
 	default: 'hydrateAssociations',
@@ -183,6 +183,24 @@ export const toObjectIdField: INodeProperties = {
 	},
 };
 
+export const associationLabelField: INodeProperties = {
+	displayName: 'Association Label',
+	name: 'associationLabel',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'getAssociationLabels',
+		loadOptionsDependsOn: ['fromObjectType', 'customFromObjectType', 'toObjectType', 'customToObjectType'],
+	},
+	default: '',
+	required: false,
+	description: 'Optional: Select a specific association label. Leave empty to use the default association type. Labels allow you to categorize associations (e.g., "Primary Contact", "Billing Contact").',
+	displayOptions: {
+		show: {
+			operation: ['createAssociation'],
+		},
+	},
+};
+
 export const associationFields: INodeProperties[] = [
 	operationField,
 	fromObjectTypeField,
@@ -195,4 +213,5 @@ export const associationFields: INodeProperties[] = [
 	outputFieldField,
 	fromObjectIdField,
 	toObjectIdField,
+	associationLabelField,
 ];
