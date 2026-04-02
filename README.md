@@ -8,7 +8,8 @@ Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations,
 
 - ✅ **Intelligent Rate Limiting** – Respects HubSpot API limits with adaptive throttling
 - ✅ **Automatic Pagination** – ReturnAll option across all nodes for effortless large dataset retrieval
-- ✅ **Batch Operations** – Efficient bulk reads and association hydration using HubSpot's batch APIs
+- ✅ **Batch Operations** – Efficient bulk create, update, delete, read, and association hydration using HubSpot's batch APIs
+- ✅ **Field-Name Mapping** – User-friendly property mapping for batch operations with dropdown selection
 - ✅ **Association Hydration** – Fetch full associated objects in a single workflow step with batch support
 - ✅ **Association Labels** – Create associations with custom labels during object creation
 - ✅ **Multi-API Version Support** – v1, v3, v3-legacy, and v4 endpoints
@@ -45,11 +46,14 @@ Advanced CRM operations with search, filtering, and batch support.
 
 **Operations:**
 - Get single object
-- Get many objects (batch)
+- Get many objects (batch read)
 - Search with filters and sorting
 - Create object
 - Update object
 - Delete object
+- **Batch Create** (bulk object creation) ⭐ NEW
+- **Batch Update** (bulk object updates) ⭐ NEW
+- **Batch Delete** (bulk object deletion) ⭐ NEW
 
 **Key Features:**
 - Custom property selection
@@ -57,16 +61,51 @@ Advanced CRM operations with search, filtering, and batch support.
 - Sorting by any property
 - **ReturnAll option** for automatic pagination of large result sets
 - **Association labels** support during object creation
+- **Batch operations** with field-name mapping for efficient bulk processing (up to 100 items per API call)
 
 **Example Workflow:**
 ```
-[HubSpot CRM]
+[HubSpot CRM: Search]
   Operation: Search
   Object Type: Contacts
   Filters: email CONTAINS "@acme.com"
   Properties: firstname,lastname,email,company
   Sort: createdate DESC
   Limit: 100
+```
+
+**Batch Create Example:**
+```
+[Input: 100 deals from CSV] → [
+  { "name": "Deal 1", "value": "1000", "stage": "qualified" },
+  { "name": "Deal 2", "value": "2000", "stage": "proposal" },
+  ...
+]
+        ↓
+[HubSpot CRM: Batch Create]
+  Object Type: deals
+  Property Mappings:
+    - HubSpot Property: "dealname" → Input Field: "name"
+    - HubSpot Property: "amount" → Input Field: "value"
+    - HubSpot Property: "dealstage" → Input Field: "stage"
+        ↓
+Output: 100 created deals
+API Calls: 1 (instead of 100!)
+```
+
+**Batch Update Example:**
+```
+[Input: 50 contacts to update]
+        ↓
+[HubSpot CRM: Batch Update]
+  Object Type: contacts
+  ID Field: "contact_id"
+  Property Mappings:
+    - HubSpot Property: "firstname" → Input Field: "new_firstname"
+    - HubSpot Property: "lastname" → Input Field: "new_lastname"
+        ↓
+Output: 50 updated contacts
+API Calls: 1 (instead of 50!)
 ```
 
 ### 2. HubSpot Associations
@@ -399,6 +438,8 @@ tests/
 - [x] Object schema retrieval
 - [x] List filtering by object type
 - [x] Form submissions pagination (API v1)
+- [x] Batch Create, Update, Delete operations for CRM objects
+- [x] Field-name mapping for batch operations
 - [ ] OAuth2 support
 - [ ] Webhook triggers
 - [ ] Advanced filtering UI
