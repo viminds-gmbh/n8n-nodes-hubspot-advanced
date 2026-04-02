@@ -112,21 +112,35 @@ export class HubSpotCrm implements INodeType {
 			? (this.getNodeParameter('customObjectType', 0) as string)
 			: objectTypeRaw;
 
-		for (let i = 0; i < items.length; i++) {
+		if (operation === 'batchCreate' || operation === 'batchUpdate' || operation === 'batchDelete') {
 			try {
-				const results = await executeCrmOperation(this, operation, objectType, items, i);
+				const results = await executeCrmOperation(this, operation, objectType, items, 0);
 				returnData.push(...results);
-
-				if (operation === 'getMany') {
-					break;
-				}
 			} catch (error) {
 				if (this.continueOnFail()) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
-					continue;
+					returnData.push({ json: { error: errorMessage } });
+				} else {
+					throw error;
 				}
-				throw error;
+			}
+		} else {
+			for (let i = 0; i < items.length; i++) {
+				try {
+					const results = await executeCrmOperation(this, operation, objectType, items, i);
+					returnData.push(...results);
+
+					if (operation === 'getMany') {
+						break;
+					}
+				} catch (error) {
+					if (this.continueOnFail()) {
+						const errorMessage = error instanceof Error ? error.message : String(error);
+						returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
+						continue;
+					}
+					throw error;
+				}
 			}
 		}
 

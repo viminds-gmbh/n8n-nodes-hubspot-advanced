@@ -37,6 +37,12 @@ export async function executeCrmOperation(
 			return [await updateObject(context, objectType, itemIndex)];
 		case 'delete':
 			return [await deleteObject(context, objectType, itemIndex)];
+		case 'batchCreate':
+			return await batchCreateObjects(context, objectType, items);
+		case 'batchUpdate':
+			return await batchUpdateObjects(context, objectType, items);
+		case 'batchDelete':
+			return await batchDeleteObjects(context, objectType, items);
 		default:
 			throw new Error(`Unknown CRM operation: ${operation}`);
 	}
@@ -299,4 +305,147 @@ async function deleteObject(
 	);
 
 	return { json: { success: true, id: objectId } };
+}
+
+async function batchCreateObjects(
+	context: IExecuteFunctions,
+	objectType: string,
+	items: INodeExecutionData[]
+): Promise<INodeExecutionData[]> {
+	const propertyMappings = context.getNodeParameter('propertyMappings', 0, {}) as {
+		mapping?: Array<{ property: string; fieldName: string }>;
+	};
+
+	if (!propertyMappings.mapping || propertyMappings.mapping.length === 0) {
+		throw new Error('At least one property mapping is required for batch create');
+	}
+
+	const inputs = items.map((item) => {
+		const properties: IDataObject = {};
+
+		propertyMappings.mapping!.forEach((map) => {
+			const value = item.json[map.fieldName];
+			if (value !== undefined && value !== null) {
+				properties[map.property] = value;
+			}
+		});
+
+		return { properties };
+	});
+
+	const batchSize = 100;
+	const allResults: IDataObject[] = [];
+
+	for (let i = 0; i < inputs.length; i += batchSize) {
+		const batch = inputs.slice(i, i + batchSize);
+
+		const response = await hubspotApiRequest.call(
+			context,
+			'POST',
+			`/crm/v3/objects/${objectType}/batch/create`,
+			{ inputs: batch },
+		) as { results: IDataObject[] };
+
+		allResults.push(...response.results);
+	}
+
+	return allResults.map((result, index) => ({
+		json: result,
+		pairedItem: { item: index },
+	}));
+}
+
+async function batchUpdateObjects(
+	context: IExecuteFunctions,
+	objectType: string,
+	items: INodeExecutionData[]
+): Promise<INodeExecutionData[]> {
+	const idField = context.getNodeParameter('idField', 0) as string;
+	const propertyMappings = context.getNodeParameter('propertyMappings', 0, {}) as {
+		mapping?: Array<{ property: string; fieldName: string }>;
+	};
+
+	if (!propertyMappings.mapping || propertyMappings.mapping.length === 0) {
+		throw new Error('At least one property mapping is required for batch update');
+	}
+
+	const inputs = items.map((item, index) => {
+		const objectId = item.json[idField];
+		if (!objectId) {
+			throw new Error(`Missing ID field "${idField}" in item ${index}`);
+		}
+
+		const properties: IDataObject = {};
+
+		propertyMappings.mapping!.forEach((map) => {
+			const value = item.json[map.fieldName];
+			if (value !== undefined && value !== null) {
+				properties[map.property] = value;
+			}
+		});
+
+		return {
+			id: String(objectId),
+			properties,
+		};
+	});
+
+	const batchSize = 100;
+	const allResults: IDataObject[] = [];
+
+	for (let i = 0; i < inputs.length; i += batchSize) {
+		const batch = inputs.slice(i, i + batchSize);
+
+		const response = await hubspotApiRequest.call(
+			context,
+			'POST',
+			`/crm/v3/objects/${objectType}/batch/update`,
+			{ inputs: batch },
+		) as { results: IDataObject[] };
+
+		allResults.push(...response.results);
+	}
+
+	return allResults.map((result, index) => ({
+		json: result,
+		pairedItem: { item: index },
+	}));
+}
+
+async function batchDeleteObjects(
+	context: IExecuteFunctions,
+	objectType: string,
+	items: INodeExecutionData[]
+): Promise<INodeExecutionData[]> {
+	const idField = context.getNodeParameter('idField', 0) as string;
+
+	const inputs = items.map((item, index) => {
+		const objectId = item.json[idField];
+		if (!objectId) {
+			throw new Error(`Missing ID field "${idField}" in item ${index}`);
+		}
+
+		return { id: String(objectId) };
+	});
+
+	const batchSize = 100;
+	const allResults: string[] = [];
+
+	for (let i = 0; i < inputs.length; i += batchSize) {
+		const batch = inputs.slice(i, i + batchSize);
+
+		await hubspotApiRequest.call(
+			context,
+			'POST',
+			`/crm/v3/objects/${objectType}/batch/archive`,
+			{ inputs: batch },
+		);
+
+		batch.forEach((input) => allResults.push(input.id));
+	}
+
+	return allResults.map((id, index) => ({
+		json: { success: true, id },
+		pairedItem: { item: index },
+	}));
 }

@@ -196,7 +196,7 @@ export const associationLabelField: INodeProperties = {
 	description: 'Optional: Select a specific association label. Leave empty to use the default association type. Labels allow you to categorize associations (e.g., "Primary Contact", "Billing Contact").',
 	displayOptions: {
 		show: {
-			operation: ['createAssociation'],
+			operation: ['createAssociation', 'deleteAssociation'],
 		},
 	},
 };

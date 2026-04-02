@@ -38,6 +38,9 @@ export const operationField: INodeProperties = {
 		{ name: 'Create', value: 'create', description: 'Create a new object' },
 		{ name: 'Update', value: 'update', description: 'Update an existing object' },
 		{ name: 'Delete', value: 'delete', description: 'Delete an object' },
+		{ name: 'Batch Create', value: 'batchCreate', description: 'Create multiple objects in a single batch request using all input items' },
+		{ name: 'Batch Update', value: 'batchUpdate', description: 'Update multiple objects in a single batch request using all input items' },
+		{ name: 'Batch Delete', value: 'batchDelete', description: 'Delete multiple objects in a single batch request using all input items' },
 	],
 	default: 'search',
 	required: true,
@@ -67,7 +70,7 @@ export const idFieldField: INodeProperties = {
 	description: 'Name of the field in input items that contains the object ID (e.g., "id", "objectId", "hs_object_id")',
 	displayOptions: {
 		show: {
-			operation: ['getMany'],
+			operation: ['getMany', 'batchUpdate', 'batchDelete'],
 		},
 	},
 };
@@ -275,6 +278,52 @@ export const propertiesToSetField: INodeProperties = {
 	],
 };
 
+export const propertyMappingsField: INodeProperties = {
+	displayName: 'Property Mappings',
+	name: 'propertyMappings',
+	type: 'fixedCollection',
+	typeOptions: {
+		multipleValues: true,
+	},
+	default: {},
+	placeholder: 'Add Property Mapping',
+	description: 'Map fields from input items to HubSpot properties. Each input item will be processed in batch.',
+	displayOptions: {
+		show: {
+			operation: ['batchCreate', 'batchUpdate'],
+		},
+	},
+	options: [
+		{
+			name: 'mapping',
+			displayName: 'Mapping',
+			values: [
+				{
+					displayName: 'HubSpot Property',
+					name: 'property',
+					type: 'options',
+					typeOptions: {
+						loadOptionsMethod: 'getProperties',
+						loadOptionsDependsOn: ['objectType', 'customObjectType'],
+					},
+					default: '',
+					required: true,
+					description: 'The HubSpot property to set (e.g., "dealname", "amount")',
+				},
+				{
+					displayName: 'Input Field Name',
+					name: 'fieldName',
+					type: 'string',
+					default: '',
+					required: true,
+					placeholder: 'dealname',
+					description: 'The field name from input items to use as value (e.g., "dealname", "amount")',
+				},
+			],
+		},
+	],
+};
+
 export const associationsField: INodeProperties = {
 	displayName: 'Associations',
 	name: 'associations',
@@ -344,5 +393,6 @@ export const crmFields: INodeProperties[] = [
 	limitField,
 	returnAllField,
 	propertiesToSetField,
+	propertyMappingsField,
 	associationsField,
 ];
