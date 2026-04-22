@@ -44,7 +44,7 @@ describe('CRM Filter Operators', () => {
 								{
 									propertyName: 'email',
 									operator: 'IN',
-									value: emailArray,
+									values: emailArray,
 								},
 							],
 						};
@@ -158,7 +158,7 @@ describe('CRM Filter Operators', () => {
 								{
 									propertyName: 'dealstage',
 									operator: 'NOT_IN',
-									value: statusArray,
+									values: statusArray,
 								},
 							],
 						};
