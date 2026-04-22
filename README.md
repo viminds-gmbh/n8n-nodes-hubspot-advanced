@@ -57,7 +57,8 @@ Advanced CRM operations with search, filtering, and batch support.
 
 **Key Features:**
 - Custom property selection
-- Advanced filtering (EQ, NEQ, LT, GT, CONTAINS, etc.)
+- Advanced filtering (EQ, NEQ, LT, GT, CONTAINS, IN, NOT_IN, HAS_PROPERTY, NOT_HAS_PROPERTY, etc.)
+- Semicolon-separated values for IN/NOT_IN operators
 - Sorting by any property
 - **ReturnAll option** for automatic pagination of large result sets
 - **Association labels** support during object creation
@@ -68,7 +69,9 @@ Advanced CRM operations with search, filtering, and batch support.
 [HubSpot CRM: Search]
   Operation: Search
   Object Type: Contacts
-  Filters: email CONTAINS "@acme.com"
+  Filters: 
+    - email CONTAINS "@acme.com"
+    - lifecyclestage IN "lead;customer;opportunity"
   Properties: firstname,lastname,email,company
   Sort: createdate DESC
   Limit: 100
@@ -440,6 +443,7 @@ tests/
 - [x] Form submissions pagination (API v1)
 - [x] Batch Create, Update, Delete operations for CRM objects
 - [x] Field-name mapping for batch operations
+- [x] Extended search filter operators (IN, NOT_IN, HAS_PROPERTY, NOT_HAS_PROPERTY)
 - [ ] OAuth2 support
 - [ ] Webhook triggers
 - [ ] Advanced filtering UI
