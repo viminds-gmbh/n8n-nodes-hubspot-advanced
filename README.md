@@ -57,8 +57,9 @@ Advanced CRM operations with search, filtering, and batch support.
 
 **Key Features:**
 - Custom property selection
-- Advanced filtering (EQ, NEQ, LT, GT, CONTAINS, IN, NOT_IN, HAS_PROPERTY, NOT_HAS_PROPERTY, etc.)
-- Semicolon-separated values for IN/NOT_IN operators
+- Advanced filtering (EQ, NEQ, LT, GT, BETWEEN, CONTAINS, IN, NOT_IN, HAS_PROPERTY, NOT_HAS_PROPERTY, etc.)
+- **Flexible IN/NOT_IN operators** - accepts semicolon-separated strings or array expressions
+- **BETWEEN operator** with dedicated high value field
 - Sorting by any property
 - **ReturnAll option** for automatic pagination of large result sets
 - **Association labels** support during object creation
@@ -71,7 +72,9 @@ Advanced CRM operations with search, filtering, and batch support.
   Object Type: Contacts
   Filters: 
     - email CONTAINS "@acme.com"
-    - lifecyclestage IN "lead;customer;opportunity"
+    - lifecyclestage IN "lead;customer;opportunity"  // semicolon-separated
+    - email IN {{ $json.emails }}                    // or array expression
+    - amount BETWEEN 1000 and 5000                   // range filter
   Properties: firstname,lastname,email,company
   Sort: createdate DESC
   Limit: 100
@@ -443,7 +446,9 @@ tests/
 - [x] Form submissions pagination (API v1)
 - [x] Batch Create, Update, Delete operations for CRM objects
 - [x] Field-name mapping for batch operations
-- [x] Extended search filter operators (IN, NOT_IN, HAS_PROPERTY, NOT_HAS_PROPERTY)
+- [x] Extended search filter operators (IN, NOT_IN, HAS_PROPERTY, NOT_HAS_PROPERTY, BETWEEN)
+- [x] Flexible values input for IN/NOT_IN (semicolon-separated or array expressions)
+- [x] Conditional UI fields for filter operators
 - [ ] OAuth2 support
 - [ ] Webhook triggers
 - [ ] Advanced filtering UI
