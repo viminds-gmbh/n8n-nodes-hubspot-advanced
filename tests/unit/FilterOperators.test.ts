@@ -142,6 +142,64 @@ describe('CRM Filter Operators', () => {
 		});
 	});
 
+	describe('BETWEEN operator', () => {
+		it('should handle value and highValue for BETWEEN operator', async () => {
+			(mockContext.getNodeParameter as jest.Mock).mockImplementation((param: string) => {
+				switch (param) {
+					case 'returnAll':
+						return false;
+					case 'limit':
+						return 100;
+					case 'properties':
+						return ['dealname', 'amount'];
+					case 'filters':
+						return {
+							filterGroups: [
+								{
+									propertyName: 'amount',
+									operator: 'BETWEEN',
+									value: '1000',
+									highValue: '5000',
+								},
+							],
+						};
+					case 'sort':
+						return {};
+					default:
+						return undefined;
+				}
+			});
+
+			await executeCrmOperation(
+				mockContext as IExecuteFunctions,
+				'search',
+				'deals',
+				[{ json: {} }],
+				0,
+			);
+
+			expect(hubspotApiRequestAllItems).toHaveBeenCalledWith(
+				'POST',
+				'/crm/v3/objects/deals/search',
+				expect.objectContaining({
+					filterGroups: [
+						{
+							filters: [
+								{
+									propertyName: 'amount',
+									operator: 'BETWEEN',
+									value: '1000',
+									highValue: '5000',
+								},
+							],
+						},
+					],
+				}),
+				100,
+			);
+		});
+	});
+
 	describe('HAS_PROPERTY and NOT_HAS_PROPERTY operators', () => {
 		it('should not include value for HAS_PROPERTY operator', async () => {
 			(mockContext.getNodeParameter as jest.Mock).mockImplementation((param: string) => {

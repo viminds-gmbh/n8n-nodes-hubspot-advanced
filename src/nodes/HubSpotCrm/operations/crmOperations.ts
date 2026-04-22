@@ -6,6 +6,7 @@ interface FilterGroup {
 	operator: string;
 	value?: string;
 	values?: string[];
+	highValue?: string;
 }
 
 interface SortOptions {
@@ -143,6 +144,14 @@ async function searchObjects(
 							filter.values = f.values.map((v: string) => String(v).trim());
 						} else {
 							throw new Error(`'values' field is required for ${f.operator} operator`);
+						}
+					} else if (f.operator === 'BETWEEN') {
+						// BETWEEN operator requires both value (lower bound) and highValue (upper bound)
+						if (f.value !== undefined) {
+							filter.value = f.value;
+						}
+						if (f.highValue !== undefined) {
+							filter.highValue = f.highValue;
 						}
 					} else if (f.operator === 'HAS_PROPERTY' || f.operator === 'NOT_HAS_PROPERTY') {
 						// These operators don't require a value

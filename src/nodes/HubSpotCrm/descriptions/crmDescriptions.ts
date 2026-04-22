@@ -152,9 +152,42 @@ export const filtersField: INodeProperties = {
 					name: 'value',
 					type: 'string',
 					default: '',
-					required: true,
+					displayOptions: {
+						hide: {
+							operator: ['IN', 'NOT_IN', 'HAS_PROPERTY', 'NOT_HAS_PROPERTY'],
+						},
+					},
 					placeholder: 'john@example.com',
-					description: 'The value to compare against. Note: IN/NOT_IN operators require the "values" field (array) instead of "value".',
+					description: 'The value to compare against.',
+				},
+				{
+					displayName: 'Values',
+					name: 'values',
+					type: 'string',
+					typeOptions: {
+						multipleValues: true,
+					},
+					default: [],
+					displayOptions: {
+						show: {
+							operator: ['IN', 'NOT_IN'],
+						},
+					},
+					placeholder: 'Add value',
+					description: 'The values to match against. You can add multiple values or pass an array expression like {{ $json.emails }}.',
+				},
+				{
+					displayName: 'High Value',
+					name: 'highValue',
+					type: 'string',
+					default: '',
+					displayOptions: {
+						show: {
+							operator: ['BETWEEN'],
+						},
+					},
+					placeholder: '1000',
+					description: 'The upper bound for the BETWEEN operator. "Value" field is the lower bound.',
 				},
 			],
 		},
