@@ -15,7 +15,7 @@ export class HubSpotObjectSchema implements INodeType {
 		icon: 'file:../../icon.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"] + ": " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
+		subtitle: '={{$parameter["operation"] === "getAssociationLabelDefinitions" ? $parameter["operation"] + ": " + ($parameter["fromObjectType"] === "custom" ? $parameter["customFromObjectType"] : $parameter["fromObjectType"]) + " → " + ($parameter["toObjectType"] === "custom" ? $parameter["customToObjectType"] : $parameter["toObjectType"]) : $parameter["operation"] + ": " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
 		description: 'Get HubSpot object schema information',
 		defaults: {
 			name: 'HubSpot Object Schema',
@@ -68,15 +68,19 @@ export class HubSpotObjectSchema implements INodeType {
 
 		for (let i = 0; i < items.length; i++) {
 			try {
-				const objectTypeRaw = this.getNodeParameter('objectType', i, '') as string;
-				const objectType = objectTypeRaw === 'custom'
-					? (this.getNodeParameter('customObjectType', i) as string)
-					: objectTypeRaw;
+				let objectType = '';
+				
+				if (operation !== 'getObjectTypes' && operation !== 'getAssociationLabelDefinitions') {
+					const objectTypeRaw = this.getNodeParameter('objectType', i, '') as string;
+					objectType = objectTypeRaw === 'custom'
+						? (this.getNodeParameter('customObjectType', i) as string)
+						: objectTypeRaw;
+				}
 
 				const results = await executeSchemaOperation(this, operation, objectType, i);
 				returnData.push(...results);
 
-				if (operation === 'getObjectTypes') {
+				if (operation === 'getObjectTypes' || operation === 'getAssociationLabelDefinitions') {
 					break;
 				}
 			} catch (error) {

@@ -14,6 +14,8 @@ export async function executeSchemaOperation(
 			return [await getObjectSchema(context, objectType, itemIndex)];
 		case 'getProperties':
 			return await getProperties(context, objectType, itemIndex);
+		case 'getAssociationLabelDefinitions':
+			return await getAssociationLabelDefinitions(context, itemIndex);
 		default:
 			throw new Error(`Unknown schema operation: ${operation}`);
 	}
@@ -76,4 +78,28 @@ async function getProperties(
 	}
 
 	return results.map((property: IDataObject) => ({ json: property }));
+}
+
+async function getAssociationLabelDefinitions(
+	context: IExecuteFunctions,
+	i: number
+): Promise<INodeExecutionData[]> {
+	const fromObjectTypeRaw = context.getNodeParameter('fromObjectType', i) as string;
+	const fromObjectType = fromObjectTypeRaw === 'custom'
+		? (context.getNodeParameter('customFromObjectType', i) as string)
+		: fromObjectTypeRaw;
+
+	const toObjectTypeRaw = context.getNodeParameter('toObjectType', i) as string;
+	const toObjectType = toObjectTypeRaw === 'custom'
+		? (context.getNodeParameter('customToObjectType', i) as string)
+		: toObjectTypeRaw;
+
+	const results = await hubspotApiRequestAllItems.call(
+		context,
+		'GET',
+		`/crm/associations/v4/${fromObjectType}/${toObjectType}/labels`,
+		{},
+	);
+
+	return results.map((label: IDataObject) => ({ json: label, pairedItem: { item: i } }));
 }
