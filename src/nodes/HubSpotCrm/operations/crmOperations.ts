@@ -4,7 +4,7 @@ import { hubspotApiRequest, hubspotApiRequestAllItems, hubspotBatchRequest } fro
 interface FilterGroup {
 	propertyName: string;
 	operator: string;
-	value: string;
+	value: string | string[] | any[];
 }
 
 interface SortOptions {
@@ -137,7 +137,12 @@ async function searchObjects(
 					};
 
 					if (f.operator === 'IN' || f.operator === 'NOT_IN') {
-						filter.values = f.value.split(';').map((v: string) => v.trim());
+						// Handle both arrays and semicolon-separated strings
+						if (Array.isArray(f.value)) {
+							filter.values = f.value.map((v: any) => String(v).trim());
+						} else {
+							filter.values = String(f.value).split(';').map((v: string) => v.trim());
+						}
 					} else if (f.operator === 'HAS_PROPERTY' || f.operator === 'NOT_HAS_PROPERTY') {
 						// These operators don't require a value
 					} else {

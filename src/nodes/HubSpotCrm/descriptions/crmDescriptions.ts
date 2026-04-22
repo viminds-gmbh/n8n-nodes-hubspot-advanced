@@ -154,7 +154,7 @@ export const filtersField: INodeProperties = {
 					default: '',
 					required: true,
 					placeholder: 'john@example.com',
-					description: 'The value to compare against. For IN/NOT_IN operators, use semicolon-separated values.',
+					description: 'The value to compare against. For IN/NOT_IN operators, use semicolon-separated values (e.g., "value1;value2;value3") or pass an array directly.',
 				},
 			],
 		},
