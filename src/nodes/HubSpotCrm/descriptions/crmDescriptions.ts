@@ -164,17 +164,14 @@ export const filtersField: INodeProperties = {
 					displayName: 'Values',
 					name: 'values',
 					type: 'string',
-					typeOptions: {
-						multipleValues: true,
-					},
-					default: [],
+					default: '',
 					displayOptions: {
 						show: {
 							operator: ['IN', 'NOT_IN'],
 						},
 					},
-					placeholder: 'Add value',
-					description: 'The values to match against. You can add multiple values or pass an array expression like {{ $json.emails }}.',
+					placeholder: 'value1;value2;value3 or {{ $json.emails }}',
+					description: 'Semicolon-separated values (e.g., "email1@test.com;email2@test.com") or an array expression like {{ $json.emails }}.',
 				},
 				{
 					displayName: 'High Value',

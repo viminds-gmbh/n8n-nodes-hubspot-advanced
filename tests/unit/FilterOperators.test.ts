@@ -27,7 +27,7 @@ describe('CRM Filter Operators', () => {
 	});
 
 	describe('IN operator', () => {
-		it('should handle array values for IN operator', async () => {
+		it('should handle array values for IN operator (from expression)', async () => {
 			const emailArray = ['test1@example.com', 'test2@example.com', 'test3@example.com'];
 			
 			(mockContext.getNodeParameter as jest.Mock).mockImplementation((param: string) => {
@@ -45,6 +45,62 @@ describe('CRM Filter Operators', () => {
 									propertyName: 'email',
 									operator: 'IN',
 									values: emailArray,
+								},
+							],
+						};
+					case 'sort':
+						return {};
+					default:
+						return undefined;
+				}
+			});
+
+			await executeCrmOperation(
+				mockContext as IExecuteFunctions,
+				'search',
+				'contacts',
+				[{ json: {} }],
+				0,
+			);
+
+			expect(hubspotApiRequestAllItems).toHaveBeenCalledWith(
+				'POST',
+				'/crm/v3/objects/contacts/search',
+				expect.objectContaining({
+					filterGroups: [
+						{
+							filters: [
+								{
+									propertyName: 'email',
+									operator: 'IN',
+									values: ['test1@example.com', 'test2@example.com', 'test3@example.com'],
+								},
+							],
+						},
+					],
+				}),
+				100,
+			);
+		});
+
+		it('should handle semicolon-separated string for IN operator', async () => {
+			const emailString = 'test1@example.com;test2@example.com;test3@example.com';
+			
+			(mockContext.getNodeParameter as jest.Mock).mockImplementation((param: string) => {
+				switch (param) {
+					case 'returnAll':
+						return false;
+					case 'limit':
+						return 100;
+					case 'properties':
+						return ['email', 'firstname'];
+					case 'filters':
+						return {
+							filterGroups: [
+								{
+									propertyName: 'email',
+									operator: 'IN',
+									values: emailString,
 								},
 							],
 						};

@@ -5,7 +5,7 @@ interface FilterGroup {
 	propertyName: string;
 	operator: string;
 	value?: string;
-	values?: string[];
+	values?: string | string[];
 	highValue?: string;
 }
 
@@ -141,7 +141,13 @@ async function searchObjects(
 					if (f.operator === 'IN' || f.operator === 'NOT_IN') {
 						// Use 'values' field for IN/NOT_IN operators (matches HubSpot API)
 						if (f.values) {
-							filter.values = f.values.map((v: string) => String(v).trim());
+							// Handle both array (from expression like {{ $json.emails }}) and semicolon-separated string
+							if (Array.isArray(f.values)) {
+								filter.values = f.values.map((v: string) => String(v).trim());
+							} else {
+								// Split semicolon-separated string
+								filter.values = String(f.values).split(';').map((v: string) => v.trim());
+							}
 						} else {
 							throw new Error(`'values' field is required for ${f.operator} operator`);
 						}
