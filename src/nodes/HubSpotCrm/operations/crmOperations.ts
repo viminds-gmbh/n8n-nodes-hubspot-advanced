@@ -130,11 +130,22 @@ async function searchObjects(
 	if (filters.filterGroups && filters.filterGroups.length > 0) {
 		body.filterGroups = [
 			{
-				filters: filters.filterGroups.map((f: FilterGroup) => ({
-					propertyName: f.propertyName,
-					operator: f.operator,
-					value: f.value,
-				})),
+				filters: filters.filterGroups.map((f: FilterGroup) => {
+					const filter: IDataObject = {
+						propertyName: f.propertyName,
+						operator: f.operator,
+					};
+
+					if (f.operator === 'IN' || f.operator === 'NOT_IN') {
+						filter.values = f.value.split(';').map((v: string) => v.trim());
+					} else if (f.operator === 'HAS_PROPERTY' || f.operator === 'NOT_HAS_PROPERTY') {
+						// These operators don't require a value
+					} else {
+						filter.value = f.value;
+					}
+
+					return filter;
+				}),
 			},
 		];
 	}
