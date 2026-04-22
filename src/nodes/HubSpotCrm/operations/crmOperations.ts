@@ -141,9 +141,8 @@ async function searchObjects(
 						// Use 'values' field for IN/NOT_IN operators (matches HubSpot API)
 						if (f.values) {
 							filter.values = f.values.map((v: string) => String(v).trim());
-						} else if (f.value) {
-							// Fallback: split semicolon-separated string
-							filter.values = String(f.value).split(';').map((v: string) => v.trim());
+						} else {
+							throw new Error(`'values' field is required for ${f.operator} operator`);
 						}
 					} else if (f.operator === 'HAS_PROPERTY' || f.operator === 'NOT_HAS_PROPERTY') {
 						// These operators don't require a value

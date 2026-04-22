@@ -82,62 +82,6 @@ describe('CRM Filter Operators', () => {
 				100,
 			);
 		});
-
-		it('should handle semicolon-separated string values for IN operator', async () => {
-			const emailString = 'test1@example.com;test2@example.com;test3@example.com';
-			
-			(mockContext.getNodeParameter as jest.Mock).mockImplementation((param: string) => {
-				switch (param) {
-					case 'returnAll':
-						return false;
-					case 'limit':
-						return 100;
-					case 'properties':
-						return ['email', 'firstname'];
-					case 'filters':
-						return {
-							filterGroups: [
-								{
-									propertyName: 'email',
-									operator: 'IN',
-									value: emailString,
-								},
-							],
-						};
-					case 'sort':
-						return {};
-					default:
-						return undefined;
-				}
-			});
-
-			await executeCrmOperation(
-				mockContext as IExecuteFunctions,
-				'search',
-				'contacts',
-				[{ json: {} }],
-				0,
-			);
-
-			expect(hubspotApiRequestAllItems).toHaveBeenCalledWith(
-				'POST',
-				'/crm/v3/objects/contacts/search',
-				expect.objectContaining({
-					filterGroups: [
-						{
-							filters: [
-								{
-									propertyName: 'email',
-									operator: 'IN',
-									values: ['test1@example.com', 'test2@example.com', 'test3@example.com'],
-								},
-							],
-						},
-					],
-				}),
-				100,
-			);
-		});
 	});
 
 	describe('NOT_IN operator', () => {
@@ -159,62 +103,6 @@ describe('CRM Filter Operators', () => {
 									propertyName: 'dealstage',
 									operator: 'NOT_IN',
 									values: statusArray,
-								},
-							],
-						};
-					case 'sort':
-						return {};
-					default:
-						return undefined;
-				}
-			});
-
-			await executeCrmOperation(
-				mockContext as IExecuteFunctions,
-				'search',
-				'deals',
-				[{ json: {} }],
-				0,
-			);
-
-			expect(hubspotApiRequestAllItems).toHaveBeenCalledWith(
-				'POST',
-				'/crm/v3/objects/deals/search',
-				expect.objectContaining({
-					filterGroups: [
-						{
-							filters: [
-								{
-									propertyName: 'dealstage',
-									operator: 'NOT_IN',
-									values: ['closed', 'cancelled'],
-								},
-							],
-						},
-					],
-				}),
-				100,
-			);
-		});
-
-		it('should handle semicolon-separated string values for NOT_IN operator', async () => {
-			const statusString = 'closed;cancelled';
-			
-			(mockContext.getNodeParameter as jest.Mock).mockImplementation((param: string) => {
-				switch (param) {
-					case 'returnAll':
-						return false;
-					case 'limit':
-						return 100;
-					case 'properties':
-						return ['dealname', 'dealstage'];
-					case 'filters':
-						return {
-							filterGroups: [
-								{
-									propertyName: 'dealstage',
-									operator: 'NOT_IN',
-									value: statusString,
 								},
 							],
 						};
