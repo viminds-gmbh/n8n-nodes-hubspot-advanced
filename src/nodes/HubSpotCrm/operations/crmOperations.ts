@@ -142,12 +142,17 @@ async function searchObjects(
 						// Use 'values' field for IN/NOT_IN operators (matches HubSpot API)
 						if (f.values) {
 							// Handle both array (from expression like {{ $json.emails }}) and semicolon-separated string
+							let valuesArray: string[];
 							if (Array.isArray(f.values)) {
-								filter.values = f.values.map((v: string) => String(v).trim());
+								valuesArray = f.values.map((v: string) => String(v).trim());
 							} else {
 								// Split semicolon-separated string
-								filter.values = String(f.values).split(';').map((v: string) => v.trim());
+								valuesArray = String(f.values).split(';').map((v: string) => v.trim());
 							}
+							
+							// Deduplicate values using Set to reduce batch count
+							const uniqueValues = [...new Set(valuesArray)];
+							filter.values = uniqueValues;
 						} else {
 							throw new Error(`'values' field is required for ${f.operator} operator`);
 						}
@@ -183,22 +188,102 @@ async function searchObjects(
 		];
 	}
 
+	// Check if multiple IN/NOT_IN filters have >100 values (not supported)
+	const filterGroups = body.filterGroups as Array<{ filters: IDataObject[] }> | undefined;
+	const filtersWithLargeValues = filterGroups?.[0]?.filters?.filter(
+		(f: IDataObject) => (f.operator === 'IN' || f.operator === 'NOT_IN') && Array.isArray(f.values) && f.values.length > 100
+	);
+
+	if (filtersWithLargeValues && filtersWithLargeValues.length > 1) {
+		throw new Error(
+			'Multiple IN/NOT_IN filters with >100 values detected. HubSpot API limits each filter to 100 values. Please split your search into multiple nodes or reduce the number of values per filter.'
+		);
+	}
+
+	// Check if any IN/NOT_IN filter has >100 values (requires batching)
+	const filterWithLargeValues = filterGroups?.[0]?.filters?.find(
+		(f: IDataObject) => (f.operator === 'IN' || f.operator === 'NOT_IN') && Array.isArray(f.values) && f.values.length > 100
+	);
+
 	let results: IDataObject[];
-	if (returnAll) {
-		results = await hubspotApiRequestAllItems.call(
-			context,
-			'POST',
-			`/crm/v3/objects/${objectType}/search`,
-			body,
+
+	if (filterWithLargeValues) {
+		// Batching required - split values into chunks of 100
+		const allValues = filterWithLargeValues.values as string[];
+		const batchSize = 100;
+		const batches: string[][] = [];
+		
+		for (let i = 0; i < allValues.length; i += batchSize) {
+			batches.push(allValues.slice(i, i + batchSize));
+		}
+		
+		// Log batching info for transparency
+		context.logger.info(
+			`Automatically splitting ${allValues.length} values into ${batches.length} batches (HubSpot limit: 100 per request)`
 		);
+		
+		const allResults: IDataObject[] = [];
+		
+		for (const batch of batches) {
+			// Clone body and replace values for this batch
+			const batchBody = JSON.parse(JSON.stringify(body)) as IDataObject;
+			const batchFilterGroups = batchBody.filterGroups as Array<{ filters: IDataObject[] }>;
+			const batchFilter = batchFilterGroups[0].filters.find(
+				(f: IDataObject) => f.propertyName === filterWithLargeValues.propertyName
+			);
+			if (batchFilter) {
+				batchFilter.values = batch;
+			}
+			
+			// API call for this batch
+			const batchResults = returnAll
+				? await hubspotApiRequestAllItems.call(
+						context,
+						'POST',
+						`/crm/v3/objects/${objectType}/search`,
+						batchBody,
+					)
+				: await hubspotApiRequestAllItems.call(
+						context,
+						'POST',
+						`/crm/v3/objects/${objectType}/search`,
+						batchBody,
+						limit,
+					);
+			
+			allResults.push(...batchResults);
+			
+			// If limit is set and we've reached it, stop fetching more batches
+			if (!returnAll && limit && allResults.length >= limit) {
+				break;
+			}
+		}
+		
+		// Deduplicate results by ID (an object might match multiple values)
+		const uniqueResults = Array.from(
+			new Map(allResults.map(obj => [obj.id, obj])).values()
+		);
+		
+		// Apply limit after deduplication if needed
+		results = !returnAll && limit ? uniqueResults.slice(0, limit) : uniqueResults;
 	} else {
-		results = await hubspotApiRequestAllItems.call(
-			context,
-			'POST',
-			`/crm/v3/objects/${objectType}/search`,
-			body,
-			limit,
-		);
+		// Normal flow - no batching needed
+		if (returnAll) {
+			results = await hubspotApiRequestAllItems.call(
+				context,
+				'POST',
+				`/crm/v3/objects/${objectType}/search`,
+				body,
+			);
+		} else {
+			results = await hubspotApiRequestAllItems.call(
+				context,
+				'POST',
+				`/crm/v3/objects/${objectType}/search`,
+				body,
+				limit,
+			);
+		}
 	}
 
 	return results.map((result) => ({ json: result }));
