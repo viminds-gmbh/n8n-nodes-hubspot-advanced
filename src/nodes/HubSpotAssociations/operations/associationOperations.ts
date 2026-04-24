@@ -245,29 +245,34 @@ async function createAssociation(
 
 	const fromObjectId = String(context.getNodeParameter('fromObjectId', i));
 	const toObjectId = String(context.getNodeParameter('toObjectId', i));
-	const associationLabelRaw = context.getNodeParameter('associationLabel', i, '') as string;
+	const associationLabelRaw = context.getNodeParameter('associationLabel', i, []) as string | string[];
 
 	let endpoint: string;
 	let body: Array<{ associationCategory: string; associationTypeId: number }> | undefined;
 
-	// Parse label selection (if any)
-	let labelData: { typeId: number; category: string } | null = null;
-	if (associationLabelRaw) {
+	// Parse label selection(s) - normalize to array for backwards compatibility
+	const labelsRaw = Array.isArray(associationLabelRaw)
+		? associationLabelRaw
+		: (associationLabelRaw ? [associationLabelRaw] : []);
+
+	const labelDataArray: Array<{ typeId: number; category: string }> = [];
+	for (const labelRaw of labelsRaw) {
 		try {
-			labelData = JSON.parse(associationLabelRaw);
+			const labelData = JSON.parse(labelRaw);
+			labelDataArray.push(labelData);
 		} catch (error) {
 			throw new Error('Invalid association label format');
 		}
 	}
 
 	// Decision tree: Label > Custom Object > Static Mapping
-	if (labelData) {
-		// User selected a label → Use label's typeId and category
+	if (labelDataArray.length > 0) {
+		// User selected label(s) → Use label's typeId and category
 		endpoint = `/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`;
-		body = [{
+		body = labelDataArray.map(labelData => ({
 			associationCategory: labelData.category,
 			associationTypeId: labelData.typeId,
-		}];
+		}));
 	} else if (isCustomObjectType(fromObjectType) || isCustomObjectType(toObjectType)) {
 		// Custom object → Use default association API
 		endpoint = `/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/default/${toObjectType}/${toObjectId}`;
@@ -298,7 +303,10 @@ async function createAssociation(
 			success: true,
 			from: { type: fromObjectType, id: fromObjectId },
 			to: { type: toObjectType, id: toObjectId },
-			associationType: labelData ? `${labelData.category} (${labelData.typeId})` : 'Default',
+			associationType: labelDataArray.length > 0
+				? labelDataArray.map(l => `${l.category} (${l.typeId})`).join(', ')
+				: 'Default',
+			...(labelDataArray.length > 0 && { associationLabels: labelDataArray }),
 		},
 		pairedItem: { item: i },
 	};
@@ -312,11 +320,44 @@ async function deleteAssociation(
 ): Promise<INodeExecutionData> {
 	const fromObjectId = String(context.getNodeParameter('fromObjectId', i));
 	const toObjectId = String(context.getNodeParameter('toObjectId', i));
+	const associationLabelRaw = context.getNodeParameter('associationLabel', i, []) as string | string[];
+
+	// Parse label selection(s) - normalize to array for backwards compatibility
+	const labelsRaw = Array.isArray(associationLabelRaw)
+		? associationLabelRaw
+		: (associationLabelRaw ? [associationLabelRaw] : []);
+
+	const labelDataArray: Array<{ typeId: number; category: string }> = [];
+	for (const labelRaw of labelsRaw) {
+		try {
+			const labelData = JSON.parse(labelRaw);
+			labelDataArray.push(labelData);
+		} catch (error) {
+			throw new Error('Invalid association label format');
+		}
+	}
+
+	let endpoint: string;
+	let body: Array<{ associationCategory: string; associationTypeId: number }> | undefined;
+
+	if (labelDataArray.length > 0) {
+		// Delete specific labels
+		endpoint = `/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`;
+		body = labelDataArray.map(labelData => ({
+			associationCategory: labelData.category,
+			associationTypeId: labelData.typeId,
+		}));
+	} else {
+		// Delete ALL associations (current behavior)
+		endpoint = `/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`;
+		body = undefined;
+	}
 
 	await hubspotApiRequest.call(
 		context,
 		'DELETE',
-		`/crm/v4/objects/${fromObjectType}/${fromObjectId}/associations/${toObjectType}/${toObjectId}`,
+		endpoint,
+		body as unknown as IDataObject,
 	);
 
 	return {
@@ -324,6 +365,7 @@ async function deleteAssociation(
 			success: true,
 			from: { type: fromObjectType, id: fromObjectId },
 			to: { type: toObjectType, id: toObjectId },
+			deletedLabels: labelDataArray.length > 0 ? labelDataArray : 'all',
 		},
 		pairedItem: { item: i },
 	};

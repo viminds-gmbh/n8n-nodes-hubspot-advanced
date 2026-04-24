@@ -186,14 +186,14 @@ export const toObjectIdField: INodeProperties = {
 export const associationLabelField: INodeProperties = {
 	displayName: 'Association Label',
 	name: 'associationLabel',
-	type: 'options',
+	type: 'multiOptions',
 	typeOptions: {
 		loadOptionsMethod: 'getAssociationLabels',
 		loadOptionsDependsOn: ['fromObjectType', 'customFromObjectType', 'toObjectType', 'customToObjectType'],
 	},
-	default: '',
+	default: [],
 	required: false,
-	description: 'Optional: Select a specific association label. Leave empty to use the default association type. Labels allow you to categorize associations (e.g., "Primary Contact", "Billing Contact").',
+	description: 'Optional: Select one or more association labels. Leave empty to use the default association type. Multiple labels allow you to categorize the same association in different ways (e.g., "Primary Contact" + "Decision Maker").',
 	displayOptions: {
 		show: {
 			operation: ['createAssociation', 'deleteAssociation'],
