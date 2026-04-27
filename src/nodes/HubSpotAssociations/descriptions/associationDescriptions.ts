@@ -166,7 +166,7 @@ export const filterByLabelField: INodeProperties = {
 	description: 'Optional: Filter associations by specific labels. Only associations with the selected labels will be returned. Leave empty to return all associations.',
 	displayOptions: {
 		show: {
-			operation: ['getAssociations', 'batchGetAssociations'],
+			operation: ['getAssociations', 'batchGetAssociations', 'hydrateAssociations', 'batchHydrateAssociations'],
 		},
 	},
 };
@@ -191,7 +191,7 @@ export const labelFilterModeField: INodeProperties = {
 	description: 'How to combine multiple label filters',
 	displayOptions: {
 		show: {
-			operation: ['getAssociations', 'batchGetAssociations'],
+			operation: ['getAssociations', 'batchGetAssociations', 'hydrateAssociations', 'batchHydrateAssociations'],
 		},
 		hide: {
 			filterByLabel: [],

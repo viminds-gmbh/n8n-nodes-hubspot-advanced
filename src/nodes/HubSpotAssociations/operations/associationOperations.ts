@@ -156,22 +156,25 @@ async function hydrateSingleAssociations(
 	const objectId = String(context.getNodeParameter('objectId', itemIndex));
 	const outputField = context.getNodeParameter('outputField', itemIndex) as string;
 	const properties = context.getNodeParameter('properties', itemIndex, []) as string[] | string;
+	const filterByLabel = context.getNodeParameter('filterByLabel', itemIndex, []) as string[];
+	const labelFilterMode = context.getNodeParameter('labelFilterMode', itemIndex, 'any') as 'any' | 'all';
 	const propertyList = Array.isArray(properties)
 		? properties
 		: (properties ? properties.split(',').map((p) => p.trim()) : []);
 
-	const { associationMap, allAssociations } = await fetchAssociationsWithResults(
+	const { associationMap } = await fetchAssociationsWithResults(
 		context,
 		fromObjectType,
 		toObjectType,
 		[objectId]
 	);
 
+	let associations = associationMap.get(objectId) || [];
+	associations = filterAssociationsByLabel(associations, filterByLabel, labelFilterMode);
+
 	const uniqueToIds = new Set<string>();
-	allAssociations.forEach((assoc) => {
-		assoc.to.forEach((toObj) => {
-			uniqueToIds.add(toObj.toObjectId.toString());
-		});
+	associations.forEach((assoc) => {
+		uniqueToIds.add(assoc.toObjectId.toString());
 	});
 
 	const toIdsArray = Array.from(uniqueToIds);
@@ -188,7 +191,6 @@ async function hydrateSingleAssociations(
 		objectMap.set(id, obj);
 	});
 
-	const associations = associationMap.get(objectId) || [];
 	const enrichedAssociations = associations.map((assoc) => {
 		const toId = assoc.toObjectId.toString();
 		const fullObject = objectMap.get(toId);
@@ -216,6 +218,8 @@ async function batchHydrateAssociations(
 	const idField = context.getNodeParameter('idField', 0) as string;
 	const outputField = context.getNodeParameter('outputField', 0) as string;
 	const properties = context.getNodeParameter('properties', 0, []) as string[] | string;
+	const filterByLabel = context.getNodeParameter('filterByLabel', 0, []) as string[];
+	const labelFilterMode = context.getNodeParameter('labelFilterMode', 0, 'any') as 'any' | 'all';
 	const propertyList = Array.isArray(properties)
 		? properties
 		: (properties ? properties.split(',').map((p) => p.trim()) : []);
@@ -228,17 +232,23 @@ async function batchHydrateAssociations(
 		throw new Error(`No valid IDs found in field "${idField}"`);
 	}
 
-	const { associationMap, allAssociations } = await fetchAssociationsWithResults(
+	const { associationMap } = await fetchAssociationsWithResults(
 		context,
 		fromObjectType,
 		toObjectType,
 		objectIds
 	);
 
+	const filteredAssociationMap = new Map<string, AssociationTo[]>();
+	associationMap.forEach((associations, objectId) => {
+		const filtered = filterAssociationsByLabel(associations, filterByLabel, labelFilterMode);
+		filteredAssociationMap.set(objectId, filtered);
+	});
+
 	const uniqueToIds = new Set<string>();
-	allAssociations.forEach((assoc) => {
-		assoc.to.forEach((toObj) => {
-			uniqueToIds.add(toObj.toObjectId.toString());
+	filteredAssociationMap.forEach((associations) => {
+		associations.forEach((assoc) => {
+			uniqueToIds.add(assoc.toObjectId.toString());
 		});
 	});
 
@@ -259,7 +269,7 @@ async function batchHydrateAssociations(
 	const returnData: INodeExecutionData[] = [];
 	items.forEach((item, index) => {
 		const objectId = String(item.json[idField] ?? '');
-		const associations = associationMap.get(objectId) || [];
+		const associations = filteredAssociationMap.get(objectId) || [];
 
 		const enrichedAssociations = associations.map((assoc) => {
 			const toId = assoc.toObjectId.toString();
