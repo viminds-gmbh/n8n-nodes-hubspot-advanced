@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> **Note**: For a detailed version history with all changes since v0.1.1, see [VERSIONS.md](./VERSIONS.md).
+
 ## [Unreleased]
+
+See [VERSIONS.md](./VERSIONS.md) for the most up-to-date changelog.
 
 ## [0.1.0] - 2024-02-25
 
@@ -21,5 +25,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive test suite
 - CI/CD pipeline with GitHub Actions
 
-[Unreleased]: https://github.com/yourusername/n8n-nodes-hubspot-advanced/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/yourusername/n8n-nodes-hubspot-advanced/releases/tag/v0.1.0
+[Unreleased]: https://github.com/vimindsentwickler/n8n_viminds_nodes/compare/v0.1.11...HEAD
+[0.1.0]: https://github.com/vimindsentwickler/n8n_viminds_nodes/releases/tag/v0.1.0

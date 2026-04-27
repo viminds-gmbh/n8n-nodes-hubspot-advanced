@@ -1,8 +1,11 @@
 # n8n-nodes-hubspot-advanced
 
 [![npm version](https://badge.fury.io/js/n8n-nodes-hubspot-advanced.svg)](https://www.npmjs.com/package/n8n-nodes-hubspot-advanced)
+[![Changelog](https://img.shields.io/badge/changelog-VERSIONS.md-blue)](./VERSIONS.md)
 
 Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations, association hydration, file management, and list operations.
+
+📋 **[View detailed version history](./VERSIONS.md)**
 
 ## Features
 

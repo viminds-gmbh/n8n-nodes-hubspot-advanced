@@ -36,7 +36,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "VERSIONS.md"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
