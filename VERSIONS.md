@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.13] - 2025-04-27
+
+### Added
+- Association label filtering for hydrateAssociations and batchHydrateAssociations operations with AND/OR modes
+
 ## [0.1.12] - 2025-04-27
 
 ### Added
