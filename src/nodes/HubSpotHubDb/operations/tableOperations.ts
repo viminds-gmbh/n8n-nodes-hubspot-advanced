@@ -22,6 +22,8 @@ export async function executeTableOperation(
 	itemIndex: number
 ): Promise<INodeExecutionData[]> {
 	switch (operation) {
+		case 'get':
+			return [await getTable(context, itemIndex)];
 		case 'getAll':
 			return await getAllTables(context, itemIndex);
 		case 'create':
@@ -39,6 +41,22 @@ export async function executeTableOperation(
 		default:
 			throw new Error(`Unknown table operation: ${operation}`);
 	}
+}
+
+async function getTable(
+	context: IExecuteFunctions,
+	i: number
+): Promise<INodeExecutionData> {
+	const tableId = context.getNodeParameter('tableId', i) as string;
+
+	const response = await hubspotApiRequest.call(
+		context,
+		'GET',
+		`/cms/v3/hubdb/tables/${tableId}/draft`,
+		{},
+	) as IDataObject;
+
+	return { json: response };
 }
 
 async function getAllTables(

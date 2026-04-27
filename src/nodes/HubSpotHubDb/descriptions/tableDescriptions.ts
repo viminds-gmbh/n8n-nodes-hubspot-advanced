@@ -12,6 +12,12 @@ export const tableOperationField: INodeProperties = {
 	},
 	options: [
 		{
+			name: 'Get',
+			value: 'get',
+			description: 'Get a single table by ID or name',
+			action: 'Get a table',
+		},
+		{
 			name: 'Get All',
 			value: 'getAll',
 			description: 'Get all draft tables (includes unpublished and cloned tables)',
@@ -260,6 +266,26 @@ export const columnsField: INodeProperties = {
 			],
 		},
 	],
+};
+
+// Get Table
+export const tableIdForGetField: INodeProperties = {
+	displayName: 'Table',
+	name: 'tableId',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'loadTables',
+	},
+	default: '',
+	required: true,
+	placeholder: '12345678',
+	description: 'The table to retrieve. You can also use an expression to provide a table ID or name.',
+	displayOptions: {
+		show: {
+			resource: ['table'],
+			operation: ['get'],
+		},
+	},
 };
 
 // Update Table
@@ -642,6 +668,7 @@ export const copyRowsField: INodeProperties = {
 
 export const tableFields: INodeProperties[] = [
 	tableOperationField,
+	tableIdForGetField,
 	returnAllField,
 	limitField,
 	tableNameField,
