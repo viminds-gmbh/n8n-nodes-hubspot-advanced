@@ -147,6 +147,48 @@ export class HubSpotAssociations implements INodeType {
 
 				return options;
 			},
+
+			async getAssociationLabelsForFilter(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				// Resolve fromObjectType
+				const fromObjectTypeRaw = this.getCurrentNodeParameter('fromObjectType') as string;
+				const fromObjectType = fromObjectTypeRaw === 'custom'
+					? (this.getCurrentNodeParameter('customFromObjectType') as string)
+					: fromObjectTypeRaw;
+
+				// Resolve toObjectType
+				const toObjectTypeRaw = this.getCurrentNodeParameter('toObjectType') as string;
+				const toObjectType = toObjectTypeRaw === 'custom'
+					? (this.getCurrentNodeParameter('customToObjectType') as string)
+					: toObjectTypeRaw;
+
+				// Fetch labels from API
+				const results = await hubspotApiRequestAllItemsForLoadOptions.call(
+					this,
+					'GET',
+					`/crm/associations/v4/${fromObjectType}/${toObjectType}/labels`,
+				);
+
+				// Build options array - WITHOUT "Default (Unlabeled)" option
+				const options: INodePropertyOptions[] = [];
+
+				// Add all label categories
+				for (const label of results) {
+					const categoryLabel = label.category === 'USER_DEFINED' ? 'Custom' :
+						label.category === 'HUBSPOT_DEFINED' ? 'HubSpot' :
+						'Integration';
+				
+					options.push({
+						name: `${label.label} (${categoryLabel})`,
+						value: JSON.stringify({
+							typeId: label.typeId,
+							category: label.category,
+						}),
+						description: `${label.category} association label`,
+					});
+				}
+
+				return options;
+			},
 		},
 	};
 

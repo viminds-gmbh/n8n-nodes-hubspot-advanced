@@ -153,6 +153,52 @@ export const outputFieldField: INodeProperties = {
 	},
 };
 
+export const filterByLabelField: INodeProperties = {
+	displayName: 'Filter by Label',
+	name: 'filterByLabel',
+	type: 'multiOptions',
+	typeOptions: {
+		loadOptionsMethod: 'getAssociationLabelsForFilter',
+		loadOptionsDependsOn: ['fromObjectType', 'customFromObjectType', 'toObjectType', 'customToObjectType'],
+	},
+	default: [],
+	required: false,
+	description: 'Optional: Filter associations by specific labels. Only associations with the selected labels will be returned. Leave empty to return all associations.',
+	displayOptions: {
+		show: {
+			operation: ['getAssociations', 'batchGetAssociations'],
+		},
+	},
+};
+
+export const labelFilterModeField: INodeProperties = {
+	displayName: 'Label Filter Mode',
+	name: 'labelFilterMode',
+	type: 'options',
+	options: [
+		{
+			name: 'Match Any Label (OR)',
+			value: 'any',
+			description: 'Return associations that have at least one of the selected labels',
+		},
+		{
+			name: 'Match All Labels (AND)',
+			value: 'all',
+			description: 'Return associations that have all of the selected labels',
+		},
+	],
+	default: 'any',
+	description: 'How to combine multiple label filters',
+	displayOptions: {
+		show: {
+			operation: ['getAssociations', 'batchGetAssociations'],
+		},
+		hide: {
+			filterByLabel: [],
+		},
+	},
+};
+
 export const fromObjectIdField: INodeProperties = {
 	displayName: 'From Object ID',
 	name: 'fromObjectId',
@@ -211,6 +257,8 @@ export const associationFields: INodeProperties[] = [
 	idFieldField,
 	propertiesField,
 	outputFieldField,
+	filterByLabelField,
+	labelFilterModeField,
 	fromObjectIdField,
 	toObjectIdField,
 	associationLabelField,

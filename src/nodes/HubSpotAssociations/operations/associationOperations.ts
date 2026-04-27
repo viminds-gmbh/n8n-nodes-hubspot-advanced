@@ -17,6 +17,46 @@ interface AssociationResult {
 	to: AssociationTo[];
 }
 
+function filterAssociationsByLabel(
+	associations: AssociationTo[],
+	filterLabels: string[],
+	filterMode: 'any' | 'all'
+): AssociationTo[] {
+	if (filterLabels.length === 0) {
+		return associations;
+	}
+
+	const labelDataArray: Array<{ typeId: number; category: string }> = [];
+	for (const labelRaw of filterLabels) {
+		try {
+			const labelData = JSON.parse(labelRaw);
+			labelDataArray.push(labelData);
+		} catch (error) {
+			continue;
+		}
+	}
+
+	if (labelDataArray.length === 0) {
+		return associations;
+	}
+
+	return associations.filter((assoc) => {
+		if (filterMode === 'any') {
+			return assoc.associationTypes.some((type) => {
+				return labelDataArray.some((filter) => {
+					return type.typeId === filter.typeId && type.category === filter.category;
+				});
+			});
+		} else {
+			return labelDataArray.every((filter) => {
+				return assoc.associationTypes.some((type) => {
+					return type.typeId === filter.typeId && type.category === filter.category;
+				});
+			});
+		}
+	});
+}
+
 export async function executeAssociationOperation(
 	context: IExecuteFunctions,
 	operation: string,
@@ -51,9 +91,13 @@ async function getSingleAssociations(
 ): Promise<INodeExecutionData> {
 	const objectId = String(context.getNodeParameter('objectId', itemIndex));
 	const outputField = context.getNodeParameter('outputField', itemIndex) as string;
+	const filterByLabel = context.getNodeParameter('filterByLabel', itemIndex, []) as string[];
+	const labelFilterMode = context.getNodeParameter('labelFilterMode', itemIndex, 'any') as 'any' | 'all';
 
 	const associationMap = await fetchAssociations(context, fromObjectType, toObjectType, [objectId]);
-	const associations = associationMap.get(objectId) || [];
+	let associations = associationMap.get(objectId) || [];
+
+	associations = filterAssociationsByLabel(associations, filterByLabel, labelFilterMode);
 
 	return {
 		json: {
@@ -71,6 +115,8 @@ async function batchGetAssociations(
 ): Promise<INodeExecutionData[]> {
 	const idField = context.getNodeParameter('idField', 0) as string;
 	const outputField = context.getNodeParameter('outputField', 0) as string;
+	const filterByLabel = context.getNodeParameter('filterByLabel', 0, []) as string[];
+	const labelFilterMode = context.getNodeParameter('labelFilterMode', 0, 'any') as 'any' | 'all';
 
 	const objectIds = items
 		.map((item) => String(item.json[idField] ?? ''))
@@ -85,7 +131,9 @@ async function batchGetAssociations(
 	const returnData: INodeExecutionData[] = [];
 	items.forEach((item, index) => {
 		const objectId = String(item.json[idField] ?? '');
-		const associations = associationMap.get(objectId) || [];
+		let associations = associationMap.get(objectId) || [];
+
+		associations = filterAssociationsByLabel(associations, filterByLabel, labelFilterMode);
 
 		returnData.push({
 			json: {
