@@ -6,8 +6,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.12] - 2025-04-27
+
 ### Added
-- HubDB node for table and row operations
+- HubDB node for table and row operations with comprehensive CRUD support
+- Get operation for retrieving single HubDB table by ID or name
+- Publication status display in HubDB table dropdown labels
+- Association label filtering with AND/OR modes for getAssociations and batchGetAssociations operations
+- Support for multiple association labels in create/delete operations with backwards compatibility
+- GetAssociationLabelDefinitions operation to retrieve association label schema between object types
+- Comprehensive field validation with helpful error messages and hints across CRM, HubDb, and Files nodes
+- Automatic batching for IN/NOT_IN filters with more than 100 values
+- Filter value deduplication for improved performance
+
+### Changed
+- HubDB table list now uses draft endpoint for better table management
 
 ## [0.1.11] - 2025-04-20
 

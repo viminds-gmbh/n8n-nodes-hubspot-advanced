@@ -22,7 +22,10 @@ Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations,
 - ✅ **File Management** – Upload, replace, update properties, and search files in HubSpot File Manager
 - ✅ **List Operations** – Retrieve list members efficiently with object type filtering
 - ✅ **Marketing Events** – Create, manage, and track marketing events with participant registration
+- ✅ **HubDB Operations** – Manage HubDB tables and rows with full CRUD support and publication control
 - ✅ **Dynamic Property Loading** – Enhanced property selection with real-time options
+- ✅ **Association Label Support** – Filter and manage associations with custom labels using AND/OR logic
+- ✅ **Field Validation** – Comprehensive validation with helpful error messages and hints
 
 ## Installation
 
@@ -283,6 +286,52 @@ Create and manage marketing events with participant tracking.
   Filter: State = REGISTERED
 ```
 
+### 8. HubSpot HubDB
+
+Manage HubDB tables and rows for dynamic content storage and retrieval.
+
+**Table Operations:**
+- Get single table (by ID or name)
+- Get all tables
+- Create table
+- Update table
+- Delete table
+- Publish table
+- Unpublish table (revert to draft)
+
+**Row Operations:**
+- Get single row
+- Get all rows (with filtering and sorting)
+- Create row
+- Update row
+- Delete row
+- Batch create rows
+- Batch update rows
+- Batch delete rows
+- Batch read rows
+
+**Key Features:**
+- Publication status display in table selection
+- Draft endpoint support for table management
+- Automatic pagination for large datasets
+- Batch operations for efficient bulk processing
+- Column filtering and sorting
+- Dynamic table and column selection
+
+**Example Workflow:**
+```
+[HubSpot HubDB: Get Table]
+  Table: Product Catalog
+  → Returns table schema and metadata
+        ↓
+[HubSpot HubDB: Get Rows]
+  Table: Product Catalog
+  Return All: ✓
+  Filters: category = "electronics"
+  Sort: price ASC
+  → Returns all matching rows with automatic pagination
+```
+
 ## Rate Limiting
 
 **Adaptive, response-based rate limiting** – works reliably even in n8n Queue Mode with multiple workers.
@@ -396,7 +445,8 @@ src/
 │   ├── HubSpotObjectSchema/     # Schema metadata
 │   ├── HubSpotFiles/            # File Manager operations
 │   ├── HubSpotLists/            # List member retrieval
-│   └── HubSpotMarketingEvents/  # Marketing events and participants
+│   ├── HubSpotMarketingEvents/  # Marketing events and participants
+│   └── HubSpotHubDb/            # HubDB tables and rows
 ├── transport/
 │   ├── RateLimiter.ts           # Adaptive rate limiting
 │   └── HubSpotApiRequest.ts     # API wrapper
@@ -427,6 +477,9 @@ tests/
 | Marketing Events (CRUD) | v3 | HubSpot Marketing Events |
 | Event Participants | v3 | HubSpot Marketing Events |
 | Contact Registration | v3 | HubSpot Marketing Events |
+| HubDB Tables (CRUD) | v3 | HubSpot HubDB |
+| HubDB Rows (CRUD) | v3 | HubSpot HubDB |
+| HubDB Batch Operations | v3 | HubSpot HubDB |
 
 ## Roadmap
 
@@ -452,6 +505,12 @@ tests/
 - [x] Extended search filter operators (IN, NOT_IN, HAS_PROPERTY, NOT_HAS_PROPERTY, BETWEEN)
 - [x] Flexible values input for IN/NOT_IN (semicolon-separated or array expressions)
 - [x] Conditional UI fields for filter operators
+- [x] HubDB node with table and row operations
+- [x] Association label filtering with AND/OR modes
+- [x] Multiple association labels support in create/delete operations
+- [x] GetAssociationLabelDefinitions operation
+- [x] Comprehensive field validation with helpful error messages
+- [x] Automatic batching for large IN/NOT_IN filter values
 - [ ] OAuth2 support
 - [ ] Webhook triggers
 - [ ] Advanced filtering UI
