@@ -8,14 +8,13 @@ import type {
 import { NodeApiError } from 'n8n-workflow';
 import { HubSpotRateLimiter } from './RateLimiter';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotApiRequest(
 	this: IExecuteFunctions,
 	method: IHttpRequestMethods,
 	endpoint: string,
-	body: IDataObject = {},
+	body: IDataObject | unknown[] = {},
 	qs: IDataObject = {},
-): Promise<any> {
+): Promise<unknown> {
 	const rateLimiter = HubSpotRateLimiter.getInstance();
 
 	const credentials = await this.getCredentials('hubspotAppToken');
@@ -123,14 +122,13 @@ export async function hubspotBatchRequest(
 	return results;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotApiRequestForLoadOptions(
 	this: ILoadOptionsFunctions,
 	method: IHttpRequestMethods,
 	endpoint: string,
 	body: IDataObject = {},
 	qs: IDataObject = {},
-): Promise<any> {
+): Promise<unknown> {
 	const credentials = await this.getCredentials('hubspotAppToken');
 
 	const options: IHttpRequestOptions = {
@@ -154,7 +152,6 @@ export async function hubspotApiRequestForLoadOptions(
 	}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotApiRequestAllItemsForLoadOptions(
 	this: ILoadOptionsFunctions,
 	method: IHttpRequestMethods,
@@ -203,7 +200,6 @@ export async function hubspotApiRequestAllItemsForLoadOptions(
 	return results;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotFileUploadRequest(
 	this: IExecuteFunctions,
 	binaryData: Buffer,
@@ -213,7 +209,7 @@ export async function hubspotFileUploadRequest(
 		access?: 'PRIVATE' | 'PUBLIC_INDEXABLE' | 'PUBLIC_NOT_INDEXABLE';
 		mimeType?: string;
 	} = {}
-): Promise<any> {
+): Promise<unknown> {
 	const rateLimiter = HubSpotRateLimiter.getInstance();
 	const credentials = await this.getCredentials('hubspotAppToken');
 
@@ -261,7 +257,6 @@ export async function hubspotFileUploadRequest(
 	});
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function hubspotFileReplaceRequest(
 	this: IExecuteFunctions,
 	fileId: string,
@@ -272,7 +267,7 @@ export async function hubspotFileReplaceRequest(
 		expiresAt?: number;
 		mimeType?: string;
 	} = {}
-): Promise<any> {
+): Promise<unknown> {
 	const rateLimiter = HubSpotRateLimiter.getInstance();
 	const credentials = await this.getCredentials('hubspotAppToken');
 
@@ -325,7 +320,7 @@ export async function hubspotFormSubmitRequest(
 	formGuid: string,
 	body: IDataObject,
 	useSecureEndpoint: boolean = true,
-): Promise<any> {
+): Promise<unknown> {
 	const rateLimiter = HubSpotRateLimiter.getInstance();
 	const credentials = await this.getCredentials('hubspotAppToken');
 

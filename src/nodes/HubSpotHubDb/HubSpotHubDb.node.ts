@@ -5,9 +5,10 @@ import type {
 	INodeTypeDescription,
 	ILoadOptionsFunctions,
 	INodePropertyOptions,
+	IDataObject,
 } from 'n8n-workflow';
 
-import { hubspotApiRequest } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestForLoadOptions } from '../../transport/HubSpotApiRequest';
 import { HubDbSchemaCache } from '../../transport/HubDbSchemaCache';
 import { hubDbFields } from './descriptions';
 import { executeTableOperation, executeRowOperation } from './operations';
@@ -79,21 +80,21 @@ export class HubSpotHubDb implements INodeType {
 				const cached = cache.get(tableId, credentialId);
 				if (cached) return cached;
 
-				const response = await hubspotApiRequest.call(
-					this as unknown as IExecuteFunctions,
+				const response = await hubspotApiRequestForLoadOptions.call(
+					this,
 					'GET',
 					`/cms/v3/hubdb/tables/${tableId}/draft`,
 					{},
-				);
+				) as IDataObject;
 
 				const options: INodePropertyOptions[] = [];
 
 				if (response.columns && Array.isArray(response.columns)) {
-					for (const col of response.columns) {
+					for (const col of response.columns as IDataObject[]) {
 						if (col.name) {
 							options.push({
-								name: col.label || col.name,
-								value: col.name,
+								name: (col.label || col.name) as string,
+								value: col.name as string,
 								description: col.type ? `Type: ${col.type}` : undefined,
 							});
 						}
@@ -107,21 +108,20 @@ export class HubSpotHubDb implements INodeType {
 			},
 
 			async loadTables(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-				const response = await hubspotApiRequest.call(
-					this as unknown as IExecuteFunctions,
+				const response = await hubspotApiRequestForLoadOptions.call(
+					this,
 					'GET',
-					'/cms/v3/hubdb/tables/draft',
+					'/cms/v3/hubdb/tables',
 					{},
-					{ limit: 1000 },
-				);
+				) as IDataObject;
 
 				const options: INodePropertyOptions[] = [];
 
 				if (response.results && Array.isArray(response.results)) {
-					for (const table of response.results) {
+					for (const table of response.results as IDataObject[]) {
 						options.push({
-							name: table.label || table.name,
-							value: table.id.toString(),
+							name: (table.label || table.name) as string,
+							value: table.id as string,
 						});
 					}
 				}

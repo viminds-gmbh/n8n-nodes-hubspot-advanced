@@ -1,5 +1,6 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { hubspotApiRequest, hubspotApiRequestAllItems, hubspotBatchRequest } from '../../../transport/HubSpotApiRequest';
+import { validateFieldMapping, buildFieldNotFoundError } from '../../../transport/ValidationHelpers';
 
 interface FilterGroup {
 	propertyName: string;
@@ -83,6 +84,18 @@ async function getManyObjects(
 	const properties = context.getNodeParameter('properties', 0, []) as string[] | string;
 	const idField = context.getNodeParameter('idField', 0, 'id') as string;
 
+	const validation = validateFieldMapping(items, idField);
+
+	if (!validation.valid) {
+		throw new Error(buildFieldNotFoundError(idField, validation.availableFields, 'IDs'));
+	}
+
+	if (validation.missingCount > 0) {
+		context.logger.warn(
+			`Field "${idField}" is missing in ${validation.missingCount} of ${items.length} input items. Only ${validation.presentCount} items will be processed.`,
+		);
+	}
+
 	const ids: string[] = [];
 	for (let j = 0; j < items.length; j++) {
 		const itemData = items[j].json;
@@ -90,12 +103,6 @@ async function getManyObjects(
 		if (id) {
 			ids.push(String(id));
 		}
-	}
-
-	if (ids.length === 0) {
-		throw new Error(
-			`No IDs found in input items. Please ensure your input items have a "${idField}" field, or change the "ID Field" parameter.`,
-		);
 	}
 
 	const propertiesArray = Array.isArray(properties)
@@ -440,6 +447,21 @@ async function batchCreateObjects(
 		throw new Error('At least one property mapping is required for batch create');
 	}
 
+	// Validate field mappings
+	for (const mapping of propertyMappings.mapping!) {
+		const validation = validateFieldMapping(items, mapping.fieldName);
+		if (!validation.valid) {
+			throw new Error(
+				`Field "${mapping.fieldName}" not found in input items.\n\nAvailable fields: ${validation.availableFields.slice(0, 10).join(', ')}${validation.availableFields.length > 10 ? ', ...' : ''}\n\nTip: Enter the field NAME (e.g., "email"), not the field VALUE (e.g., "john@example.com").`,
+			);
+		}
+		if (validation.missingCount > 0) {
+			context.logger.warn(
+				`Field "${mapping.fieldName}" is missing in ${validation.missingCount} of ${items.length} input items.`,
+			);
+		}
+	}
+
 	const inputs = items.map((item) => {
 		const properties: IDataObject = {};
 
@@ -487,6 +509,27 @@ async function batchUpdateObjects(
 
 	if (!propertyMappings.mapping || propertyMappings.mapping.length === 0) {
 		throw new Error('At least one property mapping is required for batch update');
+	}
+
+	// Validate ID field
+	const idValidation = validateFieldMapping(items, idField);
+	if (!idValidation.valid) {
+		throw new Error(buildFieldNotFoundError(idField, idValidation.availableFields, 'IDs'));
+	}
+
+	// Validate property mappings
+	for (const mapping of propertyMappings.mapping!) {
+		const validation = validateFieldMapping(items, mapping.fieldName);
+		if (!validation.valid) {
+			throw new Error(
+				`Field "${mapping.fieldName}" not found in input items.\n\nAvailable fields: ${validation.availableFields.slice(0, 10).join(', ')}${validation.availableFields.length > 10 ? ', ...' : ''}\n\nTip: Enter the field NAME (e.g., "email"), not the field VALUE (e.g., "john@example.com").`,
+			);
+		}
+		if (validation.missingCount > 0) {
+			context.logger.warn(
+				`Field "${mapping.fieldName}" is missing in ${validation.missingCount} of ${items.length} input items.`,
+			);
+		}
 	}
 
 	const inputs = items.map((item, index) => {
@@ -538,6 +581,18 @@ async function batchDeleteObjects(
 	items: INodeExecutionData[]
 ): Promise<INodeExecutionData[]> {
 	const idField = context.getNodeParameter('idField', 0) as string;
+
+	const validation = validateFieldMapping(items, idField);
+
+	if (!validation.valid) {
+		throw new Error(buildFieldNotFoundError(idField, validation.availableFields, 'IDs'));
+	}
+
+	if (validation.missingCount > 0) {
+		context.logger.warn(
+			`Field "${idField}" is missing in ${validation.missingCount} of ${items.length} input items. Only ${validation.presentCount} items will be deleted.`,
+		);
+	}
 
 	const inputs = items.map((item, index) => {
 		const objectId = item.json[idField];

@@ -162,14 +162,16 @@ async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INo
 	const folderPath = context.getNodeParameter('folderPath', i) as string;
 	const access = context.getNodeParameter('access', i) as string;
 	const fileName = context.getNodeParameter('fileName', i, '') as string;
+	const overwrite = context.getNodeParameter('overwrite', i, false) as boolean;
 
-	const body: Record<string, string> = {
+	const body: Record<string, string | boolean> = {
 		url,
 		access
 	};
 
 	if (folderPath) body.folderPath = folderPath;
 	if (fileName) body.name = fileName;
+	if (overwrite) body.overwrite = overwrite;
 
 	const response = await hubspotApiRequest.call(
 		context,

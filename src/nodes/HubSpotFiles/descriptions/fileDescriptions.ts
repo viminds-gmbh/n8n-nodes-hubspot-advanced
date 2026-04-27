@@ -137,6 +137,20 @@ export const fileNameField: INodeProperties = {
 	},
 };
 
+export const overwriteField: INodeProperties = {
+	displayName: 'Overwrite',
+	name: 'overwrite',
+	type: 'boolean',
+	default: false,
+	description: 'Whether to overwrite an existing file with the same name and extension in the specified folder. If true, the existing file will be deleted and replaced with a new file ID.',
+	displayOptions: {
+		show: {
+			resource: ['file'],
+			operation: ['importUrl'],
+		},
+	},
+};
+
 export const updateNameField: INodeProperties = {
 	displayName: 'New Name',
 	name: 'updateName',
@@ -256,6 +270,7 @@ export const fileFields: INodeProperties[] = [
 	accessField,
 	importUrlField,
 	fileNameField,
+	overwriteField,
 	updateNameField,
 	updateAccessField,
 	updateParentFolderIdField,

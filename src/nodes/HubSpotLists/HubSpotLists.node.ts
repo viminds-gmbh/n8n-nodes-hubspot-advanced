@@ -5,6 +5,7 @@ import type {
 	INodeTypeDescription,
 	ILoadOptionsFunctions,
 	INodePropertyOptions,
+	IDataObject,
 } from 'n8n-workflow';
 
 import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
@@ -98,23 +99,23 @@ export class HubSpotLists implements INodeType {
 							count: 250,
 							offset,
 						},
-					);
+					) as IDataObject;
 
 					if (response.lists) {
-						response.lists.forEach((list: { objectTypeId: string; name: string; listId: string | number; processingType: string }) => {
+						(response.lists as IDataObject[]).forEach((list: IDataObject) => {
 							if (list.objectTypeId === objectTypeId) {
 								// For add/remove member operations, only show static lists (exclude DYNAMIC)
 								if (onlyStaticLists) {
 									if (list.processingType !== 'DYNAMIC') {
 										options.push({
-											name: list.name,
-											value: list.listId.toString(),
+											name: list.name as string,
+											value: String(list.listId),
 										});
 									}
 								} else {
 									options.push({
-										name: list.name,
-										value: list.listId.toString(),
+										name: list.name as string,
+										value: String(list.listId),
 									});
 								}
 							}
@@ -122,7 +123,7 @@ export class HubSpotLists implements INodeType {
 					}
 
 					hasMore = response.hasMore === true;
-					offset = response.offset || 0;
+					offset = (response.offset as number) || 0;
 				}
 
 				options.sort((a, b) => a.name.localeCompare(b.name));

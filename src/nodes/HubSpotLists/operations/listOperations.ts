@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { hubspotApiRequest, hubspotBatchRequest } from '../../../transport/HubSpotApiRequest';
 import { HUBSPOT_OBJECT_TYPE_TO_ID } from '../../../types';
+import { validateFieldMapping, buildFieldNotFoundError } from '../../../transport/ValidationHelpers';
 
 interface FilterGroup {
 	propertyName: string;
@@ -246,7 +247,7 @@ async function addMember(
 		context,
 		'PUT',
 		`/crm/v3/lists/${listId}/memberships/add`,
-		[recordId] as any,
+		[recordId],
 	) as IDataObject;
 
 	return {
@@ -267,6 +268,18 @@ async function addManyMembers(
 	const listId = context.getNodeParameter('listId', i) as string;
 	const idField = context.getNodeParameter('idField', i, 'id') as string;
 
+	const validation = validateFieldMapping(items, idField);
+
+	if (!validation.valid) {
+		throw new Error(buildFieldNotFoundError(idField, validation.availableFields, 'record IDs'));
+	}
+
+	if (validation.missingCount > 0) {
+		context.logger.warn(
+			`Field "${idField}" is missing in ${validation.missingCount} of ${items.length} input items. Only ${validation.presentCount} records will be added.`,
+		);
+	}
+
 	const recordIds: string[] = [];
 	for (let j = 0; j < items.length; j++) {
 		const itemData = items[j].json;
@@ -274,12 +287,6 @@ async function addManyMembers(
 		if (id) {
 			recordIds.push(String(id));
 		}
-	}
-
-	if (recordIds.length === 0) {
-		throw new Error(
-			`No IDs found in input items. Please ensure your input items have a "${idField}" field, or change the "ID Field" parameter.`,
-		);
 	}
 
 	const batchSize = 100;
@@ -292,7 +299,7 @@ async function addManyMembers(
 			context,
 			'PUT',
 			`/crm/v3/lists/${listId}/memberships/add`,
-			batch as any,
+			batch,
 		) as IDataObject;
 
 		results.push(response);
@@ -319,7 +326,7 @@ async function removeMember(
 		context,
 		'PUT',
 		`/crm/v3/lists/${listId}/memberships/remove`,
-		[recordId] as any,
+		[recordId],
 	) as IDataObject;
 
 	return {
@@ -340,6 +347,18 @@ async function removeManyMembers(
 	const listId = context.getNodeParameter('listId', i) as string;
 	const idField = context.getNodeParameter('idField', i, 'id') as string;
 
+	const validation = validateFieldMapping(items, idField);
+
+	if (!validation.valid) {
+		throw new Error(buildFieldNotFoundError(idField, validation.availableFields, 'record IDs'));
+	}
+
+	if (validation.missingCount > 0) {
+		context.logger.warn(
+			`Field "${idField}" is missing in ${validation.missingCount} of ${items.length} input items. Only ${validation.presentCount} records will be removed.`,
+		);
+	}
+
 	const recordIds: string[] = [];
 	for (let j = 0; j < items.length; j++) {
 		const itemData = items[j].json;
@@ -347,12 +366,6 @@ async function removeManyMembers(
 		if (id) {
 			recordIds.push(String(id));
 		}
-	}
-
-	if (recordIds.length === 0) {
-		throw new Error(
-			`No IDs found in input items. Please ensure your input items have a "${idField}" field, or change the "ID Field" parameter.`,
-		);
 	}
 
 	const batchSize = 100;
@@ -365,7 +378,7 @@ async function removeManyMembers(
 			context,
 			'PUT',
 			`/crm/v3/lists/${listId}/memberships/remove`,
-			batch as any,
+			batch,
 		) as IDataObject;
 
 		results.push(response);

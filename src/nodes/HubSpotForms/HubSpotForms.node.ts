@@ -5,6 +5,7 @@ import type {
 	INodeTypeDescription,
 	ILoadOptionsFunctions,
 	INodePropertyOptions,
+	IDataObject,
 } from 'n8n-workflow';
 
 import { hubspotApiRequestForLoadOptions } from '../../transport/HubSpotApiRequest';
@@ -70,14 +71,14 @@ export class HubSpotForms implements INodeType {
 					this,
 					'GET',
 					'/marketing/v3/forms',
-				);
+				) as IDataObject;
 
 				const options: INodePropertyOptions[] = [];
 				if (response.results) {
-					for (const form of response.results) {
+					for (const form of response.results as IDataObject[]) {
 						options.push({
-							name: form.name,
-							value: form.id,
+							name: form.name as string,
+							value: form.id as string,
 						});
 					}
 				}
@@ -88,15 +89,15 @@ export class HubSpotForms implements INodeType {
 				const response = await hubspotApiRequestForLoadOptions.call(
 					this,
 					'GET',
-					'/communication-preferences/v3/definitions',
-				);
+					'/marketing/v3/communication-preferences/v3/definitions',
+				) as IDataObject;
 
 				const options: INodePropertyOptions[] = [];
 				if (response.subscriptionDefinitions) {
-					for (const subscription of response.subscriptionDefinitions) {
+					for (const subscription of response.subscriptionDefinitions as IDataObject[]) {
 						options.push({
-							name: subscription.name,
-							value: subscription.id.toString(),
+							name: subscription.name as string,
+							value: String(subscription.id),
 						});
 					}
 				}

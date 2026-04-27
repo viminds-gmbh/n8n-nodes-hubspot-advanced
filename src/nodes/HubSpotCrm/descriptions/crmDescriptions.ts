@@ -67,7 +67,8 @@ export const idFieldField: INodeProperties = {
 	type: 'string',
 	default: 'id',
 	placeholder: 'id',
-	description: 'Name of the field in input items that contains the object ID (e.g., "id", "objectId", "hs_object_id")',
+	hint: 'Enter the field name, not the ID value itself',
+	description: 'The field name in your input items containing the object ID (e.g., "id", "hs_object_id"). This must match an existing field name in your data.',
 	displayOptions: {
 		show: {
 			operation: ['getMany', 'batchUpdate', 'batchDelete'],
@@ -346,8 +347,9 @@ export const propertyMappingsField: INodeProperties = {
 					type: 'string',
 					default: '',
 					required: true,
-					placeholder: 'dealname',
-					description: 'The field name from input items to use as value (e.g., "dealname", "amount")',
+					placeholder: 'email',
+					hint: 'Enter field name like "email", not the value like "john@example.com"',
+					description: 'The field name from input items (e.g., "dealname", "email"). Enter the exact field name, not the value. Tip: Check your input data to see available field names.',
 				},
 			],
 		},

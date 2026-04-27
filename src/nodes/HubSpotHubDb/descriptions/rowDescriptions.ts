@@ -296,7 +296,9 @@ export const idFieldField: INodeProperties = {
 	type: 'string',
 	default: 'id',
 	placeholder: 'id',
-	description: 'Name of the field in input items that contains the row ID (required for batch update)',
+	hint: 'Enter the field name, not the ID value itself',
+	description: 'The field name in your input items containing the row ID (e.g., "id", "hs_object_id"). This must match an existing field name in your data.',
+
 	displayOptions: {
 		show: {
 			resource: ['row'],
@@ -335,7 +337,8 @@ export const columnMappingsField: INodeProperties = {
 					default: '',
 					required: true,
 					placeholder: 'email',
-					description: 'The field name from the input item',
+					hint: 'Enter field name like "email", not the value like "john@example.com"',
+					description: 'The field name from input items (e.g., "email", "name"). Enter the exact field name, not the value. Tip: Check your input data to see available field names.',
 				},
 				{
 					displayName: 'Target Column',
@@ -386,7 +389,8 @@ export const batchDeleteIdFieldField: INodeProperties = {
 	default: 'id',
 	required: true,
 	placeholder: 'id',
-	description: 'Name of the field in each input item that contains the row ID to delete',
+	hint: 'Enter the field name, not the ID value itself',
+	description: 'The field name in your input items containing the row ID (e.g., "id", "row_id"). This must match an existing field name in your data.',
 	displayOptions: {
 		show: {
 			resource: ['row'],

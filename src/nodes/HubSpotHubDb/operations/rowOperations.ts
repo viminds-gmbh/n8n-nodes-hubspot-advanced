@@ -1,5 +1,6 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { hubspotApiRequest } from '../../../transport/HubSpotApiRequest';
+import { validateFieldMapping, buildFieldNotFoundError } from '../../../transport/ValidationHelpers';
 
 interface ColumnValue {
 	columnName: string;
@@ -40,8 +41,8 @@ export async function executeRowOperation(
 // Helper function to build column values from fixedCollection
 function buildColumnValues(
 	columnValuesData: { values?: ColumnValue[] }
-): Record<string, any> {
-	const values: Record<string, any> = {};
+): Record<string, unknown> {
+	const values: Record<string, unknown> = {};
 
 	if (columnValuesData.values && columnValuesData.values.length > 0) {
 		for (const col of columnValuesData.values) {
@@ -57,11 +58,11 @@ function buildBatchRowsFromItems(
 	items: INodeExecutionData[],
 	columnMappings: ColumnMapping[],
 	idField?: string
-): Array<{ id?: string; values: Record<string, any> }> {
-	const rows: Array<{ id?: string; values: Record<string, any> }> = [];
+): Array<{ id?: string; values: Record<string, unknown> }> {
+	const rows: Array<{ id?: string; values: Record<string, unknown> }> = [];
 
 	for (const item of items) {
-		const row: { id?: string; values: Record<string, any> } = {
+		const row: { id?: string; values: Record<string, unknown> } = {
 			values: {},
 		};
 
@@ -222,14 +223,22 @@ async function batchDeleteRows(
 
 	if (batchDeleteMode === 'mapFromInput') {
 		const idField = context.getNodeParameter('deleteIdField', i, 'id') as string;
+		
+		const validation = validateFieldMapping(items, idField);
+		if (!validation.valid) {
+			throw new Error(buildFieldNotFoundError(idField, validation.availableFields, 'row IDs'));
+		}
+
+		if (validation.missingCount > 0) {
+			context.logger.warn(
+				`Field "${idField}" is missing in ${validation.missingCount} of ${items.length} input items. Only ${validation.presentCount} rows will be deleted.`,
+			);
+		}
+
 		ids = items
 			.map((item) => item.json[idField])
 			.filter((v) => v !== undefined && v !== null && v !== '')
 			.map(String);
-
-		if (ids.length === 0) {
-			throw new Error(`No row IDs found. Ensure all input items have a "${idField}" field.`);
-		}
 	} else {
 		const rawIds = context.getNodeParameter('rowIds', i) as string | string[];
 		ids = Array.isArray(rawIds)
@@ -268,7 +277,7 @@ async function batchCreateRows(
 	const tableId = context.getNodeParameter('tableId', i) as string;
 	const batchMode = context.getNodeParameter('batchMode', i) as string;
 
-	let inputs: Array<{ values: Record<string, any> }> = [];
+	let inputs: Array<{ values: Record<string, unknown> }> = [];
 
 	if (batchMode === 'defineInNode') {
 		const rowsData = context.getNodeParameter('rows', i, {}) as { rowValues?: Array<{ values: { columnValues?: ColumnValue[] } }> };
@@ -279,7 +288,7 @@ async function batchCreateRows(
 
 		inputs = rowsData.rowValues.map((row) => {
 			const columnValuesData = row.values as { columnValues?: ColumnValue[] };
-			const values: Record<string, any> = {};
+			const values: Record<string, unknown> = {};
 			
 			if (columnValuesData.columnValues && columnValuesData.columnValues.length > 0) {
 				for (const col of columnValuesData.columnValues) {
@@ -295,6 +304,21 @@ async function batchCreateRows(
 
 		if (!columnMappingsData.mappings || columnMappingsData.mappings.length === 0) {
 			throw new Error('At least one column mapping must be specified');
+		}
+
+		// Validate column mappings
+		for (const mapping of columnMappingsData.mappings) {
+			const validation = validateFieldMapping(items, mapping.source);
+			if (!validation.valid) {
+				throw new Error(
+					`Field "${mapping.source}" not found in input items.\n\nAvailable fields: ${validation.availableFields.slice(0, 10).join(', ')}${validation.availableFields.length > 10 ? ', ...' : ''}\n\nTip: Enter the field NAME (e.g., "email"), not the field VALUE (e.g., "john@example.com").`,
+				);
+			}
+			if (validation.missingCount > 0) {
+				context.logger.warn(
+					`Field "${mapping.source}" is missing in ${validation.missingCount} of ${items.length} input items.`,
+				);
+			}
 		}
 
 		inputs = buildBatchRowsFromItems(items, columnMappingsData.mappings);
@@ -332,7 +356,7 @@ async function batchUpdateRows(
 	const tableId = context.getNodeParameter('tableId', i) as string;
 	const batchMode = context.getNodeParameter('batchMode', i) as string;
 
-	let inputs: Array<{ id: string; values: Record<string, any> }> = [];
+	let inputs: Array<{ id: string; values: Record<string, unknown> }> = [];
 
 	if (batchMode === 'defineInNode') {
 		const rowsData = context.getNodeParameter('rows', i, {}) as { rowValues?: Array<{ id: string; values: { columnValues?: ColumnValue[] } }> };
@@ -347,7 +371,7 @@ async function batchUpdateRows(
 			}
 			
 			const columnValuesData = row.values as { columnValues?: ColumnValue[] };
-			const values: Record<string, any> = {};
+			const values: Record<string, unknown> = {};
 			
 			if (columnValuesData.columnValues && columnValuesData.columnValues.length > 0) {
 				for (const col of columnValuesData.columnValues) {
@@ -369,6 +393,27 @@ async function batchUpdateRows(
 			throw new Error('At least one column mapping must be specified');
 		}
 
+		// Validate ID field
+		const idValidation = validateFieldMapping(items, idField);
+		if (!idValidation.valid) {
+			throw new Error(buildFieldNotFoundError(idField, idValidation.availableFields, 'row IDs'));
+		}
+
+		// Validate column mappings
+		for (const mapping of columnMappingsData.mappings) {
+			const validation = validateFieldMapping(items, mapping.source);
+			if (!validation.valid) {
+				throw new Error(
+					`Field "${mapping.source}" not found in input items.\n\nAvailable fields: ${validation.availableFields.slice(0, 10).join(', ')}${validation.availableFields.length > 10 ? ', ...' : ''}\n\nTip: Enter the field NAME (e.g., "email"), not the field VALUE (e.g., "john@example.com").`,
+				);
+			}
+			if (validation.missingCount > 0) {
+				context.logger.warn(
+					`Field "${mapping.source}" is missing in ${validation.missingCount} of ${items.length} input items.`,
+				);
+			}
+		}
+
 		const rows = buildBatchRowsFromItems(items, columnMappingsData.mappings, idField);
 
 		// Validate all rows have IDs
@@ -378,7 +423,7 @@ async function batchUpdateRows(
 			}
 		}
 
-		inputs = rows as Array<{ id: string; values: Record<string, any> }>;
+		inputs = rows as Array<{ id: string; values: Record<string, unknown> }>;
 	}
 
 	// Validate batch size limit
