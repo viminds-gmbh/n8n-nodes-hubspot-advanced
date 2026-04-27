@@ -111,7 +111,7 @@ export class HubSpotHubDb implements INodeType {
 				const response = await hubspotApiRequestForLoadOptions.call(
 					this,
 					'GET',
-					'/cms/v3/hubdb/tables',
+					'/cms/v3/hubdb/tables/draft',
 					{},
 				) as IDataObject;
 
@@ -119,8 +119,10 @@ export class HubSpotHubDb implements INodeType {
 
 				if (response.results && Array.isArray(response.results)) {
 					for (const table of response.results as IDataObject[]) {
+						const label = (table.label || table.name) as string;
+						const publishedStatus = table.publishedAt ? '' : ' (unpublished)';
 						options.push({
-							name: (table.label || table.name) as string,
+							name: `${label}${publishedStatus}`,
 							value: table.id as string,
 						});
 					}
