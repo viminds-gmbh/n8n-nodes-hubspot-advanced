@@ -297,8 +297,8 @@ export const idFieldField: INodeProperties = {
 	requiresDataPath: 'single',
 	default: 'id',
 	placeholder: 'id',
-	hint: 'Enter the field name, not the ID value itself',
-	description: 'The field name in your input items containing the row ID (e.g., "id", "hs_object_id"). This must match an existing field name in your data.',
+	hint: 'Enter the field name, not the ID value itself. Supports dot notation for nested data (e.g., "properties.id").',
+	description: 'The field name in your input items containing the row ID (e.g., "id", "hs_object_id"). Supports dot notation for nested data (e.g., "properties.id"). This must match an existing field name in your data.',
 
 	displayOptions: {
 		show: {
@@ -339,8 +339,8 @@ export const columnMappingsField: INodeProperties = {
 					default: '',
 					required: true,
 					placeholder: 'email',
-					hint: 'Enter field name like "email", not the value like "john@example.com"',
-					description: 'The field name from input items (e.g., "email", "name"). Enter the exact field name, not the value. Tip: Check your input data to see available field names.',
+					hint: 'Enter field name like "email", not the value like "john@example.com". Supports dot notation for nested data (e.g., "properties.name").',
+					description: 'The field name from input items (e.g., "email", "name"). Enter the exact field name, not the value. Supports dot notation for nested data (e.g., "properties.name"). Tip: Check your input data to see available field names.',
 				},
 				{
 					displayName: 'Target Column',
@@ -392,8 +392,8 @@ export const batchDeleteIdFieldField: INodeProperties = {
 	default: 'id',
 	required: true,
 	placeholder: 'id',
-	hint: 'Enter the field name, not the ID value itself',
-	description: 'The field name in your input items containing the row ID (e.g., "id", "row_id"). This must match an existing field name in your data.',
+	hint: 'Enter the field name, not the ID value itself. Supports dot notation for nested data (e.g., "properties.id").',
+	description: 'The field name in your input items containing the row ID (e.g., "id", "row_id"). Supports dot notation for nested data (e.g., "properties.id"). This must match an existing field name in your data.',
 	displayOptions: {
 		show: {
 			resource: ['row'],

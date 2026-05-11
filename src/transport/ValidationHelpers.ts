@@ -1,4 +1,5 @@
 import type { INodeExecutionData } from 'n8n-workflow';
+import { getNestedValue, getAvailableFieldPaths } from './NestedValueAccessor';
 
 export interface FieldValidationResult {
 	valid: boolean;
@@ -21,17 +22,15 @@ export function validateFieldMapping(
 	}
 
 	let presentCount = 0;
-	const allFieldsSet = new Set<string>();
 
 	for (const item of items) {
-		if (item.json[fieldName] !== undefined && item.json[fieldName] !== null && item.json[fieldName] !== '') {
+		const value = getNestedValue(item.json, fieldName);
+		if (value !== undefined && value !== null && value !== '') {
 			presentCount++;
 		}
-
-		Object.keys(item.json).forEach(key => allFieldsSet.add(key));
 	}
 
-	const availableFields = Array.from(allFieldsSet).sort();
+	const availableFields = getAvailableFieldPaths(items);
 	const missingCount = items.length - presentCount;
 
 	return {
@@ -68,11 +67,5 @@ export function buildPartialFieldWarning(
 }
 
 export function getAvailableFieldsFromItems(items: INodeExecutionData[]): string[] {
-	const allFieldsSet = new Set<string>();
-
-	for (const item of items) {
-		Object.keys(item.json).forEach(key => allFieldsSet.add(key));
-	}
-
-	return Array.from(allFieldsSet).sort();
+	return getAvailableFieldPaths(items);
 }

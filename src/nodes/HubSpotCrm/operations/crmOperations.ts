@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { hubspotApiRequest, hubspotApiRequestAllItems, hubspotBatchRequest } from '../../../transport/HubSpotApiRequest';
 import { validateFieldMapping, buildFieldNotFoundError } from '../../../transport/ValidationHelpers';
+import { getNestedValue } from '../../../transport/NestedValueAccessor';
 
 interface FilterGroup {
 	propertyName: string;
@@ -98,8 +99,7 @@ async function getManyObjects(
 
 	const ids: string[] = [];
 	for (let j = 0; j < items.length; j++) {
-		const itemData = items[j].json;
-		const id = itemData[idField] as string;
+		const id = getNestedValue(items[j].json, idField) as string;
 		if (id) {
 			ids.push(String(id));
 		}
@@ -466,7 +466,7 @@ async function batchCreateObjects(
 		const properties: IDataObject = {};
 
 		propertyMappings.mapping!.forEach((map) => {
-			const value = item.json[map.fieldName];
+			const value = getNestedValue(item.json, map.fieldName);
 			if (value !== undefined && value !== null) {
 				properties[map.property] = value;
 			}
@@ -533,7 +533,7 @@ async function batchUpdateObjects(
 	}
 
 	const inputs = items.map((item, index) => {
-		const objectId = item.json[idField];
+		const objectId = getNestedValue(item.json, idField);
 		if (!objectId) {
 			throw new Error(`Missing ID field "${idField}" in item ${index}`);
 		}
@@ -541,7 +541,7 @@ async function batchUpdateObjects(
 		const properties: IDataObject = {};
 
 		propertyMappings.mapping!.forEach((map) => {
-			const value = item.json[map.fieldName];
+			const value = getNestedValue(item.json, map.fieldName);
 			if (value !== undefined && value !== null) {
 				properties[map.property] = value;
 			}
@@ -595,7 +595,7 @@ async function batchDeleteObjects(
 	}
 
 	const inputs = items.map((item, index) => {
-		const objectId = item.json[idField];
+		const objectId = getNestedValue(item.json, idField);
 		if (!objectId) {
 			throw new Error(`Missing ID field "${idField}" in item ${index}`);
 		}

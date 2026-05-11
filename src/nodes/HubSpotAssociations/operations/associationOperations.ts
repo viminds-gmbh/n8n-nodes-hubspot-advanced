@@ -1,5 +1,6 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { hubspotApiRequest, hubspotBatchRequest } from '../../../transport/HubSpotApiRequest';
+import { getNestedValue } from '../../../transport/NestedValueAccessor';
 
 interface AssociationType {
 	category: string;
@@ -119,7 +120,7 @@ async function batchGetAssociations(
 	const labelFilterMode = context.getNodeParameter('labelFilterMode', 0, 'any') as 'any' | 'all';
 
 	const objectIds = items
-		.map((item) => String(item.json[idField] ?? ''))
+		.map((item) => String(getNestedValue(item.json, idField) ?? ''))
 		.filter((id) => id);
 
 	if (objectIds.length === 0) {
@@ -130,7 +131,7 @@ async function batchGetAssociations(
 
 	const returnData: INodeExecutionData[] = [];
 	items.forEach((item, index) => {
-		const objectId = String(item.json[idField] ?? '');
+		const objectId = String(getNestedValue(item.json, idField) ?? '');
 		let associations = associationMap.get(objectId) || [];
 
 		associations = filterAssociationsByLabel(associations, filterByLabel, labelFilterMode);
@@ -225,7 +226,7 @@ async function batchHydrateAssociations(
 		: (properties ? properties.split(',').map((p) => p.trim()) : []);
 
 	const objectIds = items
-		.map((item) => String(item.json[idField] ?? ''))
+		.map((item) => String(getNestedValue(item.json, idField) ?? ''))
 		.filter((id) => id);
 
 	if (objectIds.length === 0) {
@@ -268,7 +269,7 @@ async function batchHydrateAssociations(
 
 	const returnData: INodeExecutionData[] = [];
 	items.forEach((item, index) => {
-		const objectId = String(item.json[idField] ?? '');
+		const objectId = String(getNestedValue(item.json, idField) ?? '');
 		const associations = filteredAssociationMap.get(objectId) || [];
 
 		const enrichedAssociations = associations.map((assoc) => {

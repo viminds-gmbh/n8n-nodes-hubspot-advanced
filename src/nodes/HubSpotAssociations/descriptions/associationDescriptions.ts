@@ -114,7 +114,7 @@ export const idFieldField: INodeProperties = {
 	requiresDataPath: 'single',
 	default: 'id',
 	placeholder: 'id',
-	description: 'Field name in input items containing the source object ID. The node will process all input items in batch.',
+	description: 'Field name in input items containing the source object ID. Supports dot notation for nested data (e.g., "properties.id"). The node will process all input items in batch.',
 	displayOptions: {
 		show: {
 			operation: ['batchGetAssociations', 'batchHydrateAssociations'],

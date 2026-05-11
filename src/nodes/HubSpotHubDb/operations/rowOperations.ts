@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { hubspotApiRequest } from '../../../transport/HubSpotApiRequest';
 import { validateFieldMapping, buildFieldNotFoundError } from '../../../transport/ValidationHelpers';
+import { getNestedValue } from '../../../transport/NestedValueAccessor';
 
 interface ColumnValue {
 	columnName: string;
@@ -67,14 +68,18 @@ function buildBatchRowsFromItems(
 		};
 
 		// Add ID if required (for batch update)
-		if (idField && item.json[idField]) {
-			row.id = String(item.json[idField]);
+		if (idField) {
+			const idValue = getNestedValue(item.json, idField);
+			if (idValue) {
+				row.id = String(idValue);
+			}
 		}
 
 		// Map columns
 		for (const mapping of columnMappings) {
-			if (item.json[mapping.source] !== undefined) {
-				row.values[mapping.target] = item.json[mapping.source];
+			const value = getNestedValue(item.json, mapping.source);
+			if (value !== undefined) {
+				row.values[mapping.target] = value;
 			}
 		}
 
@@ -236,7 +241,7 @@ async function batchDeleteRows(
 		}
 
 		ids = items
-			.map((item) => item.json[idField])
+			.map((item) => getNestedValue(item.json, idField))
 			.filter((v) => v !== undefined && v !== null && v !== '')
 			.map(String);
 	} else {
