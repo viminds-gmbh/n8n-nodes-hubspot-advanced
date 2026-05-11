@@ -111,6 +111,7 @@ export const idFieldField: INodeProperties = {
 	displayName: 'ID Field',
 	name: 'idField',
 	type: 'string',
+	requiresDataPath: 'single',
 	default: 'id',
 	placeholder: 'id',
 	description: 'Field name in input items containing the source object ID. The node will process all input items in batch.',
