@@ -32,7 +32,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "prepublishOnly": "npm run build && npm run lint && npm run test"
+    "prepublishOnly": "npm run build && npm run lint && npm run test",
+    "backup": "n8n export:workflow --backup --output=backups/latest/"
   },
   "files": [
     "dist",

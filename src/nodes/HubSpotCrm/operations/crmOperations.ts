@@ -556,20 +556,21 @@ async function batchUpdateObjects(
 			}
 		});
 
-		return {
+		const input: IDataObject = {
 			id: String(objectId),
 			properties,
 		};
+
+		// Add idProperty to each input if not default
+		if (idProperty !== 'hs_object_id') {
+			input.idProperty = idProperty;
+		}
+
+		return input;
 	});
 
 	const batchSize = 100;
 	const allResults: IDataObject[] = [];
-
-	// Build query string with idProperty if not default
-	const qs: IDataObject = {};
-	if (idProperty !== 'hs_object_id') {
-		qs.idProperty = idProperty;
-	}
 
 	for (let i = 0; i < inputs.length; i += batchSize) {
 		const batch = inputs.slice(i, i + batchSize);
@@ -579,7 +580,6 @@ async function batchUpdateObjects(
 			'POST',
 			`/crm/v3/objects/${objectType}/batch/update`,
 			{ inputs: batch },
-			qs,
 		) as { results: IDataObject[] };
 
 		allResults.push(...response.results);
