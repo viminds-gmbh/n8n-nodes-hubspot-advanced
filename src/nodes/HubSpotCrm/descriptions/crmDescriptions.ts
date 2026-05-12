@@ -77,6 +77,23 @@ export const idFieldField: INodeProperties = {
 	},
 };
 
+export const idPropertyField: INodeProperties = {
+	displayName: 'ID Property',
+	name: 'idProperty',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'getUniqueProperties',
+		loadOptionsDependsOn: ['objectType', 'customObjectType'],
+	},
+	default: 'hs_object_id',
+	description: 'The HubSpot property used to identify objects for update. Default is hs_object_id. Use alternative unique properties like email for contacts.',
+	displayOptions: {
+		show: {
+			operation: ['update', 'batchUpdate'],
+		},
+	},
+};
+
 export const propertiesField: INodeProperties = {
 	displayName: 'Properties',
 	name: 'properties',
@@ -421,6 +438,7 @@ export const crmFields: INodeProperties[] = [
 	operationField,
 	objectIdField,
 	idFieldField,
+	idPropertyField,
 	propertiesField,
 	filtersField,
 	sortField,

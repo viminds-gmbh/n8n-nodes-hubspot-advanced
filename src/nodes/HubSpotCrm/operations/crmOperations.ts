@@ -399,6 +399,7 @@ async function updateObject(
 	i: number
 ): Promise<INodeExecutionData> {
 	const objectId = context.getNodeParameter('objectId', i) as string;
+	const idProperty = context.getNodeParameter('idProperty', i, 'hs_object_id') as string;
 	const propertiesToSet = context.getNodeParameter('propertiesToSet', i, {}) as { property?: PropertyToSet[] };
 
 	const properties: IDataObject = {};
@@ -408,11 +409,18 @@ async function updateObject(
 		});
 	}
 
+	// Build query string with idProperty if not default
+	const qs: IDataObject = {};
+	if (idProperty !== 'hs_object_id') {
+		qs.idProperty = idProperty;
+	}
+
 	const response = await hubspotApiRequest.call(
 		context,
 		'PATCH',
 		`/crm/v3/objects/${objectType}/${objectId}`,
 		{ properties },
+		qs,
 	) as IDataObject;
 
 	return { json: response };
@@ -503,6 +511,7 @@ async function batchUpdateObjects(
 	items: INodeExecutionData[]
 ): Promise<INodeExecutionData[]> {
 	const idField = context.getNodeParameter('idField', 0) as string;
+	const idProperty = context.getNodeParameter('idProperty', 0, 'hs_object_id') as string;
 	const propertyMappings = context.getNodeParameter('propertyMappings', 0, {}) as {
 		mapping?: Array<{ property: string; fieldName: string }>;
 	};
@@ -556,6 +565,12 @@ async function batchUpdateObjects(
 	const batchSize = 100;
 	const allResults: IDataObject[] = [];
 
+	// Build query string with idProperty if not default
+	const qs: IDataObject = {};
+	if (idProperty !== 'hs_object_id') {
+		qs.idProperty = idProperty;
+	}
+
 	for (let i = 0; i < inputs.length; i += batchSize) {
 		const batch = inputs.slice(i, i + batchSize);
 
@@ -564,6 +579,7 @@ async function batchUpdateObjects(
 			'POST',
 			`/crm/v3/objects/${objectType}/batch/update`,
 			{ inputs: batch },
+			qs,
 		) as { results: IDataObject[] };
 
 		allResults.push(...response.results);

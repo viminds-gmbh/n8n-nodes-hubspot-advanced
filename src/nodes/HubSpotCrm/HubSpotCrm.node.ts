@@ -99,6 +99,50 @@ export class HubSpotCrm implements INodeType {
 				cache.set(objectType, options, credentialId);
 				return options;
 			},
+
+			async getUniqueProperties(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+
+				const objectTypeRaw = this.getCurrentNodeParameter('objectType') as string;
+				const objectType = objectTypeRaw === 'custom'
+					? this.getCurrentNodeParameter('customObjectType') as string
+					: objectTypeRaw;
+
+				const credentials = await this.getCredentials('hubspotAppToken');
+				const credentialId = (credentials.appToken as string).slice(-8);
+
+				const cache = PropertyCache.getInstance();
+				const cacheKey = `${objectType}_unique`;
+				const cached = cache.get(cacheKey, credentialId);
+				if (cached) {
+					return cached;
+				}
+
+				const results = await hubspotApiRequestAllItemsForLoadOptions.call(
+					this,
+					'GET',
+					`/crm/v3/properties/${objectType}`,
+				);
+
+				const options: INodePropertyOptions[] = [];
+
+				// hs_object_id is always the default unique identifier
+				options.push({
+					name: 'HubSpot Object ID (hs_object_id)',
+					value: 'hs_object_id',
+				});
+
+				for (const property of results) {
+					if (property.hasUniqueValue === true) {
+						options.push({
+							name: (property.label || property.name) as string,
+							value: property.name as string,
+						});
+					}
+				}
+
+				cache.set(cacheKey, options, credentialId);
+				return options;
+			},
 		},
 	};
 
