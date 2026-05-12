@@ -230,6 +230,8 @@ export interface HubSpotFileUploadOptions {
 	access?: 'PRIVATE' | 'PUBLIC_INDEXABLE' | 'PUBLIC_NOT_INDEXABLE';
 	fileName?: string;
 	mimeType?: string;
+	duplicateValidationScope?: 'ENTIRE_PORTAL' | 'EXACT_FOLDER' | 'NONE';
+	duplicateValidationStrategy?: 'REJECT' | 'RETURN_EXISTING';
 }
 
 export interface HubSpotFileResponse {

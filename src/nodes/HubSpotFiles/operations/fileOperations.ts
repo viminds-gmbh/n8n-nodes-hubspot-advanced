@@ -62,6 +62,8 @@ async function uploadFile(
 	const folderPath = context.getNodeParameter('folderPath', i) as string;
 	const access = context.getNodeParameter('access', i) as AccessLevel;
 	const fileName = context.getNodeParameter('fileName', i, '') as string;
+	const duplicateValidationScope = context.getNodeParameter('duplicateValidationScope', i, 'NONE') as 'ENTIRE_PORTAL' | 'EXACT_FOLDER' | 'NONE';
+	const duplicateValidationStrategy = context.getNodeParameter('duplicateValidationStrategy', i, 'REJECT') as 'REJECT' | 'RETURN_EXISTING';
 
 	const { buffer, fileName: finalFileName, mimeType, binaryData } = await getBinaryDataForUpload(
 		context,
@@ -78,7 +80,9 @@ async function uploadFile(
 		{
 			folderPath,
 			access,
-			mimeType
+			mimeType,
+			duplicateValidationScope,
+			duplicateValidationStrategy,
 		}
 	) as IDataObject;
 
@@ -163,6 +167,8 @@ async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INo
 	const access = context.getNodeParameter('access', i) as string;
 	const fileName = context.getNodeParameter('fileName', i, '') as string;
 	const overwrite = context.getNodeParameter('overwrite', i, false) as boolean;
+	const duplicateValidationScope = context.getNodeParameter('duplicateValidationScope', i, 'NONE') as 'ENTIRE_PORTAL' | 'EXACT_FOLDER' | 'NONE';
+	const duplicateValidationStrategy = context.getNodeParameter('duplicateValidationStrategy', i, 'REJECT') as 'REJECT' | 'RETURN_EXISTING';
 
 	const body: Record<string, string | boolean> = {
 		url,
@@ -172,6 +178,10 @@ async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INo
 	if (folderPath) body.folderPath = folderPath;
 	if (fileName) body.name = fileName;
 	if (overwrite) body.overwrite = overwrite;
+	if (duplicateValidationScope !== 'NONE') {
+		body.duplicateValidationScope = duplicateValidationScope;
+		body.duplicateValidationStrategy = duplicateValidationStrategy;
+	}
 
 	const response = await hubspotApiRequest.call(
 		context,

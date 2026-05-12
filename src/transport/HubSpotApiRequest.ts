@@ -208,6 +208,8 @@ export async function hubspotFileUploadRequest(
 		folderPath?: string;
 		access?: 'PRIVATE' | 'PUBLIC_INDEXABLE' | 'PUBLIC_NOT_INDEXABLE';
 		mimeType?: string;
+		duplicateValidationScope?: 'ENTIRE_PORTAL' | 'EXACT_FOLDER' | 'NONE';
+		duplicateValidationStrategy?: 'REJECT' | 'RETURN_EXISTING';
 	} = {}
 ): Promise<unknown> {
 	const rateLimiter = HubSpotRateLimiter.getInstance();
@@ -221,9 +223,16 @@ export async function hubspotFileUploadRequest(
 		contentType: options.mimeType || 'application/octet-stream'
 	});
 
-	formData.append('options', JSON.stringify({
+	const optionsObj: Record<string, string> = {
 		access: options.access || 'PRIVATE'
-	}));
+	};
+
+	if (options.duplicateValidationScope && options.duplicateValidationScope !== 'NONE') {
+		optionsObj.duplicateValidationScope = options.duplicateValidationScope;
+		optionsObj.duplicateValidationStrategy = options.duplicateValidationStrategy || 'REJECT';
+	}
+
+	formData.append('options', JSON.stringify(optionsObj));
 
 	if (options.folderPath) {
 		formData.append('folderPath', options.folderPath);
