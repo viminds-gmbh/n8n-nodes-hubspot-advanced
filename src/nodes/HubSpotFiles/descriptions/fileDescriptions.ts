@@ -142,12 +142,24 @@ export const duplicateValidationScopeField: INodeProperties = {
 	name: 'duplicateValidationScope',
 	type: 'options',
 	options: [
-		{ name: 'None', value: 'NONE', description: 'No duplicate validation' },
-		{ name: 'Exact Folder', value: 'EXACT_FOLDER', description: 'Check for duplicates in the target folder only' },
-		{ name: 'Entire Portal', value: 'ENTIRE_PORTAL', description: 'Check for duplicates across the entire portal' },
+		{ 
+			name: 'None', 
+			value: 'NONE', 
+			description: 'No duplicate validation - file will be uploaded with suffix if duplicate exists' 
+		},
+		{ 
+			name: 'Exact Folder', 
+			value: 'EXACT_FOLDER', 
+			description: 'Check for duplicates in the target folder only' 
+		},
+		{ 
+			name: 'Entire Portal', 
+			value: 'ENTIRE_PORTAL', 
+			description: 'Check for duplicates across the entire portal' 
+		},
 	],
 	default: 'NONE',
-	description: 'Scope for duplicate file validation. Determines where HubSpot checks for existing files with the same name.',
+	description: 'Scope for duplicate file validation.',
 	displayOptions: {
 		show: {
 			resource: ['file'],
@@ -161,15 +173,24 @@ export const duplicateValidationStrategyField: INodeProperties = {
 	name: 'duplicateValidationStrategy',
 	type: 'options',
 	options: [
-		{ name: 'Reject', value: 'REJECT', description: 'Reject the upload if a duplicate is found' },
-		{ name: 'Return Existing', value: 'RETURN_EXISTING', description: 'Return the existing file instead of uploading a new one' },
+		{ 
+			name: 'Reject', 
+			value: 'REJECT', 
+			description: 'Reject the upload if a duplicate is found' 
+		},
+		{ 
+			name: 'Return Existing', 
+			value: 'RETURN_EXISTING', 
+			description: 'Return the existing file instead of uploading a new one' 
+		},
 	],
 	default: 'REJECT',
-	description: 'Strategy to handle duplicate files. Only applies when Duplicate Validation Scope is not NONE.',
+	description: 'Strategy to handle duplicate files.',
 	displayOptions: {
 		show: {
 			resource: ['file'],
 			operation: ['upload', 'importUrl'],
+			duplicateValidationScope: ['EXACT_FOLDER', 'ENTIRE_PORTAL'],
 		},
 	},
 };

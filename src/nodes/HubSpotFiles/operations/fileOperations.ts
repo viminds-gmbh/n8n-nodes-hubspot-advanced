@@ -65,7 +65,7 @@ async function uploadFile(
 	const duplicateValidationScope = context.getNodeParameter('duplicateValidationScope', i, 'NONE') as 'ENTIRE_PORTAL' | 'EXACT_FOLDER' | 'NONE';
 	const duplicateValidationStrategy = context.getNodeParameter('duplicateValidationStrategy', i, 'REJECT') as 'REJECT' | 'RETURN_EXISTING';
 
-	const { buffer, fileName: finalFileName, mimeType, binaryData } = await getBinaryDataForUpload(
+	const { buffer, fileName: finalFileName, mimeType } = await getBinaryDataForUpload(
 		context,
 		items,
 		i,
@@ -88,9 +88,9 @@ async function uploadFile(
 
 	return {
 		json: response,
-		binary: {
-			[binaryPropertyName]: binaryData
-		},
+		// binary: {
+		// 	[binaryPropertyName]: binaryData
+		// },
 		pairedItem: { item: i }
 	};
 }
@@ -167,8 +167,8 @@ async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INo
 	const access = context.getNodeParameter('access', i) as string;
 	const fileName = context.getNodeParameter('fileName', i, '') as string;
 	const overwrite = context.getNodeParameter('overwrite', i, false) as boolean;
-	const duplicateValidationScope = context.getNodeParameter('duplicateValidationScope', i, 'NONE') as 'ENTIRE_PORTAL' | 'EXACT_FOLDER' | 'NONE';
-	const duplicateValidationStrategy = context.getNodeParameter('duplicateValidationStrategy', i, 'REJECT') as 'REJECT' | 'RETURN_EXISTING';
+	const duplicateValidationScope = context.getNodeParameter('duplicateValidationScope', i, 'NONE') as string;
+	const duplicateValidationStrategy = context.getNodeParameter('duplicateValidationStrategy', i, 'REJECT') as string;
 
 	const body: Record<string, string | boolean> = {
 		url,
@@ -178,6 +178,7 @@ async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INo
 	if (folderPath) body.folderPath = folderPath;
 	if (fileName) body.name = fileName;
 	if (overwrite) body.overwrite = overwrite;
+
 	if (duplicateValidationScope !== 'NONE') {
 		body.duplicateValidationScope = duplicateValidationScope;
 		body.duplicateValidationStrategy = duplicateValidationStrategy;
@@ -221,7 +222,7 @@ async function importFromUrl(context: IExecuteFunctions, i: number): Promise<INo
 	}
 
 	return {
-		json: finalResponse,
+		json: (finalResponse.result as IDataObject) || finalResponse,
 		pairedItem: { item: i }
 	};
 }
