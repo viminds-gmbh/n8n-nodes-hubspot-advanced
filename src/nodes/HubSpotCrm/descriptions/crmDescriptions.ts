@@ -69,8 +69,8 @@ export const idFieldField: INodeProperties = {
 	requiresDataPath: 'single',
 	default: 'id',
 	placeholder: 'id',
-	hint: 'Enter the field name, not the ID value itself. Supports dot notation for nested data (e.g., "properties.id").',
-	description: 'The field name in your input items containing the object ID (e.g., "id", "hs_object_id"). Supports dot notation for nested data (e.g., "properties.id"). This must match an existing field name in your data.',
+	hint: 'Field name only (e.g., \'id\' or \'properties.id\')',
+	description: 'Field name containing the object ID. Supports dot notation (e.g., \'properties.id\').',
 	displayOptions: {
 		show: {
 			operation: ['getMany', 'batchUpdate', 'batchUpsert', 'batchDelete'],
@@ -368,8 +368,8 @@ export const propertyMappingsField: INodeProperties = {
 					default: '',
 					required: true,
 					placeholder: 'email',
-					hint: 'Enter field name like "email", not the value like "john@example.com". Supports dot notation for nested data (e.g., "properties.name").',
-					description: 'The field name from input items (e.g., "dealname", "email"). Enter the exact field name, not the value. Supports dot notation for nested data (e.g., "properties.name"). Tip: Check your input data to see available field names.',
+					hint: 'Field name only (e.g., \'email\' or \'properties.name\')',
+					description: 'Field name from input items. Supports dot notation (e.g., \'properties.name\').',
 				},
 			],
 		},

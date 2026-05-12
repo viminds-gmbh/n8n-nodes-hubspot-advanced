@@ -277,8 +277,8 @@ export const idFieldField: INodeProperties = {
 	type: 'string',
 	default: 'id',
 	placeholder: 'id',
-	hint: 'Enter the field name, not the ID value itself',
-	description: 'The field name in your input items containing the record ID (e.g., "id", "hs_object_id"). This must match an existing field name in your data. <strong>Note:</strong> Only static lists support adding/removing members.',
+	hint: 'Field name only (e.g., \'id\')',
+	description: 'Field name containing the record ID. <strong>Note:</strong> Only static lists support adding/removing members.',
 	displayOptions: {
 		show: {
 			operation: ['addManyMembers', 'removeManyMembers'],
