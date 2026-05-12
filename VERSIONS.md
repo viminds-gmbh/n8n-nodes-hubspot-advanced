@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.14] - 2025-05-12
+
+### Added
+- Batch upsert operation for CRM node to create or update multiple objects efficiently
+- Duplicate validation options for file upload and importUrl operations
+- idProperty parameter to update and batchUpdate operations for flexible object identification
+- Dot notation support for nested field access across all nodes
+- requiresDataPath property to field mapping inputs for improved autocomplete support
+
+### Changed
+- idProperty moved from query parameter to request body in batchUpdate operation for better API compatibility
+- Field descriptions and hints simplified across CRM, HubDb, and Lists nodes
+
 ## [0.1.13] - 2025-04-27
 
 ### Added
