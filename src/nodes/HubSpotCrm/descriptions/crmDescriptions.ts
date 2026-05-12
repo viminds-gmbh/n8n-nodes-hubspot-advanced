@@ -40,6 +40,7 @@ export const operationField: INodeProperties = {
 		{ name: 'Delete', value: 'delete', description: 'Delete an object' },
 		{ name: 'Batch Create', value: 'batchCreate', description: 'Create multiple objects in a single batch request using all input items' },
 		{ name: 'Batch Update', value: 'batchUpdate', description: 'Update multiple objects in a single batch request using all input items' },
+		{ name: 'Batch Upsert', value: 'batchUpsert', description: 'Create or update multiple objects in a single batch request using all input items' },
 		{ name: 'Batch Delete', value: 'batchDelete', description: 'Delete multiple objects in a single batch request using all input items' },
 	],
 	default: 'search',
@@ -72,7 +73,7 @@ export const idFieldField: INodeProperties = {
 	description: 'The field name in your input items containing the object ID (e.g., "id", "hs_object_id"). Supports dot notation for nested data (e.g., "properties.id"). This must match an existing field name in your data.',
 	displayOptions: {
 		show: {
-			operation: ['getMany', 'batchUpdate', 'batchDelete'],
+			operation: ['getMany', 'batchUpdate', 'batchUpsert', 'batchDelete'],
 		},
 	},
 };
@@ -89,7 +90,7 @@ export const idPropertyField: INodeProperties = {
 	description: 'The HubSpot property used to identify objects for update. Default is hs_object_id. Use alternative unique properties like email for contacts.',
 	displayOptions: {
 		show: {
-			operation: ['update', 'batchUpdate'],
+			operation: ['update', 'batchUpdate', 'batchUpsert'],
 		},
 	},
 };
@@ -339,7 +340,7 @@ export const propertyMappingsField: INodeProperties = {
 	description: 'Map fields from input items to HubSpot properties. Each input item will be processed in batch.',
 	displayOptions: {
 		show: {
-			operation: ['batchCreate', 'batchUpdate'],
+			operation: ['batchCreate', 'batchUpdate', 'batchUpsert'],
 		},
 	},
 	options: [

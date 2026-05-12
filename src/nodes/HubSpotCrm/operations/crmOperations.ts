@@ -45,6 +45,8 @@ export async function executeCrmOperation(
 			return await batchCreateObjects(context, objectType, items);
 		case 'batchUpdate':
 			return await batchUpdateObjects(context, objectType, items);
+		case 'batchUpsert':
+			return await batchUpsertObjects(context, objectType, items);
 		case 'batchDelete':
 			return await batchDeleteObjects(context, objectType, items);
 		default:
@@ -579,6 +581,84 @@ async function batchUpdateObjects(
 			context,
 			'POST',
 			`/crm/v3/objects/${objectType}/batch/update`,
+			{ inputs: batch },
+		) as { results: IDataObject[] };
+
+		allResults.push(...response.results);
+	}
+
+	return allResults.map((result, index) => ({
+		json: result,
+		pairedItem: { item: index },
+	}));
+}
+
+async function batchUpsertObjects(
+	context: IExecuteFunctions,
+	objectType: string,
+	items: INodeExecutionData[]
+): Promise<INodeExecutionData[]> {
+	const idField = context.getNodeParameter('idField', 0) as string;
+	const idProperty = context.getNodeParameter('idProperty', 0, 'hs_object_id') as string;
+	const propertyMappings = context.getNodeParameter('propertyMappings', 0, {}) as {
+		mapping?: Array<{ property: string; fieldName: string }>;
+	};
+
+	if (!propertyMappings.mapping || propertyMappings.mapping.length === 0) {
+		throw new Error('At least one property mapping is required for batch upsert');
+	}
+
+	const idValidation = validateFieldMapping(items, idField);
+	if (!idValidation.valid) {
+		throw new Error(buildFieldNotFoundError(idField, idValidation.availableFields, 'IDs'));
+	}
+
+	for (const mapping of propertyMappings.mapping!) {
+		const validation = validateFieldMapping(items, mapping.fieldName);
+		if (!validation.valid) {
+			throw new Error(
+				`Field "${mapping.fieldName}" not found in input items.\n\nAvailable fields: ${validation.availableFields.slice(0, 10).join(', ')}${validation.availableFields.length > 10 ? ', ...' : ''}\n\nTip: Enter the field NAME (e.g., "email"), not the field VALUE (e.g., "john@example.com").`,
+			);
+		}
+		if (validation.missingCount > 0) {
+			context.logger.warn(
+				`Field "${mapping.fieldName}" is missing in ${validation.missingCount} of ${items.length} input items.`,
+			);
+		}
+	}
+
+	const inputs = items.map((item, index) => {
+		const objectId = getNestedValue(item.json, idField);
+		if (!objectId) {
+			throw new Error(`Missing ID field "${idField}" in item ${index}`);
+		}
+
+		const properties: IDataObject = {};
+
+		propertyMappings.mapping!.forEach((map) => {
+			const value = getNestedValue(item.json, map.fieldName);
+			if (value !== undefined && value !== null) {
+				properties[map.property] = value;
+			}
+		});
+
+		return {
+			id: String(objectId),
+			properties,
+			idProperty: idProperty,
+		};
+	});
+
+	const batchSize = 100;
+	const allResults: IDataObject[] = [];
+
+	for (let i = 0; i < inputs.length; i += batchSize) {
+		const batch = inputs.slice(i, i + batchSize);
+
+		const response = await hubspotApiRequest.call(
+			context,
+			'POST',
+			`/crm/v3/objects/${objectType}/batch/upsert`,
 			{ inputs: batch },
 		) as { results: IDataObject[] };
 

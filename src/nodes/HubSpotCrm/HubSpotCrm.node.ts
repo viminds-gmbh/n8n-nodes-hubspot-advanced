@@ -156,7 +156,7 @@ export class HubSpotCrm implements INodeType {
 			? (this.getNodeParameter('customObjectType', 0) as string)
 			: objectTypeRaw;
 
-		if (operation === 'batchCreate' || operation === 'batchUpdate' || operation === 'batchDelete') {
+		if (operation === 'batchCreate' || operation === 'batchUpdate' || operation === 'batchUpsert' || operation === 'batchDelete') {
 			try {
 				const results = await executeCrmOperation(this, operation, objectType, items, 0);
 				returnData.push(...results);
