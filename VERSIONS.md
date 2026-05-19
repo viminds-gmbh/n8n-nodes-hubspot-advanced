@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-05-19
+
+### Fixed
+- Static list creation now uses correct type value (MANUAL instead of SNAPSHOT) and properly extracts list object from create response
+
+### Changed
+- Updated repository and bugs URLs to point to GitHub
+
 ## [0.1.14] - 2025-05-12
 
 ### Added
