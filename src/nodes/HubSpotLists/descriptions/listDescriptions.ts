@@ -164,10 +164,10 @@ export const listTypeField: INodeProperties = {
 	name: 'listType',
 	type: 'options',
 	options: [
-		{ name: 'Static', value: 'SNAPSHOT', description: 'Manually managed list of records' },
+		{ name: 'Static', value: 'MANUAL', description: 'Manually managed list of records' },
 		{ name: 'Dynamic', value: 'DYNAMIC', description: 'Automatically updated based on filters' },
 	],
-	default: 'SNAPSHOT',
+	default: 'MANUAL',
 	description: 'Type of list to create. Static lists are manually managed, dynamic lists update automatically based on filters.',
 	displayOptions: {
 		show: {

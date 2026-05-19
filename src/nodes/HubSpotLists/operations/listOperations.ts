@@ -200,7 +200,7 @@ async function createList(
 		body,
 	) as IDataObject;
 
-	return { json: response };
+	return { json: (response.list as IDataObject) || response };
 }
 
 async function updateListName(
