@@ -275,6 +275,7 @@ export const idFieldField: INodeProperties = {
 	displayName: 'ID Field',
 	name: 'idField',
 	type: 'string',
+	requiresDataPath: 'single',
 	default: 'id',
 	placeholder: 'id',
 	hint: 'Field name only (e.g., \'id\')',

@@ -1795,6 +1795,56 @@ Total endpoints: 36
 
 ---
 
+### Get lists associated with a marketing event
+
+**Method:** `GET`
+
+**URL:** `https://api.hubapi.com/marketing/v3/marketing-events/associations/:marketingEventId/lists`
+
+**Description:** Gets lists associated with a marketing event by marketing event id
+
+**Authentication:** apikey
+
+**Path Variables:**
+
+- `marketingEventId`: (Required) The internal id of the marketing event in HubSpot.
+
+**Headers:**
+
+
+**Success Response (200):**
+
+```json
+{
+  "results": [
+    {
+      "listId": "<string>",
+      "listVersion": "<integer>",
+      "name": "<string>",
+      "objectTypeId": "<string>",
+      "processingStatus": "<string>",
+      "processingType": "<string>",
+      "updatedById": "<string>",
+      "filtersUpdatedAt": "<dateTime>",
+      "createdAt": "<dateTime>",
+      "deletedAt": "<dateTime>",
+      "size": "<long>",
+      "createdById": "<string>",
+      "updatedAt": "<dateTime>"
+    }
+  ],
+  "total": "<integer>",
+  "paging": {
+    "next": {
+      "after": "<string>",
+      "link": "<string>"
+    }
+  }
+}
+```
+
+---
+
 ### Disassociate a list from a marketing event
 
 **Method:** `DELETE`

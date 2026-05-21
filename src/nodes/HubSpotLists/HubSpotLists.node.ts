@@ -8,6 +8,7 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
+import { NodeApiError } from 'n8n-workflow';
 import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { HUBSPOT_OBJECT_TYPE_TO_ID } from '../../types';
@@ -185,8 +186,20 @@ export class HubSpotLists implements INodeType {
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
-					const errorMessage = error instanceof Error ? error.message : String(error);
-					returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
+					const errorData: IDataObject = {
+						error: error instanceof Error ? error.message : String(error),
+					};
+					if (error instanceof NodeApiError) {
+						if (error.httpCode) errorData.httpCode = error.httpCode;
+						if (error.description) {
+							try {
+								errorData.hubspotError = JSON.parse(error.description);
+							} catch {
+								errorData.errorDescription = error.description;
+							}
+						}
+					}
+					returnData.push({ json: errorData, pairedItem: { item: i } });
 					continue;
 				}
 				throw error;

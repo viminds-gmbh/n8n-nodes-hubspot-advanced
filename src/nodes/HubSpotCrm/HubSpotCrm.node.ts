@@ -5,7 +5,9 @@ import type {
 	INodeTypeDescription,
 	ILoadOptionsFunctions,
 	INodePropertyOptions,
+	IDataObject,
 } from 'n8n-workflow';
+import { NodeApiError } from 'n8n-workflow';
 
 import { hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
@@ -162,8 +164,20 @@ export class HubSpotCrm implements INodeType {
 				returnData.push(...results);
 			} catch (error) {
 				if (this.continueOnFail()) {
-					const errorMessage = error instanceof Error ? error.message : String(error);
-					returnData.push({ json: { error: errorMessage } });
+					const errorData: IDataObject = {
+						error: error instanceof Error ? error.message : String(error),
+					};
+					if (error instanceof NodeApiError) {
+						if (error.httpCode) errorData.httpCode = error.httpCode;
+						if (error.description) {
+							try {
+								errorData.hubspotError = JSON.parse(error.description);
+							} catch {
+								errorData.errorDescription = error.description;
+							}
+						}
+					}
+					returnData.push({ json: errorData });
 				} else {
 					throw error;
 				}
@@ -179,8 +193,20 @@ export class HubSpotCrm implements INodeType {
 					}
 				} catch (error) {
 					if (this.continueOnFail()) {
-						const errorMessage = error instanceof Error ? error.message : String(error);
-						returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
+						const errorData: IDataObject = {
+							error: error instanceof Error ? error.message : String(error),
+						};
+						if (error instanceof NodeApiError) {
+							if (error.httpCode) errorData.httpCode = error.httpCode;
+							if (error.description) {
+								try {
+									errorData.hubspotError = JSON.parse(error.description);
+								} catch {
+									errorData.errorDescription = error.description;
+								}
+							}
+						}
+						returnData.push({ json: errorData, pairedItem: { item: i } });
 						continue;
 					}
 					throw error;

@@ -36,14 +36,15 @@ export async function hubspotApiRequest(
 			const response = await this.helpers.httpRequest(options);
 			return { data: response, headers: {} };
 		} catch (error) {
-			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
+			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string; response?: { data?: unknown } };
 			if (err.statusCode === 429 || err.httpCode === 429) {
 				throw error;
 			}
 
+			const hubspotErrorBody = err.response?.data;
 			throw new NodeApiError(this.getNode(), error as { message: string }, {
 				message: err.message || 'HubSpot API request failed',
-				description: err.description,
+				description: hubspotErrorBody ? JSON.stringify(hubspotErrorBody) : err.description,
 			});
 		}
 	});
@@ -253,14 +254,15 @@ export async function hubspotFileUploadRequest(
 			const response = await this.helpers.httpRequest(requestOptions);
 			return { data: response, headers: {} };
 		} catch (error) {
-			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
+			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string; response?: { data?: unknown } };
 			if (err.statusCode === 429 || err.httpCode === 429) {
 				throw error;
 			}
 
+			const hubspotErrorBody = err.response?.data;
 			throw new NodeApiError(this.getNode(), error as { message: string }, {
 				message: err.message || 'HubSpot file upload failed',
-				description: err.description,
+				description: hubspotErrorBody ? JSON.stringify(hubspotErrorBody) : err.description,
 			});
 		}
 	});
@@ -310,14 +312,15 @@ export async function hubspotFileReplaceRequest(
 			const response = await this.helpers.httpRequest(requestOptions);
 			return { data: response, headers: {} };
 		} catch (error) {
-			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
+			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string; response?: { data?: unknown } };
 			if (err.statusCode === 429 || err.httpCode === 429) {
 				throw error;
 			}
 
+			const hubspotErrorBody = err.response?.data;
 			throw new NodeApiError(this.getNode(), error as { message: string }, {
 				message: err.message || 'HubSpot file replace failed',
-				description: err.description,
+				description: hubspotErrorBody ? JSON.stringify(hubspotErrorBody) : err.description,
 			});
 		}
 	});
@@ -353,14 +356,15 @@ export async function hubspotFormSubmitRequest(
 			const response = await this.helpers.httpRequest(options);
 			return { data: response, headers: {} };
 		} catch (error) {
-			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string };
+			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string; response?: { data?: unknown } };
 			if (err.statusCode === 429 || err.httpCode === 429) {
 				throw error;
 			}
 
+			const hubspotErrorBody = err.response?.data;
 			throw new NodeApiError(this.getNode(), error as { message: string }, {
 				message: err.message || 'HubSpot form submission failed',
-				description: err.description,
+				description: hubspotErrorBody ? JSON.stringify(hubspotErrorBody) : err.description,
 			});
 		}
 	});

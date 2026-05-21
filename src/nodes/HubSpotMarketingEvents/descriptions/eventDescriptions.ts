@@ -12,7 +12,10 @@ export const eventOperationField: INodeProperties = {
 		{ name: 'Update', value: 'update', description: 'Update a single event' },
 		{ name: 'Delete', value: 'delete', description: 'Delete a single event' },
 		{ name: 'Get Participants', value: 'getParticipants', description: 'Get all participants for an event' },
-		{ name: 'Get Stats', value: 'getStats', description: 'Get participation statistics for an event' }
+		{ name: 'Get Stats', value: 'getStats', description: 'Get participation statistics for an event' },
+		{ name: 'Get Associated Lists', value: 'getAssociatedLists', description: 'Get lists associated with an event' },
+		{ name: 'Associate List', value: 'associateList', description: 'Associate a list with an event' },
+		{ name: 'Disassociate List', value: 'disassociateList', description: 'Remove a list association from an event' }
 	],
 	default: 'search',
 	required: true
@@ -29,7 +32,7 @@ export const eventObjectIdField: INodeProperties = {
 	displayOptions: {
 		show: {
 			resource: ['event'],
-			operation: ['get', 'update', 'delete']
+			operation: ['get', 'update', 'delete', 'getAssociatedLists', 'associateList', 'disassociateList']
 		}
 	}
 };
@@ -361,6 +364,54 @@ export const customPropertiesUpdateCollection: INodeProperties = {
 	],
 };
 
+export const listIdField: INodeProperties = {
+	displayName: 'List ID',
+	name: 'listId',
+	type: 'string',
+	default: '',
+	required: true,
+	placeholder: '123456789',
+	description: 'The ILS ID of the list to associate or disassociate',
+	displayOptions: {
+		show: {
+			resource: ['event'],
+			operation: ['associateList', 'disassociateList']
+		}
+	}
+};
+
+export const listAssociationLimitField: INodeProperties = {
+	displayName: 'Limit',
+	name: 'limit',
+	type: 'number',
+	typeOptions: {
+		minValue: 1,
+		maxValue: 100
+	},
+	default: 50,
+	description: 'Maximum number of results to return',
+	displayOptions: {
+		show: {
+			resource: ['event'],
+			operation: ['getAssociatedLists']
+		}
+	}
+};
+
+export const listAssociationReturnAllField: INodeProperties = {
+	displayName: 'Return All',
+	name: 'returnAll',
+	type: 'boolean',
+	default: false,
+	description: 'Whether to automatically paginate and return all associated lists. May take longer for large datasets.',
+	displayOptions: {
+		show: {
+			resource: ['event'],
+			operation: ['getAssociatedLists']
+		}
+	}
+};
+
 export const participantsObjectIdField: INodeProperties = {
 	displayName: 'Event Object ID',
 	name: 'objectId',
@@ -462,4 +513,7 @@ export const eventFields = [
 	participantsLimitField,
 	participantsReturnAllField,
 	participantsFiltersCollection,
+	listIdField,
+	listAssociationLimitField,
+	listAssociationReturnAllField,
 ];

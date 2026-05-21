@@ -23,6 +23,12 @@ export async function executeEventOperation(
 			return await getParticipants(context, itemIndex);
 		case 'getStats':
 			return [await getStats(context, itemIndex)];
+		case 'getAssociatedLists':
+			return await getAssociatedLists(context, itemIndex);
+		case 'associateList':
+			return [await associateList(context, itemIndex)];
+		case 'disassociateList':
+			return [await disassociateList(context, itemIndex)];
 		default:
 			throw new Error(`Unknown event operation: ${operation}`);
 	}
@@ -196,4 +202,60 @@ async function getStats(context: IExecuteFunctions, i: number): Promise<INodeExe
 	) as IDataObject;
 
 	return { json: response };
+}
+
+async function getAssociatedLists(context: IExecuteFunctions, i: number): Promise<INodeExecutionData[]> {
+	const objectId = context.getNodeParameter('objectId', i) as string;
+	const returnAll = context.getNodeParameter('returnAll', i) as boolean;
+	const limit = context.getNodeParameter('limit', i, 50) as number;
+
+	const endpoint = `/marketing/v3/marketing-events/associations/${objectId}/lists`;
+
+	let results: IDataObject[];
+	if (returnAll) {
+		results = await hubspotApiRequestAllItems.call(
+			context,
+			'GET',
+			endpoint,
+			{},
+			undefined
+		) as IDataObject[];
+	} else {
+		const response = await hubspotApiRequest.call(
+			context,
+			'GET',
+			endpoint,
+			{},
+			{ limit }
+		) as IDataObject;
+		results = (response.results as IDataObject[]) || [];
+	}
+
+	return results.map((result: IDataObject) => ({ json: result }));
+}
+
+async function associateList(context: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
+	const objectId = context.getNodeParameter('objectId', i) as string;
+	const listId = context.getNodeParameter('listId', i) as string;
+
+	await hubspotApiRequest.call(
+		context,
+		'PUT',
+		`/marketing/v3/marketing-events/associations/${objectId}/lists/${listId}`
+	);
+
+	return { json: { success: true, eventId: objectId, listId } };
+}
+
+async function disassociateList(context: IExecuteFunctions, i: number): Promise<INodeExecutionData> {
+	const objectId = context.getNodeParameter('objectId', i) as string;
+	const listId = context.getNodeParameter('listId', i) as string;
+
+	await hubspotApiRequest.call(
+		context,
+		'DELETE',
+		`/marketing/v3/marketing-events/associations/${objectId}/lists/${listId}`
+	);
+
+	return { json: { success: true, eventId: objectId, listId } };
 }

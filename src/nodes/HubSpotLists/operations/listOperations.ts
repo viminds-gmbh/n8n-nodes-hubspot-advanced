@@ -2,6 +2,7 @@ import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-wor
 import { hubspotApiRequest, hubspotBatchRequest } from '../../../transport/HubSpotApiRequest';
 import { HUBSPOT_OBJECT_TYPE_TO_ID } from '../../../types';
 import { validateFieldMapping, buildFieldNotFoundError } from '../../../transport/ValidationHelpers';
+import { getNestedValue } from '../../../transport/NestedValueAccessor';
 
 interface FilterGroup {
 	propertyName: string;
@@ -283,7 +284,7 @@ async function addManyMembers(
 	const recordIds: string[] = [];
 	for (let j = 0; j < items.length; j++) {
 		const itemData = items[j].json;
-		const id = itemData[idField] as string;
+		const id = getNestedValue(itemData, idField) as string;
 		if (id) {
 			recordIds.push(String(id));
 		}
@@ -362,7 +363,7 @@ async function removeManyMembers(
 	const recordIds: string[] = [];
 	for (let j = 0; j < items.length; j++) {
 		const itemData = items[j].json;
-		const id = itemData[idField] as string;
+		const id = getNestedValue(itemData, idField) as string;
 		if (id) {
 			recordIds.push(String(id));
 		}
