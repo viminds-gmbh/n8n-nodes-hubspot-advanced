@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-05-22
+
+### Fixed
+- Marketing Events: Create operation now uses POST endpoint instead of upsert for proper event creation
+- CRM: Marketing events are now filtered out from the Object Type dropdown since they have their own dedicated node
+
 ## [0.2.1] - 2026-05-22
 
 ### Added
