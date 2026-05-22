@@ -9,6 +9,11 @@ export const objectTypeField: INodeProperties = {
 	default: 'contacts',
 	required: true,
 	description: 'The type of CRM object for the list. <a href="https://developers.hubspot.com/docs/api/crm/understanding-the-crm" target="_blank">Learn more about HubSpot CRM objects</a>.',
+	displayOptions: {
+		hide: {
+			operation: ['createFolder', 'getFolders', 'deleteFolder'],
+		},
+	},
 };
 
 export const customObjectTypeField: INodeProperties = {
@@ -71,6 +76,21 @@ export const operationField: INodeProperties = {
 			name: 'Remove Many Members',
 			value: 'removeManyMembers',
 			description: 'Remove multiple records from a static list from input items',
+		},
+		{
+			name: 'Create Folder',
+			value: 'createFolder',
+			description: 'Create a new folder for organizing lists',
+		},
+		{
+			name: 'Get Folders',
+			value: 'getFolders',
+			description: 'Retrieve all folders or a specific folder',
+		},
+		{
+			name: 'Delete Folder',
+			value: 'deleteFolder',
+			description: 'Delete a folder',
 		},
 	],
 	default: 'getListMembers',
@@ -188,7 +208,7 @@ export const filtersField: INodeProperties = {
 	description: 'Filters for dynamic lists. Records matching these filters will be automatically added to the list.',
 	displayOptions: {
 		show: {
-			operation: ['createList', 'updateList'],
+			operation: ['createList'],
 			listType: ['DYNAMIC'],
 		},
 	},
@@ -287,6 +307,86 @@ export const idFieldField: INodeProperties = {
 	},
 };
 
+export const listFolderIdField: INodeProperties = {
+	displayName: 'Folder',
+	name: 'listFolderId',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'loadFolders',
+	},
+	default: '',
+	description: 'The folder to place the list in. Leave empty for root folder.',
+	displayOptions: {
+		show: {
+			operation: ['createList'],
+		},
+	},
+};
+
+export const deleteFolderIdField: INodeProperties = {
+	displayName: 'Folder',
+	name: 'deleteFolderId',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'loadFolders',
+	},
+	default: '',
+	required: true,
+	description: 'The folder to delete.',
+	displayOptions: {
+		show: {
+			operation: ['deleteFolder'],
+		},
+	},
+};
+
+export const folderNameField: INodeProperties = {
+	displayName: 'Folder Name',
+	name: 'folderName',
+	type: 'string',
+	default: '',
+	required: true,
+	placeholder: 'My Folder',
+	description: 'The name of the folder to create.',
+	displayOptions: {
+		show: {
+			operation: ['createFolder'],
+		},
+	},
+};
+
+export const parentFolderIdField: INodeProperties = {
+	displayName: 'Parent Folder ID',
+	name: 'parentFolderId',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'loadFolders',
+	},
+	default: '',
+	description: 'The folder this should be created in. Leave empty to create in the root folder (0).',
+	displayOptions: {
+		show: {
+			operation: ['createFolder'],
+		},
+	},
+};
+
+export const folderIdField: INodeProperties = {
+	displayName: 'Folder ID',
+	name: 'folderId',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'loadFolders',
+	},
+	default: '',
+	description: 'The ID of the folder to retrieve. Leave empty to retrieve all folders in the root folder (0).',
+	displayOptions: {
+		show: {
+			operation: ['getFolders'],
+		},
+	},
+};
+
 export const listFields: INodeProperties[] = [
 	operationField,
 	objectTypeField,
@@ -301,4 +401,9 @@ export const listFields: INodeProperties[] = [
 	updateListNameField,
 	recordIdField,
 	idFieldField,
+	listFolderIdField,
+	folderNameField,
+	parentFolderIdField,
+	folderIdField,
+	deleteFolderIdField,
 ];

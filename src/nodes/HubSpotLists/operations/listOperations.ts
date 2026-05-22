@@ -91,6 +91,12 @@ export async function executeListOperation(
 			return [await removeMember(context, itemIndex)];
 		case 'removeManyMembers':
 			return [await removeManyMembers(context, items, itemIndex)];
+		case 'createFolder':
+			return [await createFolder(context, itemIndex)];
+		case 'getFolders':
+			return [await getFolders(context, itemIndex)];
+		case 'deleteFolder':
+			return [await deleteFolder(context, itemIndex)];
 		default:
 			throw new Error(`Unknown list operation: ${operation}`);
 	}
@@ -169,6 +175,7 @@ async function createList(
 	const listName = context.getNodeParameter('listName', i) as string;
 	const listType = context.getNodeParameter('listType', i) as string;
 	const filters = context.getNodeParameter('filters', i, {}) as { filterGroups?: FilterGroup[] };
+	const listFolderId = context.getNodeParameter('listFolderId', i, '') as string;
 
 	const objectTypeId = HUBSPOT_OBJECT_TYPE_TO_ID[objectType] || objectType;
 
@@ -177,6 +184,10 @@ async function createList(
 		objectTypeId,
 		processingType: listType,
 	};
+
+	if (listFolderId && listFolderId !== '0') {
+		body.listFolderId = listFolderId;
+	}
 
 	if (listType === 'DYNAMIC' && filters.filterGroups && filters.filterGroups.length > 0) {
 		body.filterBranch = {
@@ -338,6 +349,68 @@ async function removeMember(
 			response,
 		},
 	};
+}
+
+async function deleteFolder(
+	context: IExecuteFunctions,
+	i: number
+): Promise<INodeExecutionData> {
+	const folderId = context.getNodeParameter('deleteFolderId', i) as string;
+
+	await hubspotApiRequest.call(
+		context,
+		'DELETE',
+		`/crm/v3/lists/folders/${folderId}`,
+	);
+
+	return { json: { success: true, folderId } };
+}
+
+async function createFolder(
+	context: IExecuteFunctions,
+	i: number
+): Promise<INodeExecutionData> {
+	const folderName = context.getNodeParameter('folderName', i) as string;
+	const parentFolderId = context.getNodeParameter('parentFolderId', i, '') as string;
+
+	const body: IDataObject = {
+		name: folderName,
+	};
+
+	if (parentFolderId && parentFolderId !== '0') {
+		body.parentFolderId = parentFolderId;
+	}
+
+	const response = await hubspotApiRequest.call(
+		context,
+		'POST',
+		'/crm/v3/lists/folders',
+		body,
+	) as IDataObject;
+
+	return { json: response };
+}
+
+async function getFolders(
+	context: IExecuteFunctions,
+	i: number
+): Promise<INodeExecutionData> {
+	const folderId = context.getNodeParameter('folderId', i, '') as string;
+
+	const queryParams: Record<string, string> = {};
+	if (folderId) {
+		queryParams.folderId = folderId;
+	}
+
+	const response = await hubspotApiRequest.call(
+		context,
+		'GET',
+		'/crm/v3/lists/folders',
+		{},
+		queryParams,
+	) as IDataObject;
+
+	return { json: response };
 }
 
 async function removeManyMembers(

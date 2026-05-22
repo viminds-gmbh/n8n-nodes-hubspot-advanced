@@ -22,7 +22,7 @@ export class HubSpotLists implements INodeType {
 		icon: 'file:../../icon.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"] + ": " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
+		subtitle: '={{$parameter["operation"] === "createFolder" ? "Create Folder" : $parameter["operation"] === "getFolders" ? "Get Folders" : $parameter["operation"] === "deleteFolder" ? "Delete Folder" : $parameter["operation"] + ": " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
 		description: 'Manage HubSpot lists and memberships',
 		defaults: {
 			name: 'HubSpot Lists',
@@ -89,8 +89,11 @@ export class HubSpotLists implements INodeType {
 				const options: INodePropertyOptions[] = [];
 				let hasMore = true;
 				let offset = 0;
+				let lastOffset = -1;
 
 				while (hasMore) {
+					if (offset === lastOffset) break;
+					lastOffset = offset;
 					const response = await hubspotApiRequestForLoadOptions.call(
 						this,
 						'POST',
@@ -128,6 +131,33 @@ export class HubSpotLists implements INodeType {
 				}
 
 				options.sort((a, b) => a.name.localeCompare(b.name));
+
+				return options;
+			},
+			async loadFolders(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const options: INodePropertyOptions[] = [];
+
+				const response = await hubspotApiRequestForLoadOptions.call(
+					this,
+					'GET',
+					'/crm/v3/lists/folders',
+				) as IDataObject;
+
+				function collectFolders(node: IDataObject, prefix = ''): void {
+					const children = node.childNodes as IDataObject[] | undefined;
+					if (!children || !Array.isArray(children)) return;
+					for (const folder of children) {
+						const name = (prefix ? `${prefix} / ` : '') + (folder.name as string);
+						options.push({ name, value: String(folder.id) });
+						collectFolders(folder, name);
+					}
+				}
+
+				const rootFolder = response.folder as IDataObject | undefined;
+				collectFolders(rootFolder ?? response);
+
+				options.sort((a, b) => a.name.localeCompare(b.name));
+				options.unshift({ name: 'Root', value: '0' });
 
 				return options;
 			},
@@ -171,7 +201,8 @@ export class HubSpotLists implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 
 		const operation = this.getNodeParameter('operation', 0) as string;
-		const objectTypeRaw = this.getNodeParameter('objectType', 0) as string;
+		const folderOnlyOperations = ['createFolder', 'getFolders', 'deleteFolder'];
+		const objectTypeRaw = folderOnlyOperations.includes(operation) ? '' : this.getNodeParameter('objectType', 0) as string;
 		const objectType = objectTypeRaw === 'custom'
 			? (this.getNodeParameter('customObjectType', 0) as string)
 			: objectTypeRaw;

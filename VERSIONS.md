@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-05-22
+
+### Added
+- Folder management operations in Lists node: Create Folder, Get Folders, Delete Folder
+- Parent folder selection dropdown when creating a folder (populated from existing folders)
+- Folder selection dropdown for Delete Folder operation
+- Folder assignment when creating a list (optional Folder field with dropdown)
+
+### Fixed
+- Object Type field is now correctly hidden for all folder operations (Create Folder, Get Folders, Delete Folder)
+- Root folder (ID 0) is now shown as "Root" in folder dropdowns instead of a numeric value
+- Nested folders are displayed with full path (e.g. "Parent / Child") in all folder dropdowns
+- Pagination loop in list loading now protected against infinite loops when API returns unchanged offset
+
 ## [0.1.16] - 2026-05-22
 
 ### Added
