@@ -75,15 +75,11 @@ async function createEvent(context: IExecuteFunctions, i: number): Promise<INode
 	const response = await hubspotApiRequest.call(
 		context,
 		'POST',
-		'/marketing/v3/marketing-events/events/upsert',
-		{ inputs: [body] }
+		'/marketing/v3/marketing-events/events',
+		body
 	) as IDataObject;
 
-	if (response.results && Array.isArray(response.results) && response.results.length > 0) {
-		return { json: response.results[0] as IDataObject };
-	} else {
-		return { json: response };
-	}
+	return { json: response };
 }
 
 async function searchEvents(context: IExecuteFunctions, i: number): Promise<INodeExecutionData[]> {

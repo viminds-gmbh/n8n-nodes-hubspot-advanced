@@ -7,7 +7,7 @@ export const eventOperationField: INodeProperties = {
 	displayOptions: { show: { resource: ['event'] } },
 	options: [
 		{ name: 'Get', value: 'get', description: 'Get a single event by ID' },
-		{ name: 'Create or Update', value: 'create', description: 'Create a new event or update if External Event ID already exists' },
+		{ name: 'Create', value: 'create', description: 'Create a new marketing event' },
 		{ name: 'Search', value: 'search', description: 'Search/list all events' },
 		{ name: 'Update', value: 'update', description: 'Update a single event' },
 		{ name: 'Delete', value: 'delete', description: 'Delete a single event' },
