@@ -22,7 +22,7 @@ export class HubSpotLists implements INodeType {
 		icon: 'file:../../icon.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"] === "createFolder" ? "Create Folder" : $parameter["operation"] === "getFolders" ? "Get Folders" : $parameter["operation"] === "deleteFolder" ? "Delete Folder" : $parameter["operation"] + ": " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
+		subtitle: '={{$parameter["operation"] === "createFolder" ? "Create Folder" : $parameter["operation"] === "getFolders" ? "Get Folders" : $parameter["operation"] === "deleteFolder" ? "Delete Folder" : $parameter["operation"] === "getLists" ? "Get Lists" : $parameter["operation"] === "searchLists" ? "Search Lists" : $parameter["operation"] + ": " + ($parameter["objectType"] === "custom" ? $parameter["customObjectType"] : $parameter["objectType"])}}',
 		description: 'Manage HubSpot lists and memberships',
 		defaults: {
 			name: 'HubSpot Lists',
@@ -201,7 +201,7 @@ export class HubSpotLists implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 
 		const operation = this.getNodeParameter('operation', 0) as string;
-		const folderOnlyOperations = ['createFolder', 'getFolders', 'deleteFolder'];
+		const folderOnlyOperations = ['createFolder', 'getFolders', 'deleteFolder', 'getLists', 'searchLists'];
 		const objectTypeRaw = folderOnlyOperations.includes(operation) ? '' : this.getNodeParameter('objectType', 0) as string;
 		const objectType = objectTypeRaw === 'custom'
 			? (this.getNodeParameter('customObjectType', 0) as string)
@@ -212,7 +212,7 @@ export class HubSpotLists implements INodeType {
 				const results = await executeListOperation(this, operation, objectType, items, i);
 				returnData.push(...results);
 
-				if (operation === 'getListMembers' || operation === 'addManyMembers' || operation === 'removeManyMembers') {
+				if (operation === 'getListMembers' || operation === 'addManyMembers' || operation === 'removeManyMembers' || operation === 'getLists' || operation === 'searchLists') {
 					break;
 				}
 			} catch (error) {

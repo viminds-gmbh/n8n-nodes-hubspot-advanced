@@ -97,6 +97,10 @@ export async function executeListOperation(
 			return [await getFolders(context, itemIndex)];
 		case 'deleteFolder':
 			return [await deleteFolder(context, itemIndex)];
+		case 'getLists':
+			return [await getLists(context, items, itemIndex)];
+		case 'searchLists':
+			return await searchLists(context, itemIndex);
 		default:
 			throw new Error(`Unknown list operation: ${operation}`);
 	}
@@ -466,4 +470,103 @@ async function removeManyMembers(
 			results,
 		},
 	};
+}
+
+async function getLists(
+	context: IExecuteFunctions,
+	items: INodeExecutionData[],
+	i: number
+): Promise<INodeExecutionData> {
+	const listIdField = context.getNodeParameter('listIdField', i, 'listId') as string;
+	const includeFilters = context.getNodeParameter('includeFilters', i, false) as boolean;
+
+	const validation = validateFieldMapping(items, listIdField);
+
+	if (!validation.valid) {
+		throw new Error(buildFieldNotFoundError(listIdField, validation.availableFields, 'list IDs'));
+	}
+
+	if (validation.missingCount > 0) {
+		context.logger.warn(
+			`Field "${listIdField}" is missing in ${validation.missingCount} of ${items.length} input items. Only ${validation.presentCount} lists will be fetched.`,
+		);
+	}
+
+	const listIds: string[] = [];
+	for (let j = 0; j < items.length; j++) {
+		const itemData = items[j].json;
+		const id = getNestedValue(itemData, listIdField) as string;
+		if (id) {
+			listIds.push(String(id));
+		}
+	}
+
+	if (listIds.length === 0) {
+		return { json: { lists: [] } };
+	}
+
+	const queryParams: Record<string, string[] | boolean> = {
+		listIds,
+	};
+
+	if (includeFilters) {
+		queryParams.includeFilters = true;
+	}
+
+	const response = await hubspotApiRequest.call(
+		context,
+		'GET',
+		'/crm/v3/lists/',
+		{},
+		queryParams,
+	) as IDataObject;
+
+	return { json: response };
+}
+
+async function searchLists(
+	context: IExecuteFunctions,
+	i: number
+): Promise<INodeExecutionData[]> {
+	const searchQuery = context.getNodeParameter('searchQuery', i, '') as string;
+	const processingTypes = context.getNodeParameter('processingTypes', i, []) as string[];
+	const returnAll = context.getNodeParameter('returnAll', i) as boolean;
+	const limit = returnAll ? undefined : (context.getNodeParameter('limit', i, 100) as number);
+
+	const allLists: IDataObject[] = [];
+	let offset = 0;
+	let hasMore = true;
+
+	while (hasMore) {
+		const body: IDataObject = {
+			query: searchQuery,
+			count: 500,
+			offset,
+		};
+
+		if (processingTypes && processingTypes.length > 0) {
+			body.processingTypes = processingTypes;
+		}
+
+		const response = await hubspotApiRequest.call(
+			context,
+			'POST',
+			'/crm/v3/lists/search',
+			body,
+		) as IDataObject;
+
+		if (response.lists && Array.isArray(response.lists)) {
+			allLists.push(...(response.lists as IDataObject[]));
+		}
+
+		hasMore = response.hasMore === true;
+		offset = (response.offset as number) || 0;
+
+		if (!returnAll && limit && allLists.length >= limit) {
+			break;
+		}
+	}
+
+	const results = !returnAll && limit ? allLists.slice(0, limit) : allLists;
+	return results.map((list) => ({ json: list }));
 }

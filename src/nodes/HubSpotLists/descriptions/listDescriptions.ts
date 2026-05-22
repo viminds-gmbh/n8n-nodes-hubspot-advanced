@@ -10,8 +10,8 @@ export const objectTypeField: INodeProperties = {
 	required: true,
 	description: 'The type of CRM object for the list. <a href="https://developers.hubspot.com/docs/api/crm/understanding-the-crm" target="_blank">Learn more about HubSpot CRM objects</a>.',
 	displayOptions: {
-		hide: {
-			operation: ['createFolder', 'getFolders', 'deleteFolder'],
+		show: {
+			operation: ['getListMembers', 'createList', 'updateListName', 'deleteList', 'addMember', 'addManyMembers', 'removeMember', 'removeManyMembers'],
 		},
 	},
 };
@@ -78,6 +78,16 @@ export const operationField: INodeProperties = {
 			description: 'Remove multiple records from a static list from input items',
 		},
 		{
+			name: 'Get Lists',
+			value: 'getLists',
+			description: 'Fetch multiple lists by ILS list ID from input items',
+		},
+		{
+			name: 'Search Lists',
+			value: 'searchLists',
+			description: 'Search lists by name or page through all lists',
+		},
+		{
 			name: 'Create Folder',
 			value: 'createFolder',
 			description: 'Create a new folder for organizing lists',
@@ -138,10 +148,10 @@ export const returnAllField: INodeProperties = {
 	name: 'returnAll',
 	type: 'boolean',
 	default: false,
-	description: 'Whether to automatically paginate and return all list members. May take longer for large lists.',
+	description: 'Whether to automatically paginate and return all results. May take longer for large datasets.',
 	displayOptions: {
 		show: {
-			operation: ['getListMembers'],
+			operation: ['getListMembers', 'searchLists'],
 		},
 	},
 };
@@ -155,10 +165,10 @@ export const limitField: INodeProperties = {
 		minValue: 1,
 		maxValue: 10000,
 	},
-	description: 'Maximum number of list members to return.',
+	description: 'Maximum number of results to return.',
 	displayOptions: {
 		show: {
-			operation: ['getListMembers'],
+			operation: ['getListMembers', 'searchLists'],
 			returnAll: [false],
 		},
 	},
@@ -387,6 +397,67 @@ export const folderIdField: INodeProperties = {
 	},
 };
 
+export const searchQueryField: INodeProperties = {
+	displayName: 'Search Query',
+	name: 'searchQuery',
+	type: 'string',
+	default: '',
+	placeholder: 'My List',
+	description: 'Search lists by name. Leave empty to return all lists.',
+	displayOptions: {
+		show: {
+			operation: ['searchLists'],
+		},
+	},
+};
+
+export const processingTypesField: INodeProperties = {
+	displayName: 'Processing Types',
+	name: 'processingTypes',
+	type: 'multiOptions',
+	options: [
+		{ name: 'Manual', value: 'MANUAL' },
+		{ name: 'Snapshot (Static)', value: 'SNAPSHOT' },
+		{ name: 'Dynamic', value: 'DYNAMIC' },
+	],
+	default: [],
+	description: 'Filter lists by processing type. Leave empty to return all types.',
+	displayOptions: {
+		show: {
+			operation: ['searchLists'],
+		},
+	},
+};
+
+export const includeFiltersField: INodeProperties = {
+	displayName: 'Include Filters',
+	name: 'includeFilters',
+	type: 'boolean',
+	default: false,
+	description: 'Whether to include the filter branch definition in the response. Only applicable for dynamic lists.',
+	displayOptions: {
+		show: {
+			operation: ['getLists'],
+		},
+	},
+};
+
+export const listIdFieldForGetLists: INodeProperties = {
+	displayName: 'List ID Field',
+	name: 'listIdField',
+	type: 'string',
+	requiresDataPath: 'single',
+	default: 'listId',
+	placeholder: 'listId',
+	hint: 'Field name only (e.g., \'listId\')',
+	description: 'Field name containing the ILS list ID from input items.',
+	displayOptions: {
+		show: {
+			operation: ['getLists'],
+		},
+	},
+};
+
 export const listFields: INodeProperties[] = [
 	operationField,
 	objectTypeField,
@@ -401,6 +472,10 @@ export const listFields: INodeProperties[] = [
 	updateListNameField,
 	recordIdField,
 	idFieldField,
+	searchQueryField,
+	processingTypesField,
+	includeFiltersField,
+	listIdFieldForGetLists,
 	listFolderIdField,
 	folderNameField,
 	parentFolderIdField,
