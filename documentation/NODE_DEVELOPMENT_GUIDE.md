@@ -1162,6 +1162,110 @@ Jedes Feld sollte:
 - [ ] Batch-Operationen nutzen `hubspotBatchRequest` wo sinnvoll
 - [ ] Paginierung nutzt `hubspotApiRequestAllItems` wo sinnvoll
 
+### Batch-Operationen (Pattern)
+
+Batch-Operationen (batchDelete, batchCreate, batchUpdate, batchUpsert) folgen einem einheitlichen Pattern:
+
+#### ID-Feld (Description)
+
+```typescript
+export const idFieldField: INodeProperties = {
+	displayName: 'ID Field',
+	name: 'idField',
+	type: 'string',
+	requiresDataPath: 'single',   // ← Drag & Drop kopiert Feld-PATH, nicht Wert
+	default: 'id',
+	placeholder: 'id',
+	hint: "Field name only (e.g., 'id' or 'properties.id')",
+	description: "Field name containing the object ID. Supports dot notation (e.g., 'properties.id').",
+	displayOptions: {
+		show: {
+			operation: ['batchDelete', 'batchUpdate', 'batchUpsert'],
+		},
+	},
+};
+```
+
+**Warum `requiresDataPath: 'single'`?** Wenn der Benutzer ein Feld aus dem Input-Panel per Drag & Drop in das ID-Feld zieht, wird der **Pfad** (z.B. `id` oder `properties.hs_object_id`) kopiert, nicht der Wert (z.B. `12345`). Ohne dieses Flag würde n8n den Wert kopieren, was bei mehreren Items nicht funktioniert.
+
+#### Main Node (execute)
+
+Batch-Operationen werden **nicht** in einer Item-Schleife ausgeführt. Stattdessen werden alle Items auf einmal an die Operation übergeben:
+
+```typescript
+if (operation === 'batchDelete' || operation === 'batchCreate' || operation === 'batchUpdate' || operation === 'batchUpsert') {
+	try {
+		const results = await executeMyOperation(this, operation, items, 0);
+		returnData.push(...results);
+	} catch (error) {
+		if (this.continueOnFail()) {
+			returnData.push({ json: { error: ... } });
+		} else {
+			throw error;
+		}
+	}
+} else {
+	for (let i = 0; i < items.length; i++) {
+		// ... normale Item-Schleife ...
+	}
+}
+```
+
+#### Operation (Business-Logik)
+
+```typescript
+async function batchDeleteObjects(
+	context: IExecuteFunctions,
+	items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+	const idField = context.getNodeParameter('idField', 0) as string;
+
+	// 1. Validierung
+	const validation = validateFieldMapping(items, idField);
+	if (!validation.valid) {
+		throw new Error(buildFieldNotFoundError(idField, validation.availableFields, 'IDs'));
+	}
+	if (validation.missingCount > 0) {
+		context.logger.warn(
+			`Field "${idField}" is missing in ${validation.missingCount} of ${items.length} input items.`,
+		);
+	}
+
+	// 2. IDs aus allen Items extrahieren
+	const inputs = items.map((item, index) => {
+		const objectId = getNestedValue(item.json, idField);
+		if (!objectId) {
+			throw new Error(`Missing ID field "${idField}" in item ${index}`);
+		}
+		return { id: String(objectId) };
+	});
+
+	// 3. In 100er-Batches aufteilen
+	const batchSize = 100;
+	const allResults: string[] = [];
+	for (let i = 0; i < inputs.length; i += batchSize) {
+		const batch = inputs.slice(i, i + batchSize);
+		await hubspotApiRequest.call(context, 'POST', '/path/to/batch/archive', { inputs: batch });
+		batch.forEach((input) => allResults.push(input.id));
+	}
+
+	// 4. Ergebnisse mit pairedItem zurückgeben
+	return allResults.map((id, index) => ({
+		json: { success: true, id },
+		pairedItem: { item: index },
+	}));
+}
+```
+
+#### Wichtige Regeln
+
+1. **`requiresDataPath: 'single'`** immer bei ID-Feldern für Batch-Operationen setzen
+2. **`validateFieldMapping`** vor der Verarbeitung aufrufen – liefert hilfreiche Fehlermeldungen
+3. **`getNestedValue`** für Dot-Notation-Support verwenden (z.B. `properties.id`)
+4. **Batch-Größe 100** – HubSpot-Limit pro Request
+5. **`pairedItem`** in den Ergebnissen setzen – ermöglicht Zuordnung der Output-Items zu Input-Items
+6. **Keine Item-Schleife** im Main Node für Batch-Operationen
+
 ### Registrierung & Testing
 - [ ] Knoten in `package.json` → `n8n.nodes` registriert
 - [ ] `npm run build` erfolgreich

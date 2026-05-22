@@ -54,7 +54,8 @@
       "dist/nodes/HubSpotObjectSchema/HubSpotObjectSchema.node.js",
       "dist/nodes/HubSpotLists/HubSpotLists.node.js",
       "dist/nodes/HubSpotMarketingEvents/HubSpotMarketingEvents.node.js",
-      "dist/nodes/HubSpotHubDb/HubSpotHubDb.node.js"
+      "dist/nodes/HubSpotHubDb/HubSpotHubDb.node.js",
+      "dist/nodes/HubSpotCmsRedirects/HubSpotCmsRedirects.node.js"
     ]
   },
   "devDependencies": {
