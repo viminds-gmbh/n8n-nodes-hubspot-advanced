@@ -261,6 +261,11 @@ Create and manage marketing events with participant tracking.
 - Mark contacts as attended
 - Cancel contact registration
 
+**List Operations:**
+- Get associated lists for an event
+- Associate a list with an event
+- Disassociate a list from an event
+
 **Key Features:**
 - Support for both contact ID and email identification
 - Custom property management

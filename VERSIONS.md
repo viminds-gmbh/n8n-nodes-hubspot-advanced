@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-05-22
+
+### Added
+- List association operations (getAssociatedLists, associateList, disassociateList) for Marketing Events node
+
+### Changed
+- Enhanced error output when continueOnFail is enabled: errors now include HTTP status code and full HubSpot error details (message, correlationId, category)
+- Lists node now uses nested value accessor for ID field extraction
+- Added requiresDataPath attribute to idField in Lists node for improved autocomplete support
+
 ## [0.1.15] - 2026-05-19
 
 ### Fixed
