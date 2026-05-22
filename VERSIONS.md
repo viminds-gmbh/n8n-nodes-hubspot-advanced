@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-22
+
+### Added
+- HubSpot CMS Redirects node for managing URL redirects with search, get, create, update, and delete operations
+- Search operation with filters for route prefix, destination, redirect style, date ranges, and sorting
+- Return All support for automatic pagination of redirect search results
+- Batch operations pattern documentation in NODE_DEVELOPMENT_GUIDE.md
+
 ## [0.3.0] - 2026-05-22
 
 ### Added

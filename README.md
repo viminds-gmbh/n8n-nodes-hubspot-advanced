@@ -347,6 +347,35 @@ Manage HubDB tables and rows for dynamic content storage and retrieval.
   → Returns all matching rows with automatic pagination
 ```
 
+### 9. HubSpot CMS Redirects
+
+Manage HubSpot CMS URL redirects with full CRUD support and search capabilities.
+
+**Operations:**
+- Search redirects with filters
+- Get single redirect
+- Create redirect
+- Update redirect
+- Delete redirect
+
+**Key Features:**
+- Search with filters for route prefix, destination, redirect style, date ranges, and sorting
+- Return All support for automatic pagination
+- Pattern/regex matching for flexible redirect rules
+- Query string and full URL matching options
+- Protocol relative and trailing slash options
+
+**Example Workflow:**
+```
+[HubSpot CMS Redirects: Search]
+  Filters:
+    - Route Prefix: /old-blog
+    - Redirect Style: 301
+  Sort: createdAt
+  Return All: ✓
+  → Returns all matching redirects
+```
+
 ## Rate Limiting
 
 **Adaptive, response-based rate limiting** – works reliably even in n8n Queue Mode with multiple workers.
@@ -461,7 +490,8 @@ src/
 │   ├── HubSpotFiles/            # File Manager operations
 │   ├── HubSpotLists/            # List member retrieval
 │   ├── HubSpotMarketingEvents/  # Marketing events and participants
-│   └── HubSpotHubDb/            # HubDB tables and rows
+│   ├── HubSpotHubDb/            # HubDB tables and rows
+│   └── HubSpotCmsRedirects/     # CMS URL redirects
 ├── transport/
 │   ├── RateLimiter.ts           # Adaptive rate limiting
 │   └── HubSpotApiRequest.ts     # API wrapper
@@ -495,6 +525,7 @@ tests/
 | HubDB Tables (CRUD) | v3 | HubSpot HubDB |
 | HubDB Rows (CRUD) | v3 | HubSpot HubDB |
 | HubDB Batch Operations | v3 | HubSpot HubDB |
+| CMS URL Redirects | v3 | HubSpot CMS Redirects |
 
 ## Roadmap
 
@@ -526,6 +557,7 @@ tests/
 - [x] GetAssociationLabelDefinitions operation
 - [x] Comprehensive field validation with helpful error messages
 - [x] Automatic batching for large IN/NOT_IN filter values
+- [x] HubSpot CMS Redirects node with search, get, create, update, delete
 - [ ] OAuth2 support
 - [ ] Webhook triggers
 - [ ] Advanced filtering UI
