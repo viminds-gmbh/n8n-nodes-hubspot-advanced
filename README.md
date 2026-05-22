@@ -231,17 +231,27 @@ Work with HubSpot File Manager for uploading, replacing, updating, and searching
 
 ### 6. HubSpot Lists
 
-Retrieve members of HubSpot lists with automatic pagination and filtering.
+Manage HubSpot lists with full CRUD, member retrieval, and search capabilities.
 
 **Operations:**
 - Get List Members
-- Search Lists
+- Get Lists (fetch multiple by ILS list ID)
+- Search Lists (search by name with pagination)
+- Create List
+- Update List Name
+- Delete List
+- Add Member / Add Many Members
+- Remove Member / Remove Many Members
+- Create Folder / Get Folders / Delete Folder
 
 **Key Features:**
-- **ReturnAll option** for automatic pagination
-- **Object type filtering** for list searches
+- **ReturnAll option** for automatic pagination on list members and search
+- **Object type filtering** for list operations
+- **Offset-based pagination** for list search (up to 500 per page)
+- **Processing type filtering** in search (Manual, Snapshot, Dynamic)
+- **includeFilters option** when fetching lists to retrieve filter branch definitions
 - Batch retrieval for large lists
-- Efficient association handling
+- Folder management for organizing lists
 
 ### 7. HubSpot Marketing Events
 

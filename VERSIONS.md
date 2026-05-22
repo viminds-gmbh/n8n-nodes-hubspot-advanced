@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-22
+
+### Added
+- Get Lists operation: fetch multiple lists by ILS list ID from input items with optional includeFilters parameter
+- Search Lists operation: search lists by name with offset-based pagination, optional processing type filtering, and Return All support
+
 ## [0.2.2] - 2026-05-22
 
 ### Fixed
