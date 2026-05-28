@@ -51,6 +51,21 @@ export const contentTypeField: INodeProperties = {
 	},
 };
 
+export const contentTypeSingleField: INodeProperties = {
+	displayName: 'Content Type',
+	name: 'contentType',
+	type: 'options',
+	options: [...CONTENT_TYPE_OPTIONS],
+	default: 'SITE_PAGE',
+	required: true,
+	description: 'The content type of the asset to retrieve indexed data for',
+	displayOptions: {
+		show: {
+			operation: ['getIndexedData'],
+		},
+	},
+};
+
 export const limitField: INodeProperties = {
 	displayName: 'Limit',
 	name: 'limit',
@@ -220,5 +235,6 @@ export const searchFields: INodeProperties[] = [
 	contentTypeField,
 	limitField,
 	additionalOptionsField,
+	contentTypeSingleField,
 	contentIdField,
 ];

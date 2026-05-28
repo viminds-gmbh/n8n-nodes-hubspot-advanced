@@ -95,11 +95,14 @@ async function getIndexedData(
 	i: number,
 ): Promise<INodeExecutionData> {
 	const contentId = context.getNodeParameter('contentId', i) as string;
+	const contentType = context.getNodeParameter('contentType', i) as string;
 
 	const response = await hubspotApiRequest.call(
 		context,
 		'GET',
 		`/cms/v3/site-search/indexed-data/${contentId}`,
+		{},
+		{ type: contentType },
 	);
 
 	return { json: response as IDataObject };
