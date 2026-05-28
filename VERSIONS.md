@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-05-28
+
+### Added
+- HubSpot Site Search node for searching content across HubSpot-hosted sites and retrieving indexed data for specific assets
+- Search operation with query, content type filtering, domain/language filters, pagination, and content boosting
+- Get Indexed Data operation to retrieve indexed search data for a specific content asset by ID
+- Blog and HubDB table dropdowns with automatic pagination for large accounts
+
+### Changed
+- Query parameter arrays now use repeat format (type=A&type=B) instead of indices (type[0]=A&type[1]=B) for HubSpot API compatibility
+
 ## [0.4.0] - 2026-05-22
 
 ### Added

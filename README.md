@@ -376,6 +376,33 @@ Manage HubSpot CMS URL redirects with full CRUD support and search capabilities.
   → Returns all matching redirects
 ```
 
+### 10. HubSpot Site Search
+
+Search content across HubSpot-hosted sites and retrieve indexed data for specific assets.
+
+**Operations:**
+- Search site content with query, content type filtering, and boosting
+- Get Indexed Data for a specific content asset by ID
+
+**Key Features:**
+- Content type filtering (blog posts, site pages, landing pages, knowledge articles, listings)
+- Domain and language filtering
+- Content boosting by type and recency
+- Blog and HubDB table filtering with live dropdowns
+- Offset-based pagination
+- Path prefix filtering
+
+**Example Workflow:**
+```
+[HubSpot Site Search: Search]
+  Query: marketing tips
+  Content Type: Blog Posts, Site Pages
+  Domain: blog.example.com
+  Boost Recent: 10d
+  Limit: 10
+  → Returns search results with relevance scoring
+```
+
 ## Rate Limiting
 
 **Adaptive, response-based rate limiting** – works reliably even in n8n Queue Mode with multiple workers.
@@ -491,7 +518,8 @@ src/
 │   ├── HubSpotLists/            # List member retrieval
 │   ├── HubSpotMarketingEvents/  # Marketing events and participants
 │   ├── HubSpotHubDb/            # HubDB tables and rows
-│   └── HubSpotCmsRedirects/     # CMS URL redirects
+│   ├── HubSpotCmsRedirects/     # CMS URL redirects
+│   └── HubSpotSiteSearch/        # Site search
 ├── transport/
 │   ├── RateLimiter.ts           # Adaptive rate limiting
 │   └── HubSpotApiRequest.ts     # API wrapper
@@ -526,6 +554,7 @@ tests/
 | HubDB Rows (CRUD) | v3 | HubSpot HubDB |
 | HubDB Batch Operations | v3 | HubSpot HubDB |
 | CMS URL Redirects | v3 | HubSpot CMS Redirects |
+| Site Search | v3 | HubSpot Site Search |
 
 ## Roadmap
 
@@ -558,6 +587,7 @@ tests/
 - [x] Comprehensive field validation with helpful error messages
 - [x] Automatic batching for large IN/NOT_IN filter values
 - [x] HubSpot CMS Redirects node with search, get, create, update, delete
+- [x] HubSpot Site Search node with search and indexed data retrieval
 - [ ] OAuth2 support
 - [ ] Webhook triggers
 - [ ] Advanced filtering UI
