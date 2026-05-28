@@ -51,20 +51,6 @@ export const contentTypeField: INodeProperties = {
 	},
 };
 
-export const contentTypeSingleField: INodeProperties = {
-	displayName: 'Content Type',
-	name: 'contentType',
-	type: 'options',
-	options: [...CONTENT_TYPE_OPTIONS],
-	default: 'SITE_PAGE',
-	description: 'Filter search results by content type. Select none to search all types',
-	displayOptions: {
-		show: {
-			operation: ['getIndexedData'],
-		},
-	},
-};
-
 export const limitField: INodeProperties = {
 	displayName: 'Limit',
 	name: 'limit',
@@ -231,9 +217,8 @@ export const contentIdField: INodeProperties = {
 export const searchFields: INodeProperties[] = [
 	operationField,
 	queryField,
-	contentIdField,
 	contentTypeField,
-	contentTypeSingleField,
 	limitField,
 	additionalOptionsField,
+	contentIdField,
 ];
