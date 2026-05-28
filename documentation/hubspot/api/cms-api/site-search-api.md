@@ -138,16 +138,15 @@ curl --request GET \
 
 Retrieve indexed search data for a specific content asset.
 
-**Endpoint:** `GET /cms/v3/site-search/indexed-data/{type}/{id}`
+**Endpoint:** `GET /cms/v3/site-search/indexed-data/{id}`
 
 **Path Parameters:**
-- `type` (string, required) - Content type: `BLOG_POST`, `SITE_PAGE`, `LANDING_PAGE`, `KNOWLEDGE_ARTICLE`, `LISTING_PAGE`
 - `id` (string, required) - Content ID
 
 **Example Request:**
 ```bash
 curl --request GET \
-  --url https://api.hubapi.com/cms/v3/site-search/indexed-data/BLOG_POST/184993428780 \
+  --url https://api.hubapi.com/cms/v3/site-search/indexed-data/184993428780 \
   --header 'Authorization: Bearer YOUR_TOKEN'
 ```
 
@@ -210,7 +209,6 @@ Boosting allows adjusting the relevance of search results:
 ## Validation Rules
 
 - **Search:** `q` parameter is required
-- **Indexed Data:** `type` must be a valid content type
 - **limit:** Typical max is 100 results per page
 - **boostRecent:** Must use valid time unit suffix (`ms`, `s`, `m`, `h`, `d`)
 

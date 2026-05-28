@@ -29,6 +29,7 @@ export async function hubspotApiRequest(
 			'Content-Type': 'application/json',
 		},
 		json: true,
+		arrayFormat: 'repeat',
 	};
 
 	return rateLimiter.execute(async () => {
