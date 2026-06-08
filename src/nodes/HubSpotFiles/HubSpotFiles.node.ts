@@ -54,7 +54,7 @@ export class HubSpotFiles implements INodeType {
 			},
 		},
 		inputs: ['main'],
-		outputs: ['main'],
+		outputs: ['main', { type: 'main', category: 'error' }],
 		credentials: [
 			{
 				name: 'hubspotAppToken',
@@ -111,7 +111,11 @@ export class HubSpotFiles implements INodeType {
 							}
 						}
 					}
-					returnData.push({ json: errorData, pairedItem: { item: i } });
+					const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
+					if (error instanceof NodeApiError) {
+						errorItem.error = error;
+					}
+					returnData.push(errorItem);
 					continue;
 				}
 				throw error;

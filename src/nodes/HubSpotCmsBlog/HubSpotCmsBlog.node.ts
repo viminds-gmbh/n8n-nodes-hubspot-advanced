@@ -7,6 +7,7 @@ import type {
 	INodePropertyOptions,
 	IDataObject,
 } from 'n8n-workflow';
+import { NodeApiError } from 'n8n-workflow';
 
 import { hubspotApiRequestForLoadOptions } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
@@ -55,7 +56,7 @@ export class HubSpotCmsBlog implements INodeType {
 			},
 		},
 		inputs: ['main'],
-		outputs: ['main'],
+		outputs: ['main', { type: 'main', category: 'error' }],
 		credentials: [
 			{
 				name: 'hubspotAppToken',
@@ -197,8 +198,24 @@ export class HubSpotCmsBlog implements INodeType {
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
-					const errorMessage = error instanceof Error ? error.message : String(error);
-					returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
+					const errorData: IDataObject = {
+						error: error instanceof Error ? error.message : String(error),
+					};
+					if (error instanceof NodeApiError) {
+						if (error.httpCode) errorData.httpCode = error.httpCode;
+						if (error.description) {
+							try {
+								errorData.hubspotError = JSON.parse(error.description);
+							} catch {
+								errorData.errorDescription = error.description;
+							}
+						}
+					}
+					const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
+					if (error instanceof NodeApiError) {
+						errorItem.error = error;
+					}
+					returnData.push(errorItem);
 					continue;
 				}
 				throw error;
