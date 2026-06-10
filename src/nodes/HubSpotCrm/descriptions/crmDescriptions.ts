@@ -167,30 +167,45 @@ export const filtersField: INodeProperties = {
 					default: 'EQ',
 					description: 'The comparison operator to use for filtering. <a href="https://developers.hubspot.com/docs/api/crm/search" target="_blank">See all available operators</a>.',
 				},
-				{
-					displayName: 'Value',
-					name: 'value',
-					type: 'string',
-					default: '',
-					placeholder: 'john@example.com',
-					description: 'The value to compare against.',
+			{
+				displayName: 'Value',
+				name: 'value',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					hide: {
+						operator: ['IN', 'NOT_IN', 'HAS_PROPERTY', 'NOT_HAS_PROPERTY'],
+					},
 				},
-				{
-					displayName: 'Values',
-					name: 'values',
-					type: 'string',
-					default: '',
-					placeholder: 'value1;value2;value3 or {{ $json.emails }}',
-					description: 'Semicolon-separated values (e.g., "email1@test.com;email2@test.com") or an array expression like {{ $json.emails }}.',
+				placeholder: 'john@example.com',
+				description: 'The value to compare against.',
+			},
+			{
+				displayName: 'Values',
+				name: 'values',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						operator: ['IN', 'NOT_IN'],
+					},
 				},
-				{
-					displayName: 'High Value',
-					name: 'highValue',
-					type: 'string',
-					default: '',
-					placeholder: '1000',
-					description: 'The upper bound for the BETWEEN operator. "Value" field is the lower bound.',
+				placeholder: 'value1;value2;value3 or {{ $json.emails }}',
+				description: 'Semicolon-separated values (e.g., "email1@test.com;email2@test.com") or an array expression like {{ $json.emails }}.',
+			},
+			{
+				displayName: 'High Value',
+				name: 'highValue',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						operator: ['BETWEEN'],
+					},
 				},
+				placeholder: '1000',
+				description: 'The upper bound for the BETWEEN operator. "Value" field is the lower bound.',
+			},
 			],
 		},
 	],
