@@ -68,7 +68,11 @@ export async function hubspotApiRequest(
 			const response = await this.helpers.httpRequest(options);
 			return { data: response, headers: {} };
 		} catch (error) {
-			const err = error as HubSpotError;
+			const err = error as HubSpotError & { statusCode?: number };
+			if (err?.response?.status === 429 || err?.statusCode === 429 || err?.httpCode === 429) {
+				throw error;
+			}
+
 			const safeError = { 
 				request: {
 					method: options?.method?.toString() || '',
@@ -83,10 +87,9 @@ export async function hubspotApiRequest(
 				} 
 			};
 
-
 			throw new NodeApiError(this.getNode(), safeError as JsonObject, {
 				message: safeError?.response?.statusText || 'HubSpot API request failed',
-				httpCode: err?.response?.status?.toString() || '',
+				httpCode: err?.response?.status?.toString(),
 				description: safeError?.response?.data?.message || safeError?.response?.statusText || '',
 			});
 		}
