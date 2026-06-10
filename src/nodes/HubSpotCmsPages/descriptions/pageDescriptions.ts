@@ -93,6 +93,40 @@ export const pageIdsField: INodeProperties = {
 	},
 };
 
+export const pageNameField: INodeProperties = {
+	displayName: 'Name',
+	name: 'name',
+	type: 'string',
+	default: '',
+	required: true,
+	placeholder: 'My Page',
+	description: 'The internal name of the page',
+	displayOptions: {
+		show: {
+			resource: ['sitePage', 'landingPage'],
+			operation: ['create'],
+		},
+	},
+};
+
+export const pageTemplatePathField: INodeProperties = {
+	displayName: 'Template Path',
+	name: 'templatePath',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'getPageTemplates',
+	},
+	default: '',
+	required: true,
+	description: 'The template to use for this page',
+	displayOptions: {
+		show: {
+			resource: ['sitePage', 'landingPage'],
+			operation: ['create'],
+		},
+	},
+};
+
 export const additionalFieldsField: INodeProperties = {
 	displayName: 'Additional Fields',
 	name: 'additionalFields',
@@ -107,22 +141,6 @@ export const additionalFieldsField: INodeProperties = {
 		},
 	},
 	options: [
-		{
-			displayName: 'Name',
-			name: 'name',
-			type: 'string',
-			default: '',
-			placeholder: 'My Page',
-			description: 'The internal name of the page',
-		},
-		{
-			displayName: 'Template Path',
-			name: 'templatePath',
-			type: 'string',
-			default: '',
-			placeholder: 'templates/my-page.html',
-			description: 'Path to the template in Design Manager. Must not start with a slash.',
-		},
 		{
 			displayName: 'Slug',
 			name: 'slug',
@@ -332,6 +350,8 @@ export const pageFields: INodeProperties[] = [
 	sourcePageIdField,
 	revisionIdField,
 	pageIdsField,
+	pageNameField,
+	pageTemplatePathField,
 	additionalFieldsField,
 	pageFiltersField,
 ];

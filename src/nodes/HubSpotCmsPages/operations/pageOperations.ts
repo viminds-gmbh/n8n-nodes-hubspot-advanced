@@ -122,20 +122,14 @@ async function createPage(
 	resource: string,
 	i: number,
 ): Promise<INodeExecutionData> {
+	const name = context.getNodeParameter('name', i) as string;
+	const templatePath = context.getNodeParameter('templatePath', i) as string;
 	const additionalFields = context.getNodeParameter('additionalFields', i, {}) as IDataObject;
 	const basePath = getBasePath(resource);
 
 	const body = buildPageBody(additionalFields);
-
-	if (!body.name) {
-		throw new Error('Name is required for creating a page');
-	}
-	if (!body.templatePath) {
-		throw new Error('Template Path is required for creating a page');
-	}
-	if ((body.templatePath as string).startsWith('/')) {
-		throw new Error('Template Path must not start with a slash');
-	}
+	body.name = name;
+	body.templatePath = templatePath;
 
 	const response = await hubspotApiRequest.call(
 		context,

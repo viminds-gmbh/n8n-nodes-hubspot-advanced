@@ -67,6 +67,40 @@ export class HubSpotCmsPages implements INodeType {
 
 	methods = {
 		loadOptions: {
+			async getPageTemplates(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const credentials = await this.getCredentials('hubspotAppToken');
+				const credentialId = (credentials.appToken as string).slice(-8);
+
+				const cache = PropertyCache.getInstance();
+				const cacheKey = 'cms_page_templates';
+				const cached = cache.get(cacheKey, credentialId);
+				if (cached) return cached;
+
+				const response = await hubspotApiRequestForLoadOptions.call(
+					this,
+					'GET',
+					'/content/api/v2/templates',
+					{},
+					{ category_id: 1, limit: 500, is_available_for_new_content: true },
+				) as IDataObject;
+
+				const options: INodePropertyOptions[] = [];
+				if (response.objects && Array.isArray(response.objects)) {
+					for (const tpl of response.objects as IDataObject[]) {
+						if (tpl.path) {
+							options.push({
+								name: (tpl.label || tpl.path) as string,
+								value: tpl.path as string,
+								description: tpl.path as string,
+							});
+						}
+					}
+				}
+				options.sort((a, b) => (a.name as string).localeCompare(b.name as string));
+				cache.set(cacheKey, options, credentialId);
+				return options;
+			},
+
 			async getDomains(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				const credentials = await this.getCredentials('hubspotAppToken');
 				const credentialId = (credentials.appToken as string).slice(-8);
