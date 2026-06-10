@@ -8,7 +8,7 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
-import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions , buildErrorItem } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions, buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { HUBSPOT_OBJECT_TYPE_TO_ID } from '../../types';
 import { listFields } from './descriptions';
@@ -214,9 +214,9 @@ export class HubSpotLists implements INodeType {
 				if (operation === 'getListMembers' || operation === 'addManyMembers' || operation === 'removeManyMembers' || operation === 'getLists' || operation === 'searchLists') {
 					break;
 				}
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error, i));
+					returnData.push(buildErrorItem(error as HubSpotError, i));
 					continue;
 				}
 				throw error;

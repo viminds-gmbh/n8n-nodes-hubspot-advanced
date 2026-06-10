@@ -5,7 +5,7 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 
-import { buildErrorItem } from '../../transport/HubSpotApiRequest';
+import { buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
 import { schemaFields } from './descriptions';
 import { executeSchemaOperation } from './operations';
 
@@ -84,9 +84,9 @@ export class HubSpotObjectSchema implements INodeType {
 				if (operation === 'getObjectTypes' || operation === 'getAssociationLabelDefinitions') {
 					break;
 				}
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error, i));
+					returnData.push(buildErrorItem(error as HubSpotError, i));
 					continue;
 				}
 				throw error;

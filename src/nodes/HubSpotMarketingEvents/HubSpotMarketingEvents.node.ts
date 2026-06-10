@@ -7,7 +7,7 @@ import type {
 	INodePropertyOptions,
 } from 'n8n-workflow';
 
-import { hubspotApiRequestAllItemsForLoadOptions , buildErrorItem } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestAllItemsForLoadOptions, buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { resourceField, eventFields, contactFields } from './descriptions';
 import { executeEventOperation, executeContactOperation } from './operations';
@@ -108,9 +108,9 @@ export class HubSpotMarketingEvents implements INodeType {
 					const result = await executeContactOperation(this, operation, items, i);
 					returnData.push(result);
 				}
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error, i));
+					returnData.push(buildErrorItem(error as HubSpotError, i));
 					continue;
 				}
 				throw error;

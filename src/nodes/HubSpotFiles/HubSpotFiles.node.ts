@@ -5,7 +5,7 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 
-import { buildErrorItem } from '../../transport/HubSpotApiRequest';
+import { buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
 
 import { resourceField, returnAllField, searchLimitField, fileFields, folderFields } from './descriptions';
 import { executeFileOperation, executeFolderOperation } from './operations';
@@ -96,9 +96,9 @@ export class HubSpotFiles implements INodeType {
 				} else {
 					throw new Error(`Unknown resource: ${resource}`);
 				}
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error, i));
+					returnData.push(buildErrorItem(error as HubSpotError, i));
 					continue;
 				}
 				throw error;

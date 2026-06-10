@@ -10,18 +10,28 @@ import type {
 import { NodeApiError } from 'n8n-workflow';
 import { HubSpotRateLimiter } from './RateLimiter';
 
-export function buildErrorItem(error: any, itemIndex?: number): INodeExecutionData {
+export interface HubSpotError extends Error {
+	description?: string;
+	httpCode?: string | number;
+	errorResponse?: Record<string, unknown>;
+	response?: {
+		status?: number;
+		statusText?: string;
+		data?: { message?: string };
+	};
+}
+
+export function buildErrorItem(error: HubSpotError, itemIndex?: number): INodeExecutionData {
 	const errorData = {
 		error: {
 			description: error?.description,
 			message: error?.message,
-			httpCode: error?.httpCode,
+			httpCode: error?.httpCode?.toString(),
 			...error?.errorResponse,
 		},
 	} as IDataObject;
 	const item: INodeExecutionData = {
 		json: errorData,
-		error: error,
 	};
 	if (itemIndex !== undefined) {
 		item.pairedItem = { item: itemIndex };
@@ -57,7 +67,8 @@ export async function hubspotApiRequest(
 		try {
 			const response = await this.helpers.httpRequest(options);
 			return { data: response, headers: {} };
-		} catch (error: any) {
+		} catch (error) {
+			const err = error as HubSpotError;
 			const safeError = { 
 				request: {
 					method: options?.method?.toString() || '',
@@ -66,16 +77,16 @@ export async function hubspotApiRequest(
 					query: qs,
 				},
 				response: { 
-					status: error?.response?.status || 0,
-					statusText: error?.response?.statusText || '',
-					data: error?.response?.data
+					status: err?.response?.status || 0,
+					statusText: err?.response?.statusText || '',
+					data: err?.response?.data
 				} 
 			};
 
 
 			throw new NodeApiError(this.getNode(), safeError as JsonObject, {
 				message: safeError?.response?.statusText || 'HubSpot API request failed',
-				httpCode: error?.response?.status || '',
+				httpCode: err?.response?.status?.toString() || '',
 				description: safeError?.response?.data?.message || safeError?.response?.statusText || '',
 			});
 		}

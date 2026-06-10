@@ -117,9 +117,14 @@ export const additionalFieldsField: INodeProperties = {
 					name: 'customObjectType',
 					type: 'string',
 					default: '',
-					required: false,
+					required: true,
 					placeholder: 'cars',
 					description: 'The name or ID of the custom object type (e.g., "cars" or "2-12345").',
+					displayOptions: {
+						show: {
+							objectType: ['custom'],
+						},
+					},
 				},
 				{
 					displayName: 'Property Name',

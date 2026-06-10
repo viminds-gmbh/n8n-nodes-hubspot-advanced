@@ -8,7 +8,7 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
-import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions, buildErrorItem } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions, buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { pagesFields } from './descriptions';
 import { executePageOperation } from './operations';
@@ -171,9 +171,9 @@ export class HubSpotCmsPages implements INodeType {
 			try {
 				const results = await executePageOperation(this, resource, operation, 0, items);
 				returnData.push(...results);
-			} catch (error: any) {
+			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error));
+					returnData.push(buildErrorItem(error as HubSpotError));
 				} else {
 					throw error;
 				}
@@ -187,9 +187,9 @@ export class HubSpotCmsPages implements INodeType {
 					if (operation === 'getAll') {
 						break;
 					}
-				} catch (error: any) {
+				} catch (error) {
 					if (this.continueOnFail()) {
-						returnData.push(buildErrorItem(error, i));
+						returnData.push(buildErrorItem(error as HubSpotError, i));
 						continue;
 					}
 					throw error;

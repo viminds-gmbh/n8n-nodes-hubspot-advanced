@@ -395,9 +395,14 @@ export const associationsField: INodeProperties = {
 					name: 'customToObjectType',
 					type: 'string',
 					default: '',
-					required: false,
+					required: true,
 					placeholder: 'cars',
 					description: 'The name or ID of the custom object type (e.g., "cars" or "2-12345").',
+					displayOptions: {
+						show: {
+							toObjectType: ['custom'],
+						},
+					},
 				},
 				{
 					displayName: 'To Object ID',
