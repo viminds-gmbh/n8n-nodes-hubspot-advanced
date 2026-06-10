@@ -3,9 +3,9 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	IDataObject,
 } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+
+import { buildErrorItem } from '../../transport/HubSpotApiRequest';
 
 import { resourceField, returnAllField, searchLimitField, fileFields, folderFields } from './descriptions';
 import { executeFileOperation, executeFolderOperation } from './operations';
@@ -54,7 +54,7 @@ export class HubSpotFiles implements INodeType {
 			},
 		},
 		inputs: ['main'],
-		outputs: ['main', { type: 'main', category: 'error' }],
+		outputs: ['main'],
 		credentials: [
 			{
 				name: 'hubspotAppToken',
@@ -96,26 +96,9 @@ export class HubSpotFiles implements INodeType {
 				} else {
 					throw new Error(`Unknown resource: ${resource}`);
 				}
-			} catch (error) {
+			} catch (error: any) {
 				if (this.continueOnFail()) {
-					const errorData: IDataObject = {
-						error: error instanceof Error ? error.message : String(error),
-					};
-					if (error instanceof NodeApiError) {
-						if (error.httpCode) errorData.httpCode = error.httpCode;
-						if (error.description) {
-							try {
-								errorData.hubspotError = JSON.parse(error.description);
-							} catch {
-								errorData.errorDescription = error.description;
-							}
-						}
-					}
-					const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
-					if (error instanceof NodeApiError) {
-						errorItem.error = error;
-					}
-					returnData.push(errorItem);
+					returnData.push(buildErrorItem(error, i));
 					continue;
 				}
 				throw error;

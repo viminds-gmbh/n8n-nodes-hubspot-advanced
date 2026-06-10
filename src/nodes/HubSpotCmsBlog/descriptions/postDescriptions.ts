@@ -135,11 +135,6 @@ export const additionalFieldsField: INodeProperties = {
 			],
 			default: '',
 			description: 'Set the publish state. Use PUBLISHED to publish immediately.',
-			displayOptions: {
-				show: {
-					operation: ['update'],
-				},
-			},
 		},
 		{
 			displayName: 'Name',

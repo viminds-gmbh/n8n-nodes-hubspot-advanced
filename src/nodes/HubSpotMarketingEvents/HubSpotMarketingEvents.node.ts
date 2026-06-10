@@ -5,11 +5,9 @@ import type {
 	INodeTypeDescription,
 	ILoadOptionsFunctions,
 	INodePropertyOptions,
-	IDataObject,
 } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
 
-import { hubspotApiRequestAllItemsForLoadOptions } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestAllItemsForLoadOptions , buildErrorItem } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { resourceField, eventFields, contactFields } from './descriptions';
 import { executeEventOperation, executeContactOperation } from './operations';
@@ -45,7 +43,7 @@ export class HubSpotMarketingEvents implements INodeType {
 			},
 		},
 		inputs: ['main'],
-		outputs: ['main', { type: 'main', category: 'error' }],
+		outputs: ['main'],
 		credentials: [
 			{
 				name: 'hubspotAppToken',
@@ -110,26 +108,9 @@ export class HubSpotMarketingEvents implements INodeType {
 					const result = await executeContactOperation(this, operation, items, i);
 					returnData.push(result);
 				}
-			} catch (error) {
+			} catch (error: any) {
 				if (this.continueOnFail()) {
-					const errorData: IDataObject = {
-						error: error instanceof Error ? error.message : String(error),
-					};
-					if (error instanceof NodeApiError) {
-						if (error.httpCode) errorData.httpCode = error.httpCode;
-						if (error.description) {
-							try {
-								errorData.hubspotError = JSON.parse(error.description);
-							} catch {
-								errorData.errorDescription = error.description;
-							}
-						}
-					}
-					const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
-					if (error instanceof NodeApiError) {
-						errorItem.error = error;
-					}
-					returnData.push(errorItem);
+					returnData.push(buildErrorItem(error, i));
 					continue;
 				}
 				throw error;

@@ -241,11 +241,6 @@ export const batchRowsField: INodeProperties = {
 					default: '',
 					placeholder: '123456789',
 					description: 'Row ID (required for batch update)',
-					displayOptions: {
-						show: {
-							'/operation': ['batchUpdate'],
-						},
-					},
 				},
 				{
 					displayName: 'Column Values',

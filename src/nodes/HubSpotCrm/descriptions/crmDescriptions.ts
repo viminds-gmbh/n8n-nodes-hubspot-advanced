@@ -172,11 +172,6 @@ export const filtersField: INodeProperties = {
 					name: 'value',
 					type: 'string',
 					default: '',
-					displayOptions: {
-						hide: {
-							operator: ['IN', 'NOT_IN', 'HAS_PROPERTY', 'NOT_HAS_PROPERTY'],
-						},
-					},
 					placeholder: 'john@example.com',
 					description: 'The value to compare against.',
 				},
@@ -185,11 +180,6 @@ export const filtersField: INodeProperties = {
 					name: 'values',
 					type: 'string',
 					default: '',
-					displayOptions: {
-						show: {
-							operator: ['IN', 'NOT_IN'],
-						},
-					},
 					placeholder: 'value1;value2;value3 or {{ $json.emails }}',
 					description: 'Semicolon-separated values (e.g., "email1@test.com;email2@test.com") or an array expression like {{ $json.emails }}.',
 				},
@@ -198,11 +188,6 @@ export const filtersField: INodeProperties = {
 					name: 'highValue',
 					type: 'string',
 					default: '',
-					displayOptions: {
-						show: {
-							operator: ['BETWEEN'],
-						},
-					},
 					placeholder: '1000',
 					description: 'The upper bound for the BETWEEN operator. "Value" field is the lower bound.',
 				},
@@ -410,14 +395,9 @@ export const associationsField: INodeProperties = {
 					name: 'customToObjectType',
 					type: 'string',
 					default: '',
-					required: true,
+					required: false,
 					placeholder: 'cars',
 					description: 'The name or ID of the custom object type (e.g., "cars" or "2-12345").',
-					displayOptions: {
-						show: {
-							toObjectType: ['custom'],
-						},
-					},
 				},
 				{
 					displayName: 'To Object ID',

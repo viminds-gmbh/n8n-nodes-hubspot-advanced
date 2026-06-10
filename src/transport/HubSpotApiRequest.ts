@@ -4,9 +4,27 @@ import type {
 	IHttpRequestOptions,
 	IHttpRequestMethods,
 	ILoadOptionsFunctions,
+	INodeExecutionData,
+	JsonObject,
 } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { HubSpotRateLimiter } from './RateLimiter';
+
+export function buildErrorItem(error: any, itemIndex?: number): INodeExecutionData {
+	const errorData = {
+		error: {
+			description: error?.description,
+			message: error?.message,
+			httpCode: error?.httpCode,
+			...error?.errorResponse,
+		},
+	} as IDataObject;
+	const item: INodeExecutionData = { json: errorData };
+	if (itemIndex !== undefined) {
+		item.pairedItem = { item: itemIndex };
+	}
+	return item;
+}
 
 export async function hubspotApiRequest(
 	this: IExecuteFunctions,
@@ -36,16 +54,26 @@ export async function hubspotApiRequest(
 		try {
 			const response = await this.helpers.httpRequest(options);
 			return { data: response, headers: {} };
-		} catch (error) {
-			const err = error as { statusCode?: number; httpCode?: number; message?: string; description?: string; response?: { data?: unknown } };
-			if (err.statusCode === 429 || err.httpCode === 429) {
-				throw error;
-			}
+		} catch (error: any) {
+			const safeError = { 
+				request: {
+					method: options?.method?.toString() || '',
+					url: options?.url?.toString() || '',
+					body: body,
+					query: qs,
+				},
+				response: { 
+					status: error?.response?.status || 0,
+					statusText: error?.response?.statusText || '',
+					data: error?.response?.data
+				} 
+			};
 
-			const hubspotErrorBody = err.response?.data;
-			throw new NodeApiError(this.getNode(), error as { message: string }, {
-				message: err.message || 'HubSpot API request failed',
-				description: hubspotErrorBody ? JSON.stringify(hubspotErrorBody) : err.description,
+
+			throw new NodeApiError(this.getNode(), safeError as JsonObject, {
+				message: safeError?.response?.statusText || 'HubSpot API request failed',
+				httpCode: error?.response?.status || '',
+				description: safeError?.response?.data?.message || safeError?.response?.statusText || '',
 			});
 		}
 	});
