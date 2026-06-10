@@ -10,7 +10,6 @@ Follow these steps to publish a new version of n8n-nodes-hubspot-advanced.
 
 ### 1. Analyze commits since last version
 
-// turbo
 Run the following command to see all commits since the last version:
 
 ```bash
@@ -47,7 +46,6 @@ Summarize core features in the Features section if needed.
 
 ### 4. Verify changes
 
-// turbo
 Run tests and build to ensure everything works:
 
 ```bash
@@ -58,7 +56,6 @@ npm test && npm run build && npm run lint
 
 After completing the checklist above, publish the package:
 
-// turbo
 ```bash
 npm version patch && npm publish --access public
 ```
@@ -75,7 +72,6 @@ npm version patch && npm publish --access public
 
 After publishing, backup the current n8n test workflows:
 
-// turbo
 ```bash
 npm run backup
 ```

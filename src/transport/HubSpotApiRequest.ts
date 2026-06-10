@@ -19,7 +19,10 @@ export function buildErrorItem(error: any, itemIndex?: number): INodeExecutionDa
 			...error?.errorResponse,
 		},
 	} as IDataObject;
-	const item: INodeExecutionData = { json: errorData };
+	const item: INodeExecutionData = {
+		json: errorData,
+		error: error,
+	};
 	if (itemIndex !== undefined) {
 		item.pairedItem = { item: itemIndex };
 	}
