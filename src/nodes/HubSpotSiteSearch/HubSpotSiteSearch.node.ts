@@ -7,7 +7,7 @@ import type {
 	INodePropertyOptions,
 } from 'n8n-workflow';
 
-import { hubspotApiRequestAllItemsForLoadOptions, buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestAllItemsForLoadOptions, buildErrorItem } from '../../transport/HubSpotApiRequest';
 import { searchFields } from './descriptions';
 import { executeSearchOperation } from './operations';
 
@@ -111,7 +111,7 @@ export class HubSpotSiteSearch implements INodeType {
 				returnData.push(...results);
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
+					returnData.push(buildErrorItem(error, i));
 					continue;
 				}
 				throw error;

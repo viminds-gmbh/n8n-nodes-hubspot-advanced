@@ -7,7 +7,7 @@ import type {
 	INodePropertyOptions,
 	IDataObject,
 } from 'n8n-workflow';
-import { hubspotApiRequestForLoadOptions, buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestForLoadOptions, buildErrorItem, } from '../../transport/HubSpotApiRequest';
 import { redirectFields } from './descriptions';
 import { executeRedirectOperation } from './operations';
 
@@ -116,7 +116,7 @@ export class HubSpotCmsRedirects implements INodeType {
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
+					returnData.push(buildErrorItem(error, i));
 					continue;
 				}
 				throw error;

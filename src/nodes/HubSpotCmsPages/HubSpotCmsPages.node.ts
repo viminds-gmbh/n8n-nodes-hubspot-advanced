@@ -8,7 +8,7 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
-import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions, buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions, buildErrorItem } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { pagesFields } from './descriptions';
 import { executePageOperation } from './operations';
@@ -173,7 +173,7 @@ export class HubSpotCmsPages implements INodeType {
 				returnData.push(...results);
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError, undefined, this.getNode()));
+					returnData.push(buildErrorItem(error));
 				} else {
 					throw error;
 				}
@@ -189,7 +189,7 @@ export class HubSpotCmsPages implements INodeType {
 					}
 				} catch (error) {
 					if (this.continueOnFail()) {
-						returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
+						returnData.push(buildErrorItem(error, i));
 						continue;
 					}
 					throw error;

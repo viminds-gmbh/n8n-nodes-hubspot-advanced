@@ -7,7 +7,7 @@ import type {
 	INodePropertyOptions,
 } from 'n8n-workflow';
 
-import { hubspotApiRequestAllItemsForLoadOptions, buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestAllItemsForLoadOptions, buildErrorItem, } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { crmFields } from './descriptions';
 import { executeCrmOperation } from './operations';
@@ -162,7 +162,7 @@ export class HubSpotCrm implements INodeType {
 				returnData.push(...results);
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError, undefined, this.getNode()));
+					returnData.push(buildErrorItem(error));
 				} else {
 					throw error;
 				}
@@ -178,7 +178,8 @@ export class HubSpotCrm implements INodeType {
 					}
 				} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
+					console.log("Error", error)
+					returnData.push(buildErrorItem(error, i));
 					continue;
 				}
 				throw error;

@@ -4,45 +4,35 @@ import type {
 	IHttpRequestOptions,
 	IHttpRequestMethods,
 	ILoadOptionsFunctions,
-	INode,
 	INodeExecutionData,
 	JsonObject,
 } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { HubSpotRateLimiter } from './RateLimiter';
 
-export interface HubSpotError extends Error {
-	description?: string;
-	httpCode?: string | number;
-	errorResponse?: Record<string, unknown>;
-	response?: {
-		status?: number;
-		statusText?: string;
-		data?: { message?: string };
-	};
-}
+// export interface HubSpotError extends Error {
+// 	description?: string;
+// 	httpCode?: string | number;
+// 	errorResponse?: Record<string, unknown>;
+// 	response?: {
+// 		status?: number;
+// 		statusText?: string;
+// 		data?: { message?: string };
+// 	};
+// }
 
-export function buildErrorItem(error: HubSpotError, itemIndex?: number, node?: INode): INodeExecutionData {
+export function buildErrorItem(error: any, itemIndex?: number): INodeExecutionData {
 	const errorData = {
 		error: {
 			description: error?.description,
 			message: error?.message,
-			httpCode: error?.httpCode?.toString(),
+			httpCode: error?.httpCode,
 			...error?.errorResponse,
 		},
 	} as IDataObject;
-	const item: INodeExecutionData = {
-		json: errorData,
-	};
+	const item: INodeExecutionData = { json: errorData };
 	if (itemIndex !== undefined) {
 		item.pairedItem = { item: itemIndex };
-	}
-	if (node) {
-		item.error = new NodeApiError(node, error as unknown as JsonObject, {
-			message: error?.message || 'HubSpot API request failed',
-			description: error?.description,
-			httpCode: error?.httpCode?.toString(),
-		});
 	}
 	return item;
 }
@@ -75,12 +65,7 @@ export async function hubspotApiRequest(
 		try {
 			const response = await this.helpers.httpRequest(options);
 			return { data: response, headers: {} };
-		} catch (error) {
-			const err = error as HubSpotError & { statusCode?: number };
-			if (err?.response?.status === 429 || err?.statusCode === 429 || err?.httpCode === 429) {
-				throw error;
-			}
-
+		} catch (error: any) {
 			const safeError = { 
 				request: {
 					method: options?.method?.toString() || '',
@@ -89,16 +74,16 @@ export async function hubspotApiRequest(
 					query: qs,
 				},
 				response: { 
-					status: err?.response?.status || 0,
-					statusText: err?.response?.statusText || '',
-					data: err?.response?.data
+					status: error?.response?.status || 0,
+					statusText: error?.response?.statusText || '',
+					data: error?.response?.data
 				} 
 			};
 
 			throw new NodeApiError(this.getNode(), safeError as JsonObject, {
 				message: safeError?.response?.statusText || 'HubSpot API request failed',
-				httpCode: err?.response?.status?.toString(),
-				description: safeError?.response?.data?.message || safeError?.response?.statusText || '',
+				httpCode: error?.response?.status || '',
+				description: error?.response?.message || safeError?.response?.statusText || '',
 			});
 		}
 	});

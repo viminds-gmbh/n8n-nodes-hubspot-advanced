@@ -8,7 +8,7 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
-import { hubspotApiRequestForLoadOptions, buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestForLoadOptions, buildErrorItem, } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { blogFields } from './descriptions';
 import { executePostOperation, executeTagOperation } from './operations';
@@ -197,7 +197,7 @@ export class HubSpotCmsBlog implements INodeType {
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
+					returnData.push(buildErrorItem(error, i));
 					continue;
 				}
 				throw error;

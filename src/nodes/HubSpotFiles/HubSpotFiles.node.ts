@@ -5,7 +5,7 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 
-import { buildErrorItem, type HubSpotError } from '../../transport/HubSpotApiRequest';
+import { buildErrorItem, } from '../../transport/HubSpotApiRequest';
 
 import { resourceField, returnAllField, searchLimitField, fileFields, folderFields } from './descriptions';
 import { executeFileOperation, executeFolderOperation } from './operations';
@@ -98,7 +98,7 @@ export class HubSpotFiles implements INodeType {
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
+					returnData.push(buildErrorItem(error, i));
 					continue;
 				}
 				throw error;
