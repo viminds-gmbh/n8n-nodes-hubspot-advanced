@@ -191,6 +191,7 @@ export async function hubspotApiRequestAllItemsForLoadOptions(
 	const credentials = await this.getCredentials('hubspotAppToken');
 	const results: IDataObject[] = [];
 	let after: string | undefined;
+	const defaultLimit = 500;
 
 	do {
 		const queryParams = { ...qs };
@@ -198,8 +199,7 @@ export async function hubspotApiRequestAllItemsForLoadOptions(
 			queryParams.after = after;
 		}
 
-		const limit = 500;
-		queryParams.limit = limit;
+		queryParams.limit = queryParams?.limit || defaultLimit;
 
 		const options: IHttpRequestOptions = {
 			method,

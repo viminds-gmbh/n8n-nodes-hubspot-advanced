@@ -8,7 +8,7 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
-import { hubspotApiRequestForLoadOptions , buildErrorItem } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequestForLoadOptions, hubspotApiRequestAllItemsForLoadOptions, buildErrorItem } from '../../transport/HubSpotApiRequest';
 import { PropertyCache } from '../../transport/PropertyCache';
 import { pagesFields } from './descriptions';
 import { executePageOperation } from './operations';
@@ -67,6 +67,31 @@ export class HubSpotCmsPages implements INodeType {
 
 	methods = {
 		loadOptions: {
+			async getPages(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const resource = this.getNodeParameter('resource') as string;
+				const basePath = resource === 'sitePage'
+					? '/cms/v3/pages/site-pages'
+					: '/cms/v3/pages/landing-pages';
+
+				const pages = await hubspotApiRequestAllItemsForLoadOptions.call(
+					this,
+					'GET',
+					basePath,
+					{ property: 'name,id,state', limit: 100 },
+				);
+
+				const options: INodePropertyOptions[] = [];
+				for (const page of pages) {
+					options.push({
+						name: `${page.name || page.id}`,
+						description: page.state ? String(page.state) : '',
+						value: page.id as string,
+					});
+				}
+				options.sort((a, b) => (a.name as string).localeCompare(b.name as string));
+				return options;
+			},
+
 			async getPageTemplates(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				const credentials = await this.getCredentials('hubspotAppToken');
 				const credentialId = (credentials.appToken as string).slice(-8);
@@ -81,12 +106,13 @@ export class HubSpotCmsPages implements INodeType {
 					'GET',
 					'/content/api/v2/templates',
 					{},
-					{ category_id: 1, limit: 500, is_available_for_new_content: true },
+					{ limit: 500 },
 				) as IDataObject;
 
 				const options: INodePropertyOptions[] = [];
 				if (response.objects && Array.isArray(response.objects)) {
 					for (const tpl of response.objects as IDataObject[]) {
+						if (tpl.category_id !== 1) continue;
 						if (tpl.path) {
 							options.push({
 								name: (tpl.label || tpl.path) as string,
@@ -141,20 +167,33 @@ export class HubSpotCmsPages implements INodeType {
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
 
-		for (let i = 0; i < items.length; i++) {
+		if (operation === 'batchDelete') {
 			try {
-				const results = await executePageOperation(this, resource, operation, i);
+				const results = await executePageOperation(this, resource, operation, 0, items);
 				returnData.push(...results);
-
-				if (operation === 'getAll') {
-					break;
-				}
 			} catch (error: any) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error, i));
-					continue;
+					returnData.push(buildErrorItem(error));
+				} else {
+					throw error;
 				}
-				throw error;
+			}
+		} else {
+			for (let i = 0; i < items.length; i++) {
+				try {
+					const results = await executePageOperation(this, resource, operation, i, items);
+					returnData.push(...results);
+
+					if (operation === 'getAll') {
+						break;
+					}
+				} catch (error: any) {
+					if (this.continueOnFail()) {
+						returnData.push(buildErrorItem(error, i));
+						continue;
+					}
+					throw error;
+				}
 			}
 		}
 

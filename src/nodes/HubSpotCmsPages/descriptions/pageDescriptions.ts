@@ -14,10 +14,6 @@ export const pageOperationField: INodeProperties = {
 		{ name: 'Clone', value: 'clone', description: 'Clone an existing page' },
 		{ name: 'Publish', value: 'publish', description: 'Publish the draft version' },
 		{ name: 'Schedule', value: 'schedule', description: 'Schedule a page for publishing' },
-		{ name: 'Reset Draft', value: 'resetDraft', description: 'Reset draft to live version' },
-		{ name: 'Get Draft', value: 'getDraft', description: 'Get the draft version of a page' },
-		{ name: 'Get Revisions', value: 'getRevisions', description: 'List revisions of a page' },
-		{ name: 'Restore Revision', value: 'restoreRevision', description: 'Restore a previous revision' },
 		{ name: 'Batch Delete', value: 'batchDelete', description: 'Archive multiple pages' },
 	],
 	default: 'getAll',
@@ -30,17 +26,19 @@ export const pageOperationField: INodeProperties = {
 };
 
 export const pageIdField: INodeProperties = {
-	displayName: 'Page ID',
+	displayName: 'Page',
 	name: 'pageId',
-	type: 'string',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'getPages',
+	},
 	default: '',
 	required: true,
-	placeholder: '12345678',
-	description: 'The ID of the page',
+	description: 'The page to operate on',
 	displayOptions: {
 		show: {
 			resource: ['sitePage', 'landingPage'],
-			operation: ['get', 'update', 'delete', 'publish', 'schedule', 'resetDraft', 'getDraft', 'getRevisions', 'restoreRevision'],
+			operation: ['get', 'update', 'delete', 'publish', 'schedule'],
 		},
 	},
 };
@@ -61,30 +59,30 @@ export const sourcePageIdField: INodeProperties = {
 	},
 };
 
-export const revisionIdField: INodeProperties = {
-	displayName: 'Revision ID',
-	name: 'revisionId',
-	type: 'string',
+export const publishDateField: INodeProperties = {
+	displayName: 'Publish Date',
+	name: 'publishDate',
+	type: 'dateTime',
 	default: '',
 	required: true,
-	placeholder: 'abc123',
-	description: 'The ID of the revision to restore',
+	description: 'The date and time to publish the page',
 	displayOptions: {
 		show: {
 			resource: ['sitePage', 'landingPage'],
-			operation: ['restoreRevision'],
+			operation: ['schedule'],
 		},
 	},
 };
 
-export const pageIdsField: INodeProperties = {
-	displayName: 'Page IDs',
-	name: 'pageIds',
+export const pageIdFieldField: INodeProperties = {
+	displayName: 'ID Field',
+	name: 'idField',
 	type: 'string',
-	default: '',
-	required: true,
-	placeholder: '12345678,87654321',
-	description: 'Comma-separated list of page IDs to archive',
+	requiresDataPath: 'single',
+	default: 'id',
+	placeholder: 'id',
+	hint: "Field name only (e.g., 'id' or 'properties.id')",
+	description: "Field name containing the page ID. Supports dot notation (e.g., 'properties.id').",
 	displayOptions: {
 		show: {
 			resource: ['sitePage', 'landingPage'],
@@ -137,7 +135,7 @@ export const additionalFieldsField: INodeProperties = {
 	displayOptions: {
 		show: {
 			resource: ['sitePage', 'landingPage'],
-			operation: ['create', 'update', 'schedule'],
+			operation: ['create', 'update'],
 		},
 	},
 	options: [
@@ -226,13 +224,6 @@ export const additionalFieldsField: INodeProperties = {
 			description: 'Public access rule objects as JSON array',
 		},
 		{
-			displayName: 'Publish Date',
-			name: 'publishDate',
-			type: 'dateTime',
-			default: '',
-			description: 'The date and time to publish the page (for schedule operation)',
-		},
-		{
 			displayName: 'State',
 			name: 'state',
 			type: 'options',
@@ -247,13 +238,13 @@ export const additionalFieldsField: INodeProperties = {
 	],
 };
 
-export const pageFiltersField: INodeProperties = {
-	displayName: 'Filters',
-	name: 'filters',
+export const pageGetAllAdditionalFieldsField: INodeProperties = {
+	displayName: 'Additional Fields',
+	name: 'getAllAdditionalFields',
 	type: 'collection',
 	default: {},
-	placeholder: 'Add Filter',
-	description: 'Filter options for listing pages',
+	placeholder: 'Add Field',
+	description: 'Optional filters and sorting for listing pages',
 	displayOptions: {
 		show: {
 			resource: ['sitePage', 'landingPage'],
@@ -262,71 +253,39 @@ export const pageFiltersField: INodeProperties = {
 	},
 	options: [
 		{
-			displayName: 'State Filter',
-			name: 'stateFilter',
-			type: 'multiOptions',
-			options: [
-				{ name: 'Draft', value: 'DRAFT' },
-				{ name: 'Published', value: 'PUBLISHED' },
-				{ name: 'Scheduled', value: 'SCHEDULED' },
-				{ name: 'Published or Scheduled', value: 'PUBLISHED_OR_SCHEDULED' },
-			],
-			default: [],
-			description: 'Filter by page state',
-		},
-		{
-			displayName: 'Name Filter',
-			name: 'nameFilter',
-			type: 'string',
-			default: '',
-			placeholder: 'About',
-			description: 'Filter by page name (partial match)',
-		},
-		{
-			displayName: 'Domain Filter',
-			name: 'domainFilter',
-			type: 'multiOptions',
-			typeOptions: {
-				loadOptionsMethod: 'getDomains',
-			},
-			default: [],
-			description: 'Filter by domain',
-		},
-		{
-			displayName: 'Language Filter',
-			name: 'languageFilter',
-			type: 'string',
-			default: '',
-			placeholder: 'en',
-			description: 'Filter by language',
+			displayName: 'Archived',
+			name: 'archived',
+			type: 'boolean',
+			default: false,
+			description: 'Whether to return archived (soft-deleted) pages',
 		},
 		{
 			displayName: 'Created After',
 			name: 'createdAfter',
 			type: 'dateTime',
 			default: '',
-			description: 'Filter pages created after this date',
+			description: 'Only return pages created after this date',
 		},
 		{
 			displayName: 'Created Before',
 			name: 'createdBefore',
 			type: 'dateTime',
 			default: '',
-			description: 'Filter pages created before this date',
+			description: 'Only return pages created before this date',
 		},
 		{
 			displayName: 'Updated After',
 			name: 'updatedAfter',
 			type: 'dateTime',
 			default: '',
-			description: 'Filter pages updated after this date',
+			description: 'Only return pages updated after this date',
 		},
 		{
 			displayName: 'Updated Before',
 			name: 'updatedBefore',
 			type: 'dateTime',
 			default: '',
-			description: 'Filter pages updated before this date',
+			description: 'Only return pages updated before this date',
 		},
 		{
 			displayName: 'Sort',
@@ -336,7 +295,6 @@ export const pageFiltersField: INodeProperties = {
 				{ name: 'Name', value: 'name' },
 				{ name: 'Created At', value: 'createdAt' },
 				{ name: 'Updated At', value: 'updatedAt' },
-				{ name: 'Publish Date', value: 'publishDate' },
 			],
 			default: 'createdAt',
 			description: 'Sort order for results',
@@ -348,10 +306,10 @@ export const pageFields: INodeProperties[] = [
 	pageOperationField,
 	pageIdField,
 	sourcePageIdField,
-	revisionIdField,
-	pageIdsField,
+	pageIdFieldField,
 	pageNameField,
 	pageTemplatePathField,
+	publishDateField,
 	additionalFieldsField,
-	pageFiltersField,
+	pageGetAllAdditionalFieldsField,
 ];
