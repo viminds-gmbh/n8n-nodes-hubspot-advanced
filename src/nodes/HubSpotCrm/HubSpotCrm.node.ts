@@ -162,7 +162,7 @@ export class HubSpotCrm implements INodeType {
 				returnData.push(...results);
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError));
+					returnData.push(buildErrorItem(error as HubSpotError, undefined, this.getNode()));
 				} else {
 					throw error;
 				}
@@ -177,11 +177,11 @@ export class HubSpotCrm implements INodeType {
 						break;
 					}
 				} catch (error) {
-					if (this.continueOnFail()) {
-						returnData.push(buildErrorItem(error as HubSpotError, i));
-						continue;
-					}
-					throw error;
+				if (this.continueOnFail()) {
+					returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
+					continue;
+				}
+				throw error;
 				}
 			}
 		}

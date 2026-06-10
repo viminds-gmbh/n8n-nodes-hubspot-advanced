@@ -4,6 +4,7 @@ import type {
 	IHttpRequestOptions,
 	IHttpRequestMethods,
 	ILoadOptionsFunctions,
+	INode,
 	INodeExecutionData,
 	JsonObject,
 } from 'n8n-workflow';
@@ -21,7 +22,7 @@ export interface HubSpotError extends Error {
 	};
 }
 
-export function buildErrorItem(error: HubSpotError, itemIndex?: number): INodeExecutionData {
+export function buildErrorItem(error: HubSpotError, itemIndex?: number, node?: INode): INodeExecutionData {
 	const errorData = {
 		error: {
 			description: error?.description,
@@ -35,6 +36,13 @@ export function buildErrorItem(error: HubSpotError, itemIndex?: number): INodeEx
 	};
 	if (itemIndex !== undefined) {
 		item.pairedItem = { item: itemIndex };
+	}
+	if (node) {
+		item.error = new NodeApiError(node, error as unknown as JsonObject, {
+			message: error?.message || 'HubSpot API request failed',
+			description: error?.description,
+			httpCode: error?.httpCode?.toString(),
+		});
 	}
 	return item;
 }

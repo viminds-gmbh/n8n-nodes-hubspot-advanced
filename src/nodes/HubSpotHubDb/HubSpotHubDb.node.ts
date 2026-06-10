@@ -166,7 +166,7 @@ export class HubSpotHubDb implements INodeType {
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError, i));
+					returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
 					continue;
 				}
 				throw error;

@@ -219,7 +219,7 @@ export class HubSpotAssociations implements INodeType {
 				returnData.push(...results);
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push(buildErrorItem(error as HubSpotError));
+					returnData.push(buildErrorItem(error as HubSpotError, undefined, this.getNode()));
 				} else {
 					throw error;
 				}
@@ -238,7 +238,7 @@ export class HubSpotAssociations implements INodeType {
 					returnData.push(...results);
 				} catch (error) {
 					if (this.continueOnFail()) {
-						returnData.push(buildErrorItem(error as HubSpotError, i));
+						returnData.push(buildErrorItem(error as HubSpotError, i, this.getNode()));
 						continue;
 					}
 					throw error;
