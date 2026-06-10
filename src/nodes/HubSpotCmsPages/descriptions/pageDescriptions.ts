@@ -239,7 +239,7 @@ export const additionalFieldsField: INodeProperties = {
 };
 
 export const pageGetAllAdditionalFieldsField: INodeProperties = {
-	displayName: 'Additional Fields',
+	displayName: 'Filter',
 	name: 'getAllAdditionalFields',
 	type: 'collection',
 	default: {},
