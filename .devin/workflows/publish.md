@@ -71,6 +71,15 @@ npm version patch && npm publish --access public
 2. Create GitHub release with VERSIONS.md content for this version
 3. Update any external documentation if needed
 
+## Backup current n8n Test Workflows
+
+After publishing, backup the current n8n test workflows:
+
+// turbo
+```bash
+npm run backup
+```
+
 ## AI Workflow Notes
 
 When AI processes this workflow:

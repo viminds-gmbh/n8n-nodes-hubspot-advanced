@@ -117,10 +117,18 @@ export class HubSpotMyNode implements INodeType {
           const result = await executeResourceBOperation(this, operation, i);
           returnData.push(result);
         }
-      } catch (error) {
+      } catch (error: any) {
         if (this.continueOnFail()) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          returnData.push({ json: { error: errorMessage }, pairedItem: { item: i } });
+          const errorData = {
+            error: {
+              description: error?.description,
+              message: error?.message,
+              httpCode: error?.httpCode,
+              ...error?.errorResponse,
+            },
+          } as IDataObject;
+          const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
+          returnData.push(errorItem);
           continue;
         }
         throw error;
@@ -192,7 +200,16 @@ export class HubSpotMyNode implements INodeType {
         // ... Operationslogik ...
       } catch (error: any) {
         if (this.continueOnFail()) {
-          returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
+          const errorData = {
+            error: {
+              description: error?.description,
+              message: error?.message,
+              httpCode: error?.httpCode,
+              ...error?.errorResponse,
+            },
+          } as IDataObject;
+          const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
+          returnData.push(errorItem);
           continue;
         }
         throw error;
@@ -1158,7 +1175,11 @@ Jedes Feld sollte:
 
 ### Execution & Error Handling
 - [ ] `execute()` nutzt `hubspotApiRequest` (mit automatischem Rate Limiting)
-- [ ] Error-Handling mit `continueOnFail()`-Pattern
+- [ ] `outputs: ['main']` – kein separates Error Output definiert
+- [ ] `return [returnData]` – einzelnes Array, kein zweites Error-Array
+- [ ] `continueOnFail()` direkt im catch geprüft (kein Utility-Helper)
+- [ ] `errorItem.error = error` gesetzt bei `NodeApiError` (aktiviert n8n Error-Routing)
+- [ ] `pairedItem` bei Item-Loop gesetzt, bei Batch weggelassen
 - [ ] Batch-Operationen nutzen `hubspotBatchRequest` wo sinnvoll
 - [ ] Paginierung nutzt `hubspotApiRequestAllItems` wo sinnvoll
 
@@ -1266,9 +1287,168 @@ async function batchDeleteObjects(
 5. **`pairedItem`** in den Ergebnissen setzen – ermöglicht Zuordnung der Output-Items zu Input-Items
 6. **Keine Item-Schleife** im Main Node für Batch-Operationen
 
+---
+
+## Error Handling – Best Practices
+
+### Zweck
+
+Korrekte Error-Behandlung ist essentiell für robuste Nodes. n8n bietet drei Error-Modi über die Node-Einstellung „On Error":
+
+1. **Stop Workflow** (Default): Workflow stoppt bei Fehler
+2. **Continue**: Fehler-Item geht zum Main Output, Workflow läuft weiter
+3. **Continue using Error Output**: Fehler-Item wird über den Error Output weitergeleitet
+
+n8n steuert das Routing **automatisch** anhand der `error`-Property auf `INodeExecutionData` und der Node-Einstellung. **Keine zusätzlichen Outputs müssen definiert werden**, und **kein zweites Array** wird im `return` benötigt.
+
+### Node-Konfiguration
+
+```typescript
+outputs: ['main'],  // Nur ein Output – n8n handled Error-Routing automatisch
+```
+
+### Wie n8n Error-Routing funktioniert
+
+Wenn `continueOnFail()` `true` zurückgibt (d.h. der User hat „Continue" oder „Continue using Error Output" gewählt), wird das Fehler-Item mit gesetztem `error`-Property in `returnData` geschrieben. n8n leitet es dann je nach Einstellung an den Main Output oder Error Output weiter – **ohne dass der Node zwei Arrays zurückgeben muss**.
+
+### Pattern für Item-Loop Operations
+
+```typescript
+async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+  const items = this.getInputData();
+  const returnData: INodeExecutionData[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    try {
+      const results = await executeMyOperation(this, operation, items, i);
+      returnData.push(...results);
+    } catch (error: any) {
+      if (this.continueOnFail()) {
+        const errorData = {
+          error: {
+            description: error?.description,
+            message: error?.message,
+            httpCode: error?.httpCode,
+            ...error?.errorResponse,
+          },
+        } as IDataObject;
+        const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
+        returnData.push(errorItem);
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  return [returnData];
+}
+```
+
+### Pattern für Batch Operations
+
+Batch-Operationen laufen außerhalb der Item-Schleife (kein `pairedItem`):
+
+```typescript
+if (operation === 'batchCreate' || operation === 'batchUpdate' || operation === 'batchUpsert' || operation === 'batchDelete') {
+  try {
+    const results = await executeBatchOperation(this, operation, objectType, items, 0);
+    returnData.push(...results);
+  } catch (error) {
+    if (this.continueOnFail()) {
+      const errorData: IDataObject = {
+        error: error instanceof Error ? error.message : String(error),
+        message: error instanceof Error ? error.message : String(error),
+      };
+      if (error instanceof NodeApiError) {
+        if (error.httpCode) errorData.httpCode = error.httpCode;
+        if (error.description) {
+          try {
+            const parsed = JSON.parse(error.description) as IDataObject;
+            errorData.hubspotError = parsed;
+            if (parsed.message) errorData.errorMessage = parsed.message as string;
+            if (parsed.status) errorData.status = parsed.status as string;
+            if (parsed.category) errorData.category = parsed.category as string;
+          } catch {
+            errorData.errorDescription = error.description;
+          }
+        }
+      }
+      const errorItem: INodeExecutionData = { json: errorData };
+      if (error instanceof NodeApiError) {
+        errorItem.error = error;
+      }
+      returnData.push(errorItem);
+    } else {
+      throw error;
+    }
+  }
+}
+
+return [returnData];
+```
+
+### Error Item Struktur
+
+**Item-Loop Operations:**
+```typescript
+{
+  json: {
+    error: {
+      description?: string,   // error.description (NodeApiError)
+      message?: string,        // error.message
+      httpCode?: string,       // HTTP-Status-Code
+      // ...weitere Felder aus error.errorResponse
+    },
+  },
+  pairedItem: { item: number }, // Index des fehlgeschlagenen Input-Items
+}
+```
+
+**Batch Operations:**
+```typescript
+{
+  json: {
+    error: string,              // Error message
+    httpCode?: string,          // HTTP status code
+    hubspotError?: object,      // Parsed HubSpot API error response
+    errorDescription?: string,  // Fallback wenn JSON parse fehlschlägt
+  },
+  error: NodeApiError,          // Original Error Object – steuert n8n Error-Routing
+}
+```
+
+### Wichtige Regeln
+
+1. **`outputs: ['main']`** – kein separater Error Output nötig
+2. **`return [returnData]`** – immer ein einzelnes Array
+3. **`continueOnFail()` direkt im catch prüfen** – kein Utility-Helper nötig
+4. **`errorItem.error = error`** setzen (bei `NodeApiError`) – aktiviert n8n-internes Error-Routing
+5. **`pairedItem`** bei Item-Loop setzen, bei Batch weglassen
+
+### Testing Checklist
+
+Für jeden Node mit Error Handling testen:
+
+- [ ] **Stop Workflow** (Default): Workflow stoppt bei Fehler
+- [ ] **Continue**: Error-Item erscheint im Main Output, Workflow läuft weiter
+- [ ] **Continue using Error Output**: Error-Item erscheint im Error Output
+- [ ] **Batch Operations**: Error Format korrekt, kein `pairedItem`
+- [ ] **Item-Loop Operations**: `pairedItem` korrekt gesetzt
+- [ ] **HubSpot Error Details**: `hubspotError` enthält API Response Body (Batch)
+- [ ] **HTTP Status Code**: `httpCode` ist gesetzt bei API Errors
+
+### Wann welches Pattern?
+
+| Operation Type | Pattern | `pairedItem` | Beispiele |
+|---|---|---|---|
+| **Batch** | Ein Try-Catch für alle Items | ❌ Nein | batchCreate, batchUpdate, batchDelete |
+| **Item-Loop** | Try-Catch pro Item | ✅ Ja | get, create, update, delete, search |
+| **Special** | Abhängig von Logik | ⚠️ Variabel | getMany (bricht nach erstem Item ab) |
+
 ### Registrierung & Testing
 - [ ] Knoten in `package.json` → `n8n.nodes` registriert
 - [ ] `npm run build` erfolgreich
 - [ ] Lokaler Test gemäß `/local-testing`-Workflow
 - [ ] Node erscheint in n8n unter **Marketing & Content** → **CRM**
 - [ ] Aliase funktionieren in der Suche
+- [ ] Error Handling für alle drei Modi getestet
