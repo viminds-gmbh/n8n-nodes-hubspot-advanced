@@ -119,16 +119,7 @@ export class HubSpotMyNode implements INodeType {
         }
       } catch (error: any) {
         if (this.continueOnFail()) {
-          const errorData = {
-            error: {
-              description: error?.description,
-              message: error?.message,
-              httpCode: error?.httpCode,
-              ...error?.errorResponse,
-            },
-          } as IDataObject;
-          const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
-          returnData.push(errorItem);
+          returnData.push(buildErrorItem(error, i));
           continue;
         }
         throw error;
@@ -157,7 +148,7 @@ import type {
   INodePropertyOptions,      // nur wenn loadOptions gebraucht werden
 } from 'n8n-workflow';
 
-import { hubspotApiRequest } from '../../transport/HubSpotApiRequest';
+import { hubspotApiRequest, buildErrorItem } from '../../transport/HubSpotApiRequest';
 
 export class HubSpotMyNode implements INodeType {
   description: INodeTypeDescription = {
@@ -200,16 +191,7 @@ export class HubSpotMyNode implements INodeType {
         // ... Operationslogik ...
       } catch (error: any) {
         if (this.continueOnFail()) {
-          const errorData = {
-            error: {
-              description: error?.description,
-              message: error?.message,
-              httpCode: error?.httpCode,
-              ...error?.errorResponse,
-            },
-          } as IDataObject;
-          const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
-          returnData.push(errorItem);
+          returnData.push(buildErrorItem(error, i));
           continue;
         }
         throw error;
@@ -1314,6 +1296,8 @@ Wenn `continueOnFail()` `true` zurückgibt (d.h. der User hat „Continue" oder 
 ### Pattern für Item-Loop Operations
 
 ```typescript
+import { buildErrorItem } from '../../transport/HubSpotApiRequest';
+
 async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
   const items = this.getInputData();
   const returnData: INodeExecutionData[] = [];
@@ -1324,16 +1308,7 @@ async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
       returnData.push(...results);
     } catch (error: any) {
       if (this.continueOnFail()) {
-        const errorData = {
-          error: {
-            description: error?.description,
-            message: error?.message,
-            httpCode: error?.httpCode,
-            ...error?.errorResponse,
-          },
-        } as IDataObject;
-        const errorItem: INodeExecutionData = { json: errorData, pairedItem: { item: i } };
-        returnData.push(errorItem);
+        returnData.push(buildErrorItem(error, i));
         continue;
       }
       throw error;
@@ -1353,31 +1328,9 @@ if (operation === 'batchCreate' || operation === 'batchUpdate' || operation === 
   try {
     const results = await executeBatchOperation(this, operation, objectType, items, 0);
     returnData.push(...results);
-  } catch (error) {
+  } catch (error: any) {
     if (this.continueOnFail()) {
-      const errorData: IDataObject = {
-        error: error instanceof Error ? error.message : String(error),
-        message: error instanceof Error ? error.message : String(error),
-      };
-      if (error instanceof NodeApiError) {
-        if (error.httpCode) errorData.httpCode = error.httpCode;
-        if (error.description) {
-          try {
-            const parsed = JSON.parse(error.description) as IDataObject;
-            errorData.hubspotError = parsed;
-            if (parsed.message) errorData.errorMessage = parsed.message as string;
-            if (parsed.status) errorData.status = parsed.status as string;
-            if (parsed.category) errorData.category = parsed.category as string;
-          } catch {
-            errorData.errorDescription = error.description;
-          }
-        }
-      }
-      const errorItem: INodeExecutionData = { json: errorData };
-      if (error instanceof NodeApiError) {
-        errorItem.error = error;
-      }
-      returnData.push(errorItem);
+      returnData.push(buildErrorItem(error));  // kein itemIndex → kein pairedItem
     } else {
       throw error;
     }
@@ -1389,41 +1342,31 @@ return [returnData];
 
 ### Error Item Struktur
 
-**Item-Loop Operations:**
+**Einheitliches Format, erzeugt von `buildErrorItem(error, itemIndex?)`:**
 ```typescript
 {
   json: {
     error: {
-      description?: string,   // error.description (NodeApiError)
+      description?: string,   // error.description
       message?: string,        // error.message
       httpCode?: string,       // HTTP-Status-Code
-      // ...weitere Felder aus error.errorResponse
+      // ...alle weiteren Felder aus error.errorResponse (request + response Details)
     },
   },
-  pairedItem: { item: number }, // Index des fehlgeschlagenen Input-Items
+  pairedItem?: { item: number }, // gesetzt wenn itemIndex übergeben wurde
 }
 ```
 
-**Batch Operations:**
-```typescript
-{
-  json: {
-    error: string,              // Error message
-    httpCode?: string,          // HTTP status code
-    hubspotError?: object,      // Parsed HubSpot API error response
-    errorDescription?: string,  // Fallback wenn JSON parse fehlschlägt
-  },
-  error: NodeApiError,          // Original Error Object – steuert n8n Error-Routing
-}
-```
+`error.errorResponse` enthält die vollständige HubSpot API Response (request method/url/body + response status/data), aufbereitet von `hubspotApiRequest` – kein manuelles JSON-Parsing nötig.
 
 ### Wichtige Regeln
 
 1. **`outputs: ['main']`** – kein separater Error Output nötig
 2. **`return [returnData]`** – immer ein einzelnes Array
-3. **`continueOnFail()` direkt im catch prüfen** – kein Utility-Helper nötig
-4. **`errorItem.error = error`** setzen (bei `NodeApiError`) – aktiviert n8n-internes Error-Routing
-5. **`pairedItem`** bei Item-Loop setzen, bei Batch weglassen
+3. **`buildErrorItem(error, i)`** für Item-Loop, **`buildErrorItem(error)`** für Batch
+4. **`buildErrorItem`** aus `../../transport/HubSpotApiRequest` importieren
+5. **`continueOnFail()` direkt im catch prüfen** – kein weiterer Utility-Helper nötig
+6. **`pairedItem`** wird automatisch gesetzt wenn `itemIndex` übergeben wird
 
 ### Testing Checklist
 
@@ -1434,7 +1377,7 @@ Für jeden Node mit Error Handling testen:
 - [ ] **Continue using Error Output**: Error-Item erscheint im Error Output
 - [ ] **Batch Operations**: Error Format korrekt, kein `pairedItem`
 - [ ] **Item-Loop Operations**: `pairedItem` korrekt gesetzt
-- [ ] **HubSpot Error Details**: `hubspotError` enthält API Response Body (Batch)
+- [ ] **`buildErrorItem`**: Error-Output enthält `error.errorResponse` mit HubSpot API-Details
 - [ ] **HTTP Status Code**: `httpCode` ist gesetzt bei API Errors
 
 ### Wann welches Pattern?
