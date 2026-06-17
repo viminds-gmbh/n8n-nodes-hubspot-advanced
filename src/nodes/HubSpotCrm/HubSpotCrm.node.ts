@@ -178,7 +178,7 @@ export class HubSpotCrm implements INodeType {
 					}
 				} catch (error) {
 				if (this.continueOnFail()) {
-					console.log("Error", error)
+					// console.log("Error", error)
 					returnData.push(buildErrorItem(error, i));
 					continue;
 				}
