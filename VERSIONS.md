@@ -6,6 +6,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-17
+
+### Added
+- HubSpot CMS Blog node for managing blog posts and blog tags (get, get all, create, update, delete, clone, schedule, reset draft, get draft, get revisions, restore revision, batch delete)
+- HubSpot CMS Pages node for managing site pages and landing pages (get, get all, create, update, delete, clone, publish, schedule, batch delete)
+- Dynamic page, template, and domain dropdowns in CMS Pages node with automatic pagination
+- Blog author and tag dropdowns in CMS Blog node with caching
+
+### Changed
+- HubDB Rows getAll operation now supports structured filtering, sorting, and column selection
+- CRM search filter UI now conditionally shows `value` or `values` fields based on the selected operator, reducing visual noise
+- CMS Pages: name and templatePath are now required fields for page creation
+
+### Fixed
+- Rate limiting error handling now correctly processes rate limit responses from HubSpot API
+- Error items passed through error output now include node context for easier debugging
+
 ## [0.4.1] - 2026-05-28
 
 ### Added

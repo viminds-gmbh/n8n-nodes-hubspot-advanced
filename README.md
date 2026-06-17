@@ -23,6 +23,8 @@ Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations,
 - ✅ **List Operations** – Retrieve list members efficiently with object type filtering
 - ✅ **Marketing Events** – Create, manage, and track marketing events with participant registration
 - ✅ **HubDB Operations** – Manage HubDB tables and rows with full CRUD support and publication control
+- ✅ **CMS Blog Management** – Create, update, schedule, and manage blog posts and blog tags
+- ✅ **CMS Pages Management** – Manage site pages and landing pages with publish, schedule, and batch delete
 - ✅ **Dynamic Property Loading** – Enhanced property selection with real-time options
 - ✅ **Association Label Support** – Filter and manage associations with custom labels using AND/OR logic
 - ✅ **Field Validation** – Comprehensive validation with helpful error messages and hints
@@ -347,7 +349,45 @@ Manage HubDB tables and rows for dynamic content storage and retrieval.
   → Returns all matching rows with automatic pagination
 ```
 
-### 9. HubSpot CMS Redirects
+### 9. HubSpot CMS Blog
+
+Manage HubSpot CMS blog posts and blog tags.
+
+**Operations:**
+- Get single post / Get all posts
+- Create, Update, Delete post
+- Clone post
+- Schedule post for publication
+- Get draft / Reset draft
+- Get revisions / Restore revision
+- Batch delete posts
+- Get / Create blog tags
+
+**Key Features:**
+- Dynamic blog and author dropdowns with caching
+- Tag dropdowns for easy assignment
+- Full draft lifecycle management
+- Revision history with restore support
+
+### 10. HubSpot CMS Pages
+
+Manage HubSpot CMS site pages and landing pages.
+
+**Operations:**
+- Get single page / Get all pages
+- Create, Update, Delete page
+- Clone page
+- Publish page
+- Schedule page for publication
+- Batch delete pages
+
+**Key Features:**
+- Dynamic page selection dropdown with status display
+- Template and domain dropdowns with caching
+- Automatic pagination for large page lists
+- Supports both site pages and landing pages
+
+### 11. HubSpot CMS Redirects
 
 Manage HubSpot CMS URL redirects with full CRUD support and search capabilities.
 
@@ -376,7 +416,7 @@ Manage HubSpot CMS URL redirects with full CRUD support and search capabilities.
   → Returns all matching redirects
 ```
 
-### 10. HubSpot Site Search
+### 12. HubSpot Site Search
 
 Search content across HubSpot-hosted sites and retrieve indexed data for specific assets.
 
@@ -519,6 +559,8 @@ src/
 │   ├── HubSpotMarketingEvents/  # Marketing events and participants
 │   ├── HubSpotHubDb/            # HubDB tables and rows
 │   ├── HubSpotCmsRedirects/     # CMS URL redirects
+│   ├── HubSpotCmsBlog/          # CMS blog posts and tags
+│   ├── HubSpotCmsPages/         # CMS site pages and landing pages
 │   └── HubSpotSiteSearch/        # Site search
 ├── transport/
 │   ├── RateLimiter.ts           # Adaptive rate limiting
@@ -554,6 +596,10 @@ tests/
 | HubDB Rows (CRUD) | v3 | HubSpot HubDB |
 | HubDB Batch Operations | v3 | HubSpot HubDB |
 | CMS URL Redirects | v3 | HubSpot CMS Redirects |
+| CMS Blog Posts (CRUD) | v3 | HubSpot CMS Blog |
+| CMS Blog Tags (CRUD) | v3 | HubSpot CMS Blog |
+| CMS Site Pages (CRUD) | v3 | HubSpot CMS Pages |
+| CMS Landing Pages (CRUD) | v3 | HubSpot CMS Pages |
 | Site Search | v3 | HubSpot Site Search |
 
 ## Roadmap
@@ -588,6 +634,8 @@ tests/
 - [x] Automatic batching for large IN/NOT_IN filter values
 - [x] HubSpot CMS Redirects node with search, get, create, update, delete
 - [x] HubSpot Site Search node with search and indexed data retrieval
+- [x] HubSpot CMS Blog node with full post and tag management
+- [x] HubSpot CMS Pages node with site page and landing page management
 - [ ] OAuth2 support
 - [ ] Webhook triggers
 - [ ] Advanced filtering UI
