@@ -95,10 +95,62 @@ export const limitRowsField: INodeProperties = {
 export const sortField: INodeProperties = {
 	displayName: 'Sort',
 	name: 'sort',
-	type: 'string',
-	default: '',
-	placeholder: 'column1,-column2',
-	description: 'Column names to sort by. Use "-" prefix for descending order (e.g., "-created_at").',
+	type: 'fixedCollection',
+	typeOptions: {
+		multipleValues: true,
+	},
+	default: {},
+	placeholder: 'Add Sort',
+	description: 'Sort results by one or more columns. Multiple sort criteria are applied in order.',
+	displayOptions: {
+		show: {
+			resource: ['row'],
+			operation: ['getAll'],
+		},
+	},
+	options: [
+		{
+			name: 'sortOptions',
+			displayName: 'Sort',
+			values: [
+				{
+					displayName: 'Column Name',
+					name: 'columnName',
+					type: 'options',
+					typeOptions: {
+						loadOptionsMethod: 'loadTableColumns',
+						loadOptionsDependsOn: ['tableId'],
+					},
+					default: '',
+					required: true,
+					description: 'The column to sort by. Choose from the list, or specify a column name using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				},
+				{
+					displayName: 'Direction',
+					name: 'direction',
+					type: 'options',
+					options: [
+						{ name: 'Ascending', value: 'asc' },
+						{ name: 'Descending', value: 'desc' },
+					],
+					default: 'asc',
+					description: 'Sort direction. Descending prepends "-" to the column name in the query.',
+				},
+			],
+		},
+	],
+};
+
+export const propertiesField: INodeProperties = {
+	displayName: 'Properties',
+	name: 'properties',
+	type: 'multiOptions',
+	typeOptions: {
+		loadOptionsMethod: 'loadTableColumns',
+		loadOptionsDependsOn: ['tableId'],
+	},
+	default: [],
+	description: 'Columns to include in the results. Choose from the list, or specify column names using an <a href="https://docs.n8n.io/code/expressions/">expression</a>. Leave empty to return all columns.',
 	displayOptions: {
 		show: {
 			resource: ['row'],
@@ -107,19 +159,70 @@ export const sortField: INodeProperties = {
 	},
 };
 
-export const propertiesField: INodeProperties = {
-	displayName: 'Properties',
-	name: 'properties',
-	type: 'string',
-	default: '',
-	placeholder: 'column1,column2,column3',
-	description: 'Comma-separated list of column names to include in results. Leave empty to return all columns.',
+export const rowFiltersField: INodeProperties = {
+	displayName: 'Filters',
+	name: 'rowFilters',
+	type: 'fixedCollection',
+	typeOptions: {
+		multipleValues: true,
+	},
+	default: {},
+	placeholder: 'Add Filter',
+	description: 'Filter rows by column values. Multiple filters are combined with AND logic.',
 	displayOptions: {
 		show: {
 			resource: ['row'],
 			operation: ['getAll'],
 		},
 	},
+	options: [
+		{
+			name: 'filters',
+			displayName: 'Filter',
+			values: [
+				{
+					displayName: 'Column Name',
+					name: 'columnName',
+					type: 'options',
+					typeOptions: {
+						loadOptionsMethod: 'loadTableColumns',
+						loadOptionsDependsOn: ['tableId'],
+					},
+					default: '',
+					required: true,
+					description: 'The column to filter by. Choose from the list, or specify a column name using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				},
+				{
+					displayName: 'Operator',
+					name: 'operator',
+					type: 'options',
+					options: [
+						{ name: 'Equal', value: 'eq' },
+						{ name: 'Not Equal', value: 'neq' },
+						{ name: 'Less Than', value: 'lt' },
+						{ name: 'Less Than or Equal', value: 'lte' },
+						{ name: 'Greater Than', value: 'gt' },
+						{ name: 'Greater Than or Equal', value: 'gte' },
+						{ name: 'Contains', value: 'contains' },
+						{ name: 'Contains (case-insensitive)', value: 'icontains' },
+						{ name: 'Starts With', value: 'startswith' },
+						{ name: 'In (semicolon-separated)', value: 'in' },
+						{ name: 'Not In (semicolon-separated)', value: 'nin' },
+					],
+					default: 'eq',
+					description: 'The comparison operator. <a href="https://developers.hubspot.com/docs/reference/cms/hubdb" target="_blank">See HubDB filter docs</a>.',
+				},
+				{
+					displayName: 'Value',
+					name: 'value',
+					type: 'string',
+					default: '',
+					placeholder: '5',
+					description: 'The value to compare against. For "In" / "Not In" operators use semicolon-separated values (e.g., value1;value2).',
+				},
+			],
+		},
+	],
 };
 
 // Create/Update Row
@@ -421,6 +524,7 @@ export const rowFields: INodeProperties[] = [
 	limitRowsField,
 	sortField,
 	propertiesField,
+	rowFiltersField,
 	rowIdField,
 	columnValuesField,
 	batchModeField,

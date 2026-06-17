@@ -89,6 +89,12 @@ function buildBatchRowsFromItems(
 	return rows;
 }
 
+interface RowFilter {
+	columnName: string;
+	operator: string;
+	value: string;
+}
+
 async function getAllRows(
 	context: IExecuteFunctions,
 	i: number
@@ -96,8 +102,25 @@ async function getAllRows(
 	const tableId = context.getNodeParameter('tableId', i) as string;
 	const returnAll = context.getNodeParameter('returnAll', i) as boolean;
 	const limit = returnAll ? undefined : (context.getNodeParameter('limit', i, 100) as number);
-	const sort = context.getNodeParameter('sort', i, '') as string;
-	const properties = context.getNodeParameter('properties', i, '') as string;
+	const sortData = context.getNodeParameter('sort', i, {}) as { sortOptions?: Array<{ columnName: string; direction: string }> };
+	const sort = (sortData.sortOptions ?? [])
+		.filter((s) => s.columnName)
+		.map((s) => (s.direction === 'desc' ? `-${s.columnName}` : s.columnName))
+		.join(',');
+	const propertiesRaw = context.getNodeParameter('properties', i, []) as string[] | string;
+	const properties = Array.isArray(propertiesRaw) ? propertiesRaw.join(',') : propertiesRaw;
+	const rowFiltersData = context.getNodeParameter('rowFilters', i, {}) as { filters?: RowFilter[] };
+
+	const filterParams: IDataObject = {};
+	if (rowFiltersData.filters && rowFiltersData.filters.length > 0) {
+		for (const f of rowFiltersData.filters) {
+			if (!f.columnName) continue;
+			// HubDB filter syntax: column__operator=value (eq uses no suffix)
+			const paramKey = f.operator === 'eq' ? f.columnName : `${f.columnName}__${f.operator}`;
+			// For "in" / "nin", the API expects semicolons as-is in the value
+			filterParams[paramKey] = f.value;
+		}
+	}
 
 	let results: IDataObject[] = [];
 	let after: string | undefined;
@@ -106,6 +129,7 @@ async function getAllRows(
 	while (hasMore) {
 		const queryParams: IDataObject = {
 			limit: 100,
+			...filterParams,
 		};
 
 		if (after) {
