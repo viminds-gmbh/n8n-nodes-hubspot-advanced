@@ -60,12 +60,16 @@ async function getObject(
 	i: number
 ): Promise<INodeExecutionData> {
 	const objectId = context.getNodeParameter('objectId', i) as string;
+	const idProperty = context.getNodeParameter('idProperty', i, 'hs_object_id') as string;
 	const properties = context.getNodeParameter('properties', i, []) as string[] | string;
 
 	const qs: IDataObject = {};
 	if (properties && properties.length > 0) {
 		const propertiesString = Array.isArray(properties) ? properties.join(',') : properties;
 		qs.properties = propertiesString;
+	}
+	if (idProperty !== 'hs_object_id') {
+		qs.idProperty = idProperty;
 	}
 
 	const response = await hubspotApiRequest.call(
@@ -86,6 +90,7 @@ async function getManyObjects(
 ): Promise<INodeExecutionData[]> {
 	const properties = context.getNodeParameter('properties', 0, []) as string[] | string;
 	const idField = context.getNodeParameter('idField', 0, 'id') as string;
+	const idProperty = context.getNodeParameter('idProperty', 0, 'hs_object_id') as string;
 
 	const validation = validateFieldMapping(items, idField);
 
@@ -116,6 +121,7 @@ async function getManyObjects(
 		objectType,
 		ids,
 		propertiesArray,
+		idProperty !== 'hs_object_id' ? idProperty : undefined,
 	);
 
 	return results.map((result) => ({ json: result }));

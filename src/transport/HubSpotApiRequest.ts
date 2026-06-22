@@ -135,6 +135,7 @@ export async function hubspotBatchRequest(
 	objectType: string,
 	ids: string[],
 	properties: string[] = [],
+	idProperty?: string,
 ): Promise<IDataObject[]> {
 	const batchSize = 100;
 	const results: IDataObject[] = [];
@@ -143,7 +144,7 @@ export async function hubspotBatchRequest(
 		const batch = ids.slice(i, i + batchSize);
 
 		const body: IDataObject = {
-			inputs: batch.map((id) => ({ id })),
+			inputs: batch.map((id) => idProperty ? { id, idProperty } : { id }),
 			properties,
 		};
 

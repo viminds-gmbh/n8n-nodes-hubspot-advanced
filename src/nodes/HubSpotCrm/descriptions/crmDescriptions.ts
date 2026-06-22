@@ -87,10 +87,10 @@ export const idPropertyField: INodeProperties = {
 		loadOptionsDependsOn: ['objectType', 'customObjectType'],
 	},
 	default: 'hs_object_id',
-	description: 'The HubSpot property used to identify objects for update. Default is hs_object_id. Use alternative unique properties like email for contacts.',
+	description: 'The HubSpot property used to identify objects. Default is hs_object_id. Use alternative unique properties like email for contacts.',
 	displayOptions: {
 		show: {
-			operation: ['update', 'batchUpdate', 'batchUpsert'],
+			operation: ['get', 'getMany', 'update', 'batchUpdate', 'batchUpsert'],
 		},
 	},
 };
