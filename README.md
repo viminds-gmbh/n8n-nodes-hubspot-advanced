@@ -72,6 +72,7 @@ Advanced CRM operations with search, filtering, and batch support.
 - **ReturnAll option** for automatic pagination of large result sets
 - **Association labels** support during object creation
 - **Batch operations** with field-name mapping for efficient bulk processing (up to 100 items per API call)
+- **idProperty parameter** for flexible object identification in getObject and getManyObjects operations
 
 **Example Workflow:**
 ```

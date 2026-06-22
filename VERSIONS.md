@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-06-22
+
+### Added
+- idProperty parameter to getObject and getManyObjects operations in HubSpot CRM node for flexible object identification
+
+### Changed
+- Upgraded Node.js from version 20 to 22 in GitHub Actions workflows and .nvmrc
+- Removed npm publish step from release workflow
+
 ## [0.5.0] - 2026-06-17
 
 ### Added
