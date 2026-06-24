@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-06-24
+
+### Added
+- Conversations and Threads as supported HubSpot object types with dropdown options
+- Marketing Event associations with official HubSpot IDs for 22 object type pairs
+- Modular association type mapping architecture: 30+ per-object-type files replacing the monolithic mapping file
+
+### Changed
+- Refactored `AssociationTypeMapping.ts` into modular per-object-type files under `src/transport/associations/` for better maintainability
+- Updated all association type IDs to match official HubSpot documentation across contacts, companies, deals, tickets, leads, calls, emails, meetings, notes, tasks, communications, postal mail, orders, carts, line items, quotes, invoices, payments, subscriptions, discounts, fees, taxes, appointments, courses, listings, services, feedback submissions, goals, projects, and marketing events
+
 ## [0.5.1] - 2026-06-22
 
 ### Added
