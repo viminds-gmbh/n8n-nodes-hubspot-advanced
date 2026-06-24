@@ -1,0 +1,15 @@
+export const listingAssociations: Record<string, number> = {
+	'listings:contacts': 882,
+	'listings:companies': 884,
+	'listings:deals': 886,
+	'listings:tickets': 942,
+	'listings:calls': 891,
+	'listings:emails': 895,
+	'listings:meetings': 896,
+	'listings:notes': 899,
+	'listings:tasks': 901,
+	'listings:communications': 902,
+	'listings:postal_mail': 905,
+	'listings:projects': 1320,
+	'listings:marketing_events': 2773,
+};

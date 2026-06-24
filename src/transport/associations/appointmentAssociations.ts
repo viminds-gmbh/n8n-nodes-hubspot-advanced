@@ -1,0 +1,15 @@
+export const appointmentAssociations: Record<string, number> = {
+	'appointments:contacts': 906,
+	'appointments:companies': 908,
+	'appointments:deals': 944,
+	'appointments:tickets': 946,
+	'appointments:calls': 913,
+	'appointments:emails': 917,
+	'appointments:meetings': 918,
+	'appointments:notes': 921,
+	'appointments:tasks': 923,
+	'appointments:communications': 924,
+	'appointments:postal_mail': 927,
+	'appointments:projects': 1324,
+	'appointments:marketing_events': 2729,
+};

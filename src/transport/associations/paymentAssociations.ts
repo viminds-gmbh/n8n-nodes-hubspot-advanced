@@ -1,0 +1,15 @@
+export const paymentAssociations: Record<string, number> = {
+	'payments:contacts': 387,
+	'payments:companies': 389,
+	'payments:deals': 391,
+	'payments:tickets': 1354,
+	'payments:orders': 524,
+	'payments:quotes': 398,
+	'payments:subscriptions': 393,
+	'payments:discounts': 428,
+	'payments:fees': 1327,
+	'payments:invoices': 542,
+	'payments:line_items': 396,
+	'payments:payment_links': 475,
+	'payments:feedback_submissions': 1170,
+};

@@ -1,0 +1,15 @@
+export const serviceAssociations: Record<string, number> = {
+	'services:contacts': 798,
+	'services:companies': 792,
+	'services:deals': 794,
+	'services:tickets': 796,
+	'services:calls': 841,
+	'services:emails': 843,
+	'services:meetings': 838,
+	'services:notes': 837,
+	'services:tasks': 853,
+	'services:communications': 846,
+	'services:postal_mail': 849,
+	'services:projects': 1244,
+	'services:marketing_events': 261,
+};

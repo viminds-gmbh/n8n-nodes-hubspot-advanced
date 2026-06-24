@@ -1,0 +1,16 @@
+export const taskAssociations: Record<string, number> = {
+	'tasks:contacts': 204,
+	'tasks:companies': 192,
+	'tasks:deals': 216,
+	'tasks:tickets': 230,
+	'tasks:quotes': 217,
+	'tasks:leads': 647,
+	'tasks:carts': 728,
+	'tasks:orders': 727,
+	'tasks:appointments': 923,
+	'tasks:courses': 877,
+	'tasks:listings': 901,
+	'tasks:services': 853,
+	'tasks:projects': 1246,
+	'tasks:marketing_events': 2592,
+};

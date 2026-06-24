@@ -84,6 +84,7 @@ export const HUBSPOT_OBJECT_TYPES = [
 	'notes',
 	'tasks',
 	'communications',
+	'conversations',
 	'feedback_submissions',
 	'invoices',
 	'marketing_events',
@@ -102,6 +103,7 @@ export const HUBSPOT_OBJECT_TYPES = [
 	'listings',
 	'appointments',
 	'projects',
+	'threads',
 ] as const;
 
 export type HubSpotObjectType = (typeof HUBSPOT_OBJECT_TYPES)[number];
@@ -121,6 +123,7 @@ export const HUBSPOT_OBJECT_TYPE_OPTIONS = [
 	{ name: 'Calls', value: 'calls' },
 	{ name: 'Carts', value: 'carts' },
 	{ name: 'Communications', value: 'communications' },
+	{ name: 'Conversations', value: 'conversations' },
 	{ name: 'Discounts', value: 'discounts' },
 	{ name: 'Emails', value: 'emails' },
 	{ name: 'Feedback Submissions', value: 'feedback_submissions' },

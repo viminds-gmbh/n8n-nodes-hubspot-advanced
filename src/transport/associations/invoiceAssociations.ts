@@ -1,0 +1,16 @@
+export const invoiceAssociations: Record<string, number> = {
+	'invoices:contacts': 177,
+	'invoices:companies': 179,
+	'invoices:deals': 175,
+	'invoices:quotes': 408,
+	'invoices:subscriptions': 623,
+	'invoices:payment_links': 814,
+	'invoices:orders': 517,
+	'invoices:tickets': 986,
+	'invoices:line_items': 410,
+	'invoices:discounts': 412,
+	'invoices:fees': 414,
+	'invoices:taxes': 416,
+	'invoices:payments': 542,
+	'invoices:feedback_submissions': 1160,
+};

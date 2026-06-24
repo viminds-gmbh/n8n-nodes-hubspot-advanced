@@ -1,0 +1,15 @@
+export const courseAssociations: Record<string, number> = {
+	'courses:contacts': 860,
+	'courses:companies': 938,
+	'courses:deals': 862,
+	'courses:tickets': 940,
+	'courses:calls': 867,
+	'courses:emails': 871,
+	'courses:meetings': 872,
+	'courses:notes': 875,
+	'courses:tasks': 877,
+	'courses:communications': 878,
+	'courses:postal_mail': 881,
+	'courses:projects': 1322,
+	'courses:marketing_events': 2761,
+};
