@@ -6,9 +6,9 @@ export const meetingAssociations: Record<string, number> = {
 	'meetings:leads': 601,
 	'meetings:orders': 769,
 	'meetings:appointments': 919,
-	'meetings:courses': 872,
-	'meetings:listings': 896,
-	'meetings:services': 838,
+	'meetings:courses': 873,
+	'meetings:listings': 897,
+	'meetings:services': 839,
 	'meetings:projects': 284,
 	'meetings:marketing_events': 259,
 };

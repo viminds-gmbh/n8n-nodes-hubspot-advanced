@@ -8,5 +8,5 @@ export const postalMailAssociations: Record<string, number> = {
 	'postal_mail:courses': 881,
 	'postal_mail:listings': 905,
 	'postal_mail:services': 849,
-	'postal_mail:projects': 1263,
+	'postal_mail:projects': 1264,
 };

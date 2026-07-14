@@ -9,6 +9,6 @@ export const noteAssociations: Record<string, number> = {
 	'notes:courses': 875,
 	'notes:listings': 899,
 	'notes:services': 837,
-	'notes:projects': 1248,
-	'notes:marketing_events': 2537,
+	'notes:projects': 1249,
+	'notes:marketing_events': 260,
 };

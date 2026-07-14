@@ -5,10 +5,10 @@ export const emailAssociations: Record<string, number> = {
 	'emails:tickets': 224,
 	'emails:leads': 599,
 	'emails:appointments': 917,
-	'emails:orders': 776,
+	'emails:orders': 777,
 	'emails:courses': 871,
 	'emails:listings': 895,
-	'emails:projects': 1259,
+	'emails:projects': 1260,
 	'emails:services': 843,
-	'emails:marketing_events': 497,
+	'emails:marketing_events': 498,
 };
