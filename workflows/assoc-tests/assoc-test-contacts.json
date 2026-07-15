@@ -1,0 +1,2728 @@
+{
+  "name": "Assoc Test: contacts",
+  "id": "30436e35c12046e3",
+  "createdAt": "2026-07-15T09:27:07.116Z",
+  "updatedAt": "2026-07-15T09:27:07.116Z",
+  "description": "Test all HUBSPOT_DEFINED associations from contacts",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "name": "Start",
+      "id": "fc15ff50-e2bd-4402-a593-74bc62111256"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        300,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search contacts",
+      "id": "1e6b081a-1400-42a6-961d-f8a52f5f7dca"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "companies",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search companies",
+      "id": "7e485db8-1079-4582-8b87-31be313efc11"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        900,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "companies",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search companies').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→companies",
+      "id": "ba457c13-b411-4fa4-abd6-580e7c45cc36"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "companies",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search companies').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→companies (primary_company)",
+      "id": "e25e46ea-d967-4b1f-ad9c-c011ccacb002"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "companies",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search companies').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→companies (billing_company)",
+      "id": "60e0afbb-b579-49b4-990e-57c1a0ce4715"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "companies",
+        "objectId": "={{ $('Search companies').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete companies",
+      "id": "25276b6e-857d-4212-8dc2-1dcac23046f8"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        2100,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "deals",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search deals",
+      "id": "507fa076-bc57-4883-b334-87ffd2602245"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "deals",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search deals').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→deals",
+      "id": "8828a8aa-86e2-4a33-93ca-28bc32c37ad3"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        2700,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "deals",
+        "objectId": "={{ $('Search deals').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete deals",
+      "id": "fe6d9aca-f968-4dc8-8263-ae0bbf9ee2df"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        3000,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "tickets",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search tickets",
+      "id": "345b45f6-3ae6-4a5b-9a0e-b423472ebf64"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        3300,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "tickets",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search tickets').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→tickets",
+      "id": "a4711551-0a6d-452a-a45e-26862f4107f4"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        3600,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "tickets",
+        "objectId": "={{ $('Search tickets').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete tickets",
+      "id": "79ac7c08-4104-43a0-9c9f-0db841bcbd5b"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        3900,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "calls",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search calls",
+      "id": "235b1fc7-8707-4129-a962-12ea717666ec"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        4200,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "calls",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search calls').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→calls",
+      "id": "b33875b3-cad4-485b-8c46-eb53a29c4b76"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        4500,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "calls",
+        "objectId": "={{ $('Search calls').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete calls",
+      "id": "c8641b9e-c50c-4de1-a166-93d2fdcab033"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        4800,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "emails",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search emails",
+      "id": "42cdb9ad-5a08-4038-8de1-1f0af84c9146"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        5100,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "emails",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search emails').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→emails",
+      "id": "d620c207-fd07-4435-a48b-c277585d9bd9"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        5400,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "emails",
+        "objectId": "={{ $('Search emails').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete emails",
+      "id": "348e9a9d-ce12-4f5e-a8ea-63aada6cc95a"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        5700,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "meetings",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search meetings",
+      "id": "a7f43763-6cf2-46aa-9a52-4315429eb55b"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        6000,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "meetings",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search meetings').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→meetings",
+      "id": "70eb0bd2-3bc9-4cd9-998b-5f13c16ae4d5"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        6300,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "meetings",
+        "objectId": "={{ $('Search meetings').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete meetings",
+      "id": "8a6711cd-c087-4188-8659-fbaddf1c9fac"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        6600,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "notes",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search notes",
+      "id": "c505fc0b-bb77-4e41-8911-810d3ccda92c"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        6900,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "notes",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search notes').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→notes",
+      "id": "e3d44003-a3e5-431e-9c9b-ce1222fa65e8"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        7200,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "notes",
+        "objectId": "={{ $('Search notes').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete notes",
+      "id": "8949585c-0f21-4c74-ab48-49f9120b435c"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        7500,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "tasks",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search tasks",
+      "id": "3e3cd62f-ac69-4764-8924-b80cfd58e63e"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        7800,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "tasks",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search tasks').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→tasks",
+      "id": "48e9f62b-9290-4736-ab74-17db83575bd5"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        8100,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "tasks",
+        "objectId": "={{ $('Search tasks').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete tasks",
+      "id": "7d352671-80cc-42dc-bacb-96b963f2d5bc"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        8400,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "communications",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search communications",
+      "id": "d1ec129e-47e0-4ea3-8d6b-eb71bf36a39a"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        8700,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "communications",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search communications').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→communications",
+      "id": "9f0f1e2f-61cf-4b51-9b4c-6e8e7b464845"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        9000,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "communications",
+        "objectId": "={{ $('Search communications').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete communications",
+      "id": "d8818bca-8411-4260-ae33-da9e2a4a1a50"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        9300,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "postal_mail",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search postal_mail",
+      "id": "6078103a-8bf0-40c8-987d-2bc4bc504238"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        9600,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "postal_mail",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search postal_mail').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→postal_mail",
+      "id": "7f138277-fd84-412a-b459-2ff452acb3bb"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        9900,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "postal_mail",
+        "objectId": "={{ $('Search postal_mail').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete postal_mail",
+      "id": "598814a8-6f23-4b9b-9977-df284d42a848"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        10200,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "carts",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search carts",
+      "id": "b96bf500-fef7-4ee7-92c6-c7908eb51583"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        10500,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "carts",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search carts').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→carts",
+      "id": "f2c031bd-eae2-40fe-aee6-00242dda8e6c"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        10800,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "carts",
+        "objectId": "={{ $('Search carts').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete carts",
+      "id": "ac128fa7-ee45-4cf1-9963-effb9f4e893f"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        11100,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "orders",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search orders",
+      "id": "0d698265-0090-4880-8396-dceb0063ed37"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        11400,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "orders",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search orders').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→orders",
+      "id": "91f2719b-eede-4c56-99dc-a5faa5a93258"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        11700,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "orders",
+        "objectId": "={{ $('Search orders').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete orders",
+      "id": "507c6709-5cb2-4996-a7cb-ce3de95c5d18"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        12000,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "invoices",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search invoices",
+      "id": "aadab40d-e278-4f1a-bd25-d0d8e4dd7d9e"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        12300,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "invoices",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search invoices').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→invoices",
+      "id": "1e24cfbc-da4e-412f-ab89-6468e23f2bf5"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        12600,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "invoices",
+        "objectId": "={{ $('Search invoices').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete invoices",
+      "id": "5436d741-e03f-4849-bedc-86e9a20def55"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        12900,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "payments",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search payments",
+      "id": "2f212065-aac0-45aa-9dc1-1f7e0c9cd7ed"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        13200,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "payments",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search payments').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→payments",
+      "id": "53c42709-e806-4c7b-9c4d-013b9f6bc163"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        13500,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "payments",
+        "objectId": "={{ $('Search payments').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete payments",
+      "id": "bd4ebe57-664e-4feb-95fb-d0b32ef9347b"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        13800,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "payment_links",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search payment_links",
+      "id": "45b376ad-7fec-48af-bfa4-c7782d44c015"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        14100,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "payment_links",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search payment_links').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→payment_links",
+      "id": "9ad07259-509a-48e8-9301-21f953a36b31"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        14400,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "payment_links",
+        "objectId": "={{ $('Search payment_links').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete payment_links",
+      "id": "033e2865-3ca1-45b4-813d-56b95faad6ef"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        14700,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "subscriptions",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search subscriptions",
+      "id": "ca05c2b7-165b-42ac-b0df-813962abd423"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        15000,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "subscriptions",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search subscriptions').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→subscriptions",
+      "id": "ff130656-3224-41ee-b4f3-4bf4b78ae4bc"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        15300,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "subscriptions",
+        "objectId": "={{ $('Search subscriptions').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete subscriptions",
+      "id": "b1de6128-b4f6-4dc5-aa81-790e66c8216f"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        15600,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "appointments",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search appointments",
+      "id": "65d44289-e546-451d-a08e-331f04d0b7ef"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        15900,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "appointments",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search appointments').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→appointments",
+      "id": "83f379fc-1af4-4b8e-9565-d83019f2edbc"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        16200,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "appointments",
+        "objectId": "={{ $('Search appointments').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete appointments",
+      "id": "8993c96d-ca4f-4948-a726-e96256b14e28"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        16500,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "courses",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search courses",
+      "id": "8c342e8e-5fc6-4734-bfa3-d08abf936b67"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        16800,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "courses",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search courses').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→courses",
+      "id": "a5d3a68e-86e4-496f-b362-be4c961b4010"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        17100,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "courses",
+        "objectId": "={{ $('Search courses').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete courses",
+      "id": "244a27c7-23c9-4cd8-a57c-280774ae0bef"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        17400,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "listings",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search listings",
+      "id": "9794bab3-603e-4e61-b8f6-f4d2fc1cc7ff"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        17700,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "listings",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search listings').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→listings",
+      "id": "8820d35e-66d6-4321-9236-1a797785fac9"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        18000,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "listings",
+        "objectId": "={{ $('Search listings').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete listings",
+      "id": "f21211f4-8ad7-4314-b62a-56f4bb3717f0"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        18300,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "services",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search services",
+      "id": "075b681a-7a87-4e37-9776-41cae500e1a8"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        18600,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "services",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search services').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→services",
+      "id": "9a0c514e-2038-40f7-a16b-f903e0cc21ff"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        18900,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "services",
+        "objectId": "={{ $('Search services').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete services",
+      "id": "508e289d-b829-4f3f-81e3-a91331bf82f0"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        19200,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "feedback_submissions",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search feedback_submissions",
+      "id": "399650e5-758a-46e9-8188-831741840b71"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        19500,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "feedback_submissions",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search feedback_submissions').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→feedback_submissions",
+      "id": "188a3e31-2f15-4d4c-bf88-b8111ebdfc6c"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        19800,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "feedback_submissions",
+        "objectId": "={{ $('Search feedback_submissions').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete feedback_submissions",
+      "id": "cd5ca4a5-92e2-4d88-88fe-eec9461a4692"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        20100,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "projects",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search projects",
+      "id": "d8035df9-8ee6-4675-a5b4-0c63bddebb09"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        20400,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "projects",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search projects').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→projects",
+      "id": "92d625c9-3a8e-4083-b7d7-57475257ee4a"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        20700,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "projects",
+        "objectId": "={{ $('Search projects').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete projects",
+      "id": "6e6aa679-d532-4d85-9e9e-92c4b8c8f2b1"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        21000,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "leads",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search leads",
+      "id": "79104b61-6048-47aa-8d4a-fb5fa8bd232a"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        21300,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "leads",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search leads').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→leads",
+      "id": "259685b8-63c7-4d0f-9a1f-32ac035d2bcd"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        21600,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "leads",
+        "objectId": "={{ $('Search leads').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete leads",
+      "id": "7f5885fc-9dec-43b5-937a-f126c1b5cb30"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        21900,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "quotes",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search quotes",
+      "id": "4f2e5f32-3d19-4af8-9843-21ec04166f83"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        22200,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "quotes",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search quotes').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→quotes",
+      "id": "d1fff94b-2279-4497-bc78-062a674f5572"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        22500,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "quotes",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search quotes').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→quotes (signer_quotes)",
+      "id": "64101796-5da7-42b2-a5ce-a0d32fde9665"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        22800,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "quotes",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search quotes').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→quotes (billing_quotes)",
+      "id": "5ba2a6e0-3c27-4c0a-b43e-2c7994eeef02"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        23100,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "quotes",
+        "objectId": "={{ $('Search quotes').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete quotes",
+      "id": "826c8f52-6b61-4d74-8374-d18eb833983a"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        23400,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "marketing_events",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search marketing_events",
+      "id": "4789deef-e6a0-4069-a3e8-11d11cd0f045"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        23700,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "contacts",
+        "toObjectType": "marketing_events",
+        "fromObjectId": "={{ $('Search contacts').item.json.id }}",
+        "toObjectId": "={{ $('Search marketing_events').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc contacts→marketing_events",
+      "id": "aa7a097d-44ec-42ce-aa71-f9a1bbf78ac2"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        24000,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "marketing_events",
+        "objectId": "={{ $('Search marketing_events').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete marketing_events",
+      "id": "415731a2-b7fa-483d-9ce7-94c9b257f4dd"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        24300,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectId": "={{ $('Search contacts').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete contacts",
+      "id": "a48464d0-7f78-424c-8db4-a65432c288ea"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Search contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search contacts": {
+      "main": [
+        [
+          {
+            "node": "Search companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search companies": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→companies": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→companies (primary_company)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→companies (primary_company)": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→companies (billing_company)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→companies (billing_company)": {
+      "main": [
+        [
+          {
+            "node": "Delete companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete companies": {
+      "main": [
+        [
+          {
+            "node": "Search deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search deals": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→deals": {
+      "main": [
+        [
+          {
+            "node": "Delete deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete deals": {
+      "main": [
+        [
+          {
+            "node": "Search tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search tickets": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→tickets": {
+      "main": [
+        [
+          {
+            "node": "Delete tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete tickets": {
+      "main": [
+        [
+          {
+            "node": "Search calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search calls": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→calls": {
+      "main": [
+        [
+          {
+            "node": "Delete calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete calls": {
+      "main": [
+        [
+          {
+            "node": "Search emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search emails": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→emails": {
+      "main": [
+        [
+          {
+            "node": "Delete emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete emails": {
+      "main": [
+        [
+          {
+            "node": "Search meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search meetings": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→meetings": {
+      "main": [
+        [
+          {
+            "node": "Delete meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete meetings": {
+      "main": [
+        [
+          {
+            "node": "Search notes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search notes": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→notes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→notes": {
+      "main": [
+        [
+          {
+            "node": "Delete notes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete notes": {
+      "main": [
+        [
+          {
+            "node": "Search tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search tasks": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→tasks": {
+      "main": [
+        [
+          {
+            "node": "Delete tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete tasks": {
+      "main": [
+        [
+          {
+            "node": "Search communications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search communications": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→communications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→communications": {
+      "main": [
+        [
+          {
+            "node": "Delete communications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete communications": {
+      "main": [
+        [
+          {
+            "node": "Search postal_mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search postal_mail": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→postal_mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→postal_mail": {
+      "main": [
+        [
+          {
+            "node": "Delete postal_mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete postal_mail": {
+      "main": [
+        [
+          {
+            "node": "Search carts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search carts": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→carts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→carts": {
+      "main": [
+        [
+          {
+            "node": "Delete carts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete carts": {
+      "main": [
+        [
+          {
+            "node": "Search orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search orders": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→orders": {
+      "main": [
+        [
+          {
+            "node": "Delete orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete orders": {
+      "main": [
+        [
+          {
+            "node": "Search invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search invoices": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→invoices": {
+      "main": [
+        [
+          {
+            "node": "Delete invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete invoices": {
+      "main": [
+        [
+          {
+            "node": "Search payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search payments": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→payments": {
+      "main": [
+        [
+          {
+            "node": "Delete payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete payments": {
+      "main": [
+        [
+          {
+            "node": "Search payment_links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search payment_links": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→payment_links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→payment_links": {
+      "main": [
+        [
+          {
+            "node": "Delete payment_links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete payment_links": {
+      "main": [
+        [
+          {
+            "node": "Search subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Delete subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Search appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search appointments": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→appointments": {
+      "main": [
+        [
+          {
+            "node": "Delete appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete appointments": {
+      "main": [
+        [
+          {
+            "node": "Search courses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search courses": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→courses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→courses": {
+      "main": [
+        [
+          {
+            "node": "Delete courses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete courses": {
+      "main": [
+        [
+          {
+            "node": "Search listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search listings": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→listings": {
+      "main": [
+        [
+          {
+            "node": "Delete listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete listings": {
+      "main": [
+        [
+          {
+            "node": "Search services",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search services": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→services",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→services": {
+      "main": [
+        [
+          {
+            "node": "Delete services",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete services": {
+      "main": [
+        [
+          {
+            "node": "Search feedback_submissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search feedback_submissions": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→feedback_submissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→feedback_submissions": {
+      "main": [
+        [
+          {
+            "node": "Delete feedback_submissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete feedback_submissions": {
+      "main": [
+        [
+          {
+            "node": "Search projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search projects": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→projects": {
+      "main": [
+        [
+          {
+            "node": "Delete projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete projects": {
+      "main": [
+        [
+          {
+            "node": "Search leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search leads": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→leads": {
+      "main": [
+        [
+          {
+            "node": "Delete leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete leads": {
+      "main": [
+        [
+          {
+            "node": "Search quotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search quotes": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→quotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→quotes": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→quotes (signer_quotes)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→quotes (signer_quotes)": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→quotes (billing_quotes)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→quotes (billing_quotes)": {
+      "main": [
+        [
+          {
+            "node": "Delete quotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete quotes": {
+      "main": [
+        [
+          {
+            "node": "Search marketing_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search marketing_events": {
+      "main": [
+        [
+          {
+            "node": "Assoc contacts→marketing_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc contacts→marketing_events": {
+      "main": [
+        [
+          {
+            "node": "Delete marketing_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete marketing_events": {
+      "main": [
+        [
+          {
+            "node": "Delete contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveManualExecutions": true
+  },
+  "tags": []
+}

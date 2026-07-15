@@ -1,0 +1,1162 @@
+{
+  "name": "Assoc Test: line_items",
+  "id": "bb6a63f451084f72",
+  "createdAt": "2026-07-15T09:27:07.120Z",
+  "updatedAt": "2026-07-15T09:27:07.120Z",
+  "description": "Test all HUBSPOT_DEFINED associations from line_items",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "name": "Start",
+      "id": "618e7789-0202-4eb6-b3ff-5c28ec46d602"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        300,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "line_items",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search line_items",
+      "id": "b93b8fae-1881-4ab0-b025-abda92fb5385"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "deals",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search deals",
+      "id": "3cdab117-a62e-4ebe-97e9-e3e12ae7334c"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        900,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "deals",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search deals').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→deals",
+      "id": "31c1cc98-1362-43d7-9d4c-9bf9aeae3a4c"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "deals",
+        "objectId": "={{ $('Search deals').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete deals",
+      "id": "4d45023d-18bd-4515-8809-03d805871b34"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "orders",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search orders",
+      "id": "f1eecbd8-6b7e-4e31-9267-a4b617186945"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "orders",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search orders').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→orders",
+      "id": "d1747625-91f2-4e95-ba07-1a30b17a676e"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        2100,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "orders",
+        "objectId": "={{ $('Search orders').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete orders",
+      "id": "884fe29b-c3c6-4d8f-ab1d-c5e7570531fd"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "quotes",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search quotes",
+      "id": "9fa663e9-29ab-4dc5-86a8-48078ffa1e8e"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        2700,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "quotes",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search quotes').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→quotes",
+      "id": "1755f1ee-844f-499b-a202-3d7d92b5c720"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        3000,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "quotes",
+        "objectId": "={{ $('Search quotes').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete quotes",
+      "id": "c0db91bc-97b1-41b5-b76a-b606d81a6e08"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        3300,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "discounts",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search discounts",
+      "id": "dd9b8c9d-d791-4147-a240-5a586cfebb73"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        3600,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "discounts",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search discounts').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→discounts",
+      "id": "c40b611e-9958-443e-b3ba-2b3226814ede"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        3900,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "discounts",
+        "objectId": "={{ $('Search discounts').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete discounts",
+      "id": "f2b0f42f-74d9-4743-a57e-ca8102c55c6f"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        4200,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "invoices",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search invoices",
+      "id": "7c599372-c464-4c17-92a4-8b0e19e7219b"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        4500,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "invoices",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search invoices').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→invoices",
+      "id": "0c0cb6ea-3f8c-466b-8665-f9ad9f9be1e0"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        4800,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "invoices",
+        "objectId": "={{ $('Search invoices').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete invoices",
+      "id": "caa8dadb-a34a-4e72-856b-35d68ff5789a"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        5100,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "payments",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search payments",
+      "id": "311c25f2-5180-4a36-a090-2caa6af8e408"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        5400,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "payments",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search payments').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→payments",
+      "id": "4925650a-a06b-49c7-aee7-799d5c19d5a7"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        5700,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "payments",
+        "objectId": "={{ $('Search payments').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete payments",
+      "id": "791cd560-d09c-421a-b906-fc15d0dee78f"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        6000,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "payment_links",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search payment_links",
+      "id": "7ae083b9-0c41-4615-8af4-8c2b25749ab9"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        6300,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "payment_links",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search payment_links').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→payment_links",
+      "id": "7ea20ce8-3d57-4f44-a626-f1cd7feb2ce0"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        6600,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "payment_links",
+        "objectId": "={{ $('Search payment_links').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete payment_links",
+      "id": "dd3007fd-b3a1-45a7-96f8-5d36e05e2f1e"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        6900,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "subscriptions",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search subscriptions",
+      "id": "f6a4ae98-44ff-48ab-9500-1c1c0215ce54"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        7200,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "subscriptions",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search subscriptions').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→subscriptions",
+      "id": "99b56b1b-dfc7-4ddc-8775-ffeca0d728bf"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        7500,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "subscriptions",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search subscriptions').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→subscriptions (upcoming_subscriptions)",
+      "id": "b3041767-7bd7-4d6a-9846-78039683c651"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        7800,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "subscriptions",
+        "objectId": "={{ $('Search subscriptions').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete subscriptions",
+      "id": "626edb15-c9a1-4ffd-b7c6-58eb607731e8"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        8100,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "carts",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search carts",
+      "id": "970fdaf5-7c90-4ae0-801e-f0715daa2c44"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        8400,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "carts",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search carts').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→carts",
+      "id": "7dde6320-9311-4af4-b956-556697aa3d62"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        8700,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "carts",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search carts').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→carts (abandoned_carts)",
+      "id": "7dc43b7f-2533-49d2-a268-12bc41af9318"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        9000,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "carts",
+        "objectId": "={{ $('Search carts').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete carts",
+      "id": "87cb064d-4684-430e-ade9-c576648ea0cb"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        9300,
+        0
+      ],
+      "parameters": {
+        "operation": "search",
+        "objectType": "projects",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Search projects",
+      "id": "84a39d62-a6b6-4f3b-ba34-abf54ed12901"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotAssociations",
+      "typeVersion": 1,
+      "position": [
+        9600,
+        0
+      ],
+      "parameters": {
+        "operation": "createAssociation",
+        "fromObjectType": "line_items",
+        "toObjectType": "projects",
+        "fromObjectId": "={{ $('Search line_items').item.json.id }}",
+        "toObjectId": "={{ $('Search projects').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Assoc line_items→projects",
+      "id": "e42df1ce-158d-4954-8904-9e79f5bb442e"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        9900,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "projects",
+        "objectId": "={{ $('Search projects').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete projects",
+      "id": "6ee2c82e-6f8f-4267-8c9a-3e927c3facc5"
+    },
+    {
+      "type": "n8n-nodes-hubspot-advanced.hubSpotCrm",
+      "typeVersion": 1,
+      "position": [
+        10200,
+        0
+      ],
+      "parameters": {
+        "operation": "delete",
+        "objectType": "line_items",
+        "objectId": "={{ $('Search line_items').item.json.id }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "4dT92t5ZbzCVTCqH",
+          "name": "Test HubSpot Sandbox"
+        }
+      },
+      "name": "Delete line_items",
+      "id": "0580553c-f665-4cec-94c3-5c060751186b"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Search line_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search line_items": {
+      "main": [
+        [
+          {
+            "node": "Search deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search deals": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→deals": {
+      "main": [
+        [
+          {
+            "node": "Delete deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete deals": {
+      "main": [
+        [
+          {
+            "node": "Search orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search orders": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→orders": {
+      "main": [
+        [
+          {
+            "node": "Delete orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete orders": {
+      "main": [
+        [
+          {
+            "node": "Search quotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search quotes": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→quotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→quotes": {
+      "main": [
+        [
+          {
+            "node": "Delete quotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete quotes": {
+      "main": [
+        [
+          {
+            "node": "Search discounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search discounts": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→discounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→discounts": {
+      "main": [
+        [
+          {
+            "node": "Delete discounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete discounts": {
+      "main": [
+        [
+          {
+            "node": "Search invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search invoices": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→invoices": {
+      "main": [
+        [
+          {
+            "node": "Delete invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete invoices": {
+      "main": [
+        [
+          {
+            "node": "Search payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search payments": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→payments": {
+      "main": [
+        [
+          {
+            "node": "Delete payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete payments": {
+      "main": [
+        [
+          {
+            "node": "Search payment_links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search payment_links": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→payment_links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→payment_links": {
+      "main": [
+        [
+          {
+            "node": "Delete payment_links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete payment_links": {
+      "main": [
+        [
+          {
+            "node": "Search subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→subscriptions (upcoming_subscriptions)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→subscriptions (upcoming_subscriptions)": {
+      "main": [
+        [
+          {
+            "node": "Delete subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Search carts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search carts": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→carts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→carts": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→carts (abandoned_carts)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→carts (abandoned_carts)": {
+      "main": [
+        [
+          {
+            "node": "Delete carts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete carts": {
+      "main": [
+        [
+          {
+            "node": "Search projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search projects": {
+      "main": [
+        [
+          {
+            "node": "Assoc line_items→projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assoc line_items→projects": {
+      "main": [
+        [
+          {
+            "node": "Delete projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete projects": {
+      "main": [
+        [
+          {
+            "node": "Delete line_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveManualExecutions": true
+  },
+  "tags": []
+}

@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-07-15
+
+### Fixed
+- Corrected HubSpot association type IDs across 26+ object type mapping files — contacts, companies, deals, tickets, calls, emails, meetings, notes, tasks, communications, postal mail, orders, carts, line items, quotes, invoices, payments, subscriptions, discounts, fees, taxes, appointments, courses, listings, services, feedback submissions, goals, projects, and marketing events now use the official HubSpot-defined type IDs
+
+### Added
+- Missing primary and billing associations: primary_company, primary_contact, primary_deal, primary_ticket, primary_order, primary_lead, billing_company, billing_contact, billing_quotes, signer_quotes, signer_contacts, billing_companies, child_company, parent_company, deal_splits, discount_codes, abandoned_carts, upcoming_subscriptions, payment_schedule_installments, data_sync_states, conversation_sessions, goal_target_groups, campaigns, engagements, commerce_payments, meeting_events, publishing_tasks, and threads
+
 ## [0.6.0] - 2026-06-24
 
 ### Added
