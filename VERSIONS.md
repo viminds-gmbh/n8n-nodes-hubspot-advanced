@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-11
+
+### Added
+- **HubSpot Users node** — new dedicated node for managing HubSpot Users and Owners via the CRM v3 API
+  - **User operations**: Get, Get Many, Search, Update, and Batch Update with property filtering, search filters, and field-name mapping
+  - **Owner operations**: Get and Get Many with email filtering and pagination
+  - Dynamic user property loading from HubSpot schema for dropdown selection
+  - Batch Update with field-name mapping (up to 100 users per API call)
+  - Search with full filter support (EQ, NEQ, IN, NOT_IN, BETWEEN, HAS_PROPERTY, etc.) and sorting
+  - Return All support for automatic pagination on search and Get Many operations
+
 ## [0.6.1] - 2026-07-15
 
 ### Fixed

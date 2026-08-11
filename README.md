@@ -28,6 +28,7 @@ Advanced HubSpot nodes for n8n with intelligent rate limiting, batch operations,
 - ✅ **Dynamic Property Loading** – Enhanced property selection with real-time options
 - ✅ **Association Label Support** – Filter and manage associations with custom labels using AND/OR logic
 - ✅ **Field Validation** – Comprehensive validation with helpful error messages and hints
+- ✅ **Users & Owners API** – Manage HubSpot users (properties, timezone, working hours) and retrieve owner information
 
 ## Installation
 
@@ -442,6 +443,40 @@ Search content across HubSpot-hosted sites and retrieve indexed data for specifi
   Boost Recent: 10d
   Limit: 10
   → Returns search results with relevance scoring
+```
+
+### 13. HubSpot Users
+
+Manage HubSpot users and owners via the CRM v3 API.
+
+**User Operations:**
+- Get single user
+- Get Many users (batch read)
+- Search users with filters and sorting
+- Update user properties
+- Batch Update users (bulk updates)
+
+**Owner Operations:**
+- Get single owner (by ID or userId)
+- Get Many owners (with email filtering and pagination)
+
+**Key Features:**
+- Dynamic user property loading from HubSpot schema for dropdown selection
+- Search with full filter support (EQ, NEQ, IN, NOT_IN, BETWEEN, HAS_PROPERTY, etc.)
+- Return All support for automatic pagination on search and Get Many operations
+- Batch Update with field-name mapping (up to 100 users per API call)
+- Owner retrieval with idProperty support (id or userId)
+
+**Example Workflow:**
+```
+[HubSpot Users: Search]
+  Resource: User
+  Operation: Search
+  Filters:
+    - hs_job_title CONTAINS "engineer"
+  Properties: hs_job_title,hs_standard_time_zone
+  Return All: ✓
+  → Returns all matching users
 ```
 
 ## Rate Limiting
