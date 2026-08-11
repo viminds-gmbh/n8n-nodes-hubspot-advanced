@@ -6,6 +6,5 @@ coverage/
 .env
 .env.local
 *.tsbuildinfo
-.vscode/
 .idea
 .npmrc

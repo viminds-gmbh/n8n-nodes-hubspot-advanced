@@ -58,7 +58,8 @@
       "dist/nodes/HubSpotCmsPages/HubSpotCmsPages.node.js",
       "dist/nodes/HubSpotCmsBlog/HubSpotCmsBlog.node.js",
       "dist/nodes/HubSpotSiteSearch/HubSpotSiteSearch.node.js",
-      "dist/nodes/HubSpotCmsRedirects/HubSpotCmsRedirects.node.js"
+      "dist/nodes/HubSpotCmsRedirects/HubSpotCmsRedirects.node.js",
+      "dist/nodes/HubSpotUsers/HubSpotUsers.node.js"
     ]
   },
   "devDependencies": {
